@@ -27,6 +27,8 @@ import dev.dkong.metlook.eta.common.Constants.Companion.transitionOffsetProporti
 import dev.dkong.metlook.eta.screens.RootScreen
 import dev.dkong.metlook.eta.screens.home.HomeScreen
 import dev.dkong.metlook.eta.screens.settings.LocationFeaturesScreen
+import dev.dkong.metlook.eta.screens.settings.RecentServicesSettingsScreen
+import dev.dkong.metlook.eta.screens.settings.RecentStopsSettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreens
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
@@ -101,6 +103,12 @@ fun MainScreen(navHostController: NavHostController) {
         }
         composable(SettingsScreens.LocationFeatures.route) {
             LocationFeaturesScreen(navHostController = navHostController)
+        }
+        composable(SettingsScreens.RecentStops.route) {
+            RecentStopsSettingsScreen(navHostController = navHostController)
+        }
+        composable(SettingsScreens.RecentServices.route) {
+            RecentServicesSettingsScreen(navHostController = navHostController)
         }
     }
 }
