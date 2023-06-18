@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.screens.home
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
@@ -21,16 +22,24 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import dev.dkong.metlook.eta.R
 
 @Composable
 fun HomeScreen(navHostController: NavHostController) {
+    /**
+     * Carrier record for Nav Drawer items other than the Nav Bar items
+     */
+    data class NavDrawerItem(val name: String, val route: String, @DrawableRes val icon: Int)
+
     val scope = rememberCoroutineScope()
 
     var selectedNavBarItem by remember { mutableStateOf(HomeScreenItem.Dashboard) }
@@ -46,7 +55,10 @@ fun HomeScreen(navHostController: NavHostController) {
 
                     NavigationDrawerItem(
                         label = {
-                            Text(text = homeScreen.displayName)
+                            Text(
+                                text = homeScreen.displayName,
+                                style = MaterialTheme.typography.labelLarge
+                            )
                         },
                         selected = isSelected,
                         onClick = {
@@ -64,6 +76,31 @@ fun HomeScreen(navHostController: NavHostController) {
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
+                // Other Nav Drawer items
+                val navDrawerItems = listOf(
+                    NavDrawerItem("Settings", "settings", R.drawable.fancy_outlined_settings)
+                )
+                navDrawerItems.forEach { item ->
+                    NavigationDrawerItem(
+                        label = {
+                            Text(text = item.name, style = MaterialTheme.typography.labelLarge)
+                        },
+                        selected = false,
+                        onClick = {
+                            navHostController.navigate(item.route)
+                            scope.launch {
+                                drawerState.close()
+                            }
+                        },
+                        icon = {
+                            Image(
+                                painter = painterResource(id = item.icon),
+                                contentDescription = item.name
+                            )
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
             }
 
         }
@@ -72,6 +109,11 @@ fun HomeScreen(navHostController: NavHostController) {
             navController = navHostController,
             title = selectedNavBarItem.displayName,
             navigationIcon = Icons.Default.Menu,
+            onNavigationIconClick = {
+                scope.launch {
+                    drawerState.open()
+                }
+            },
             navigationBar = {
                 NavigationBar {
                     HomeScreenItem.values().forEach { screen ->

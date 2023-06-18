@@ -154,7 +154,7 @@ fun MaterialColumn(modifier: Modifier = Modifier, content: @Composable (ColumnSc
 @Composable
 fun VerticalDivider(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     thickness: Dp = 1.dp
 ) {
     Box(
