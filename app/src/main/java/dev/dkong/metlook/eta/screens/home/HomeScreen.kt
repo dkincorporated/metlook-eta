@@ -2,8 +2,15 @@ package dev.dkong.metlook.eta.screens.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,7 +38,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffoldBox
+import dev.dkong.metlook.eta.screens.RootScreen
 
 @Composable
 fun HomeScreen(navHostController: NavHostController) {
@@ -105,7 +118,9 @@ fun HomeScreen(navHostController: NavHostController) {
 
         }
     ) {
-        LargeTopAppbarScaffold(
+        val homeNavHostController = rememberNavController()
+
+        LargeTopAppbarScaffoldBox(
             navController = navHostController,
             title = selectedNavBarItem.displayName,
             navigationIcon = Icons.Default.Menu,
@@ -122,8 +137,10 @@ fun HomeScreen(navHostController: NavHostController) {
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
+                                if (selectedNavBarItem.route != screen.route) {
+                                    homeNavHostController.navigate(screen.route)
+                                }
                                 selectedNavBarItem = screen
-
                             },
                             icon = {
                                 Image(
@@ -141,11 +158,44 @@ fun HomeScreen(navHostController: NavHostController) {
                 }
             }
         ) {
-            item {
-                Text(
-                    text = "Welcome to metlook!",
-                    style = MaterialTheme.typography.headlineLarge
-                )
+            NavHost(
+                navController = homeNavHostController,
+                startDestination = HomeScreenItem.Dashboard.route,
+                modifier = Modifier.fillMaxSize(),
+                enterTransition = {
+                    slideInVertically(
+                        initialOffsetY = { it / Constants.transitionOffsetProportion },
+                        animationSpec = Constants.transitionAnimationSpec
+                    ) + fadeIn()
+                },
+                exitTransition = {
+                    fadeOut() + slideOutVertically(
+                        targetOffsetY = { -it / Constants.transitionOffsetProportion },
+                        animationSpec = Constants.transitionAnimationSpec
+                    )
+                },
+                popEnterTransition = {
+                    slideInVertically(
+                        initialOffsetY = { -it / Constants.transitionOffsetProportion },
+                        animationSpec = Constants.transitionAnimationSpec
+                    ) + fadeIn()
+                },
+                popExitTransition = {
+                    fadeOut() + slideOutVertically(
+                        targetOffsetY = { it / Constants.transitionOffsetProportion },
+                        animationSpec = Constants.transitionAnimationSpec
+                    )
+                }
+            ) {
+                composable(HomeScreenItem.Dashboard.route) {
+                    DashboardHomeScreen(navHostController = navHostController)
+                }
+                composable(HomeScreenItem.Navigation.route) {
+                    NavigationHomeScreen(navHostController = navHostController)
+                }
+                composable(HomeScreenItem.Updates.route) {
+                    UpdatesHomeScreen(navHostController = navHostController)
+                }
             }
         }
     }

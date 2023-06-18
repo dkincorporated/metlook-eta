@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -110,6 +111,61 @@ fun LargeTopAppbarScaffold(
                 Box(modifier = Modifier.navigationBarsPadding())
             }
         }
+    }
+}
+
+/**
+ * Base template for screens using a scaffold
+ * @param navController the nav controller for the app
+ * @param title the title to be displayed at the top
+ * @param horizontalPadding the horizontal padding for the content
+ * @param navigationIcon the icon to be displayed in the navigation button
+ * @param onNavigationIconClick the click action for the navigation icon
+ * @param content the content to be displayed (in box form)
+ */
+@Composable
+fun LargeTopAppbarScaffoldBox(
+    navController: NavHostController,
+    title: String,
+    horizontalPadding: Dp = 0.dp,
+    navigationIcon: ImageVector = Icons.Default.ArrowBack,
+    onNavigationIconClick: () -> Unit = { navController.navigateUp() },
+    navigationBar: @Composable () -> Unit = {},
+    content: @Composable BoxScope.() -> Unit
+) {
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = Constants.appSurfaceColour(),
+        contentWindowInsets = WindowInsets(bottom = 0.dp),
+        topBar = {
+            LargeTopAppBar(
+                title = { Text(title) },
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = Constants.appSurfaceColour(),
+                    scrolledContainerColor = Constants.scrolledAppbarContainerColour()
+                ),
+                navigationIcon = {
+                    ElevatedAppBarNavigationIcon(
+                        onClick = onNavigationIconClick,
+                        icon = navigationIcon
+                    )
+                }
+            )
+        },
+        bottomBar = navigationBar
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = horizontalPadding)
+                .navigationBarsPadding()
+                .fillMaxWidth(),
+            content = content
+        )
     }
 }
 

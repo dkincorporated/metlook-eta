@@ -22,9 +22,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.Constants.Companion.transitionAnimationSpec
+import dev.dkong.metlook.eta.common.Constants.Companion.transitionOffsetProportion
 import dev.dkong.metlook.eta.screens.RootScreen
 import dev.dkong.metlook.eta.screens.home.HomeScreen
+import dev.dkong.metlook.eta.screens.settings.LocationFeaturesScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreen
+import dev.dkong.metlook.eta.screens.settings.SettingsScreens
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 
 /**
@@ -58,9 +62,6 @@ class MainActivity : ComponentActivity() {
  */
 @Composable
 fun MainScreen(navHostController: NavHostController) {
-    // Transition between screens
-    val offsetProportion = 10
-    val animationSpec: FiniteAnimationSpec<IntOffset> = tween(300)
 
     NavHost(
         navController = navHostController,
@@ -68,34 +69,38 @@ fun MainScreen(navHostController: NavHostController) {
         modifier = Modifier.fillMaxSize(),
         enterTransition = {
             slideInHorizontally(
-                initialOffsetX = { it / offsetProportion },
-                animationSpec = animationSpec
+                initialOffsetX = { it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
             ) + fadeIn()
         },
         exitTransition = {
             fadeOut() + slideOutHorizontally(
-                targetOffsetX = { -it / offsetProportion },
-                animationSpec = animationSpec
+                targetOffsetX = { -it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
             )
         },
         popEnterTransition = {
             slideInHorizontally(
-                initialOffsetX = { -it / offsetProportion },
-                animationSpec = animationSpec
+                initialOffsetX = { -it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
             ) + fadeIn()
         },
         popExitTransition = {
             fadeOut() + slideOutHorizontally(
-                targetOffsetX = { it / offsetProportion },
-                animationSpec = animationSpec
+                targetOffsetX = { it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
             )
         }
     ) {
         composable(RootScreen.Home.route) {
             HomeScreen(navHostController = navHostController)
         }
+        // Settings
         composable(RootScreen.Settings.route) {
             SettingsScreen(navHostController = navHostController)
+        }
+        composable(SettingsScreens.LocationFeatures.route) {
+            LocationFeaturesScreen(navHostController = navHostController)
         }
     }
 }

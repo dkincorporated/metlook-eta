@@ -40,7 +40,7 @@ fun SettingsScreen(navHostController: NavHostController) {
                 val isRecentStopsChecked = remember { mutableStateOf(true) }
                 SwitchSettingsItem(
                     name = "Recent stops and stations",
-                    onClick = {},
+//                    onClick = {},
                     description = "Save 5 recent stops and stations",
                     selected = isRecentStopsChecked
                 )
@@ -48,7 +48,7 @@ fun SettingsScreen(navHostController: NavHostController) {
                 val isRecentServicesChecked = remember { mutableStateOf(true) }
                 SwitchSettingsItem(
                     name = "Recent services",
-                    onClick = {},
+//                    onClick = {},
                     description = "Save 5 recent services",
                     selected = isRecentServicesChecked
                 )

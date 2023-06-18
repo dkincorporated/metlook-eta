@@ -1,8 +1,11 @@
 package dev.dkong.metlook.eta.common
 
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 /**
@@ -11,6 +14,10 @@ import androidx.compose.ui.unit.dp
  */
 class Constants {
     companion object {
+        // Transition between screens
+        val transitionOffsetProportion = 10
+        val transitionAnimationSpec: FiniteAnimationSpec<IntOffset> = tween(300)
+
         /**
          * Get the base surface colour for background-type surfaces
          * @return background surface colour
