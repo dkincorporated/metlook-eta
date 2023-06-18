@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -83,7 +84,8 @@ fun HomeScreen(navHostController: NavHostController) {
                         icon = {
                             Image(
                                 painter = painterResource(id = if (isSelected) homeScreen.selectedIcon else homeScreen.icon),
-                                contentDescription = homeScreen.displayName
+                                contentDescription = homeScreen.displayName,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -108,7 +110,8 @@ fun HomeScreen(navHostController: NavHostController) {
                         icon = {
                             Image(
                                 painter = painterResource(id = item.icon),
-                                contentDescription = item.name
+                                contentDescription = item.name,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -138,14 +141,20 @@ fun HomeScreen(navHostController: NavHostController) {
                             selected = isSelected,
                             onClick = {
                                 if (selectedNavBarItem.route != screen.route) {
-                                    homeNavHostController.navigate(screen.route)
+                                    homeNavHostController.navigate(screen.route) {
+                                        // Do not add to backstack -- in other words, remove all backstack when navigating to the new route
+                                        popUpTo(0)
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
                                 selectedNavBarItem = screen
                             },
                             icon = {
                                 Image(
                                     painter = painterResource(id = if (isSelected) screen.selectedIcon else screen.icon),
-                                    contentDescription = screen.displayName
+                                    contentDescription = screen.displayName,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                                 )
                             },
                             label = {

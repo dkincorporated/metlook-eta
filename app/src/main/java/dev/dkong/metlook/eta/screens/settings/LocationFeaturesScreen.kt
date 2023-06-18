@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -22,6 +23,7 @@ import dev.dkong.metlook.eta.composables.SettingsInfoText
 
 @Composable
 fun LocationFeaturesScreen(navHostController: NavHostController) {
+    val isLocationFeaturesEnabled = remember { mutableStateOf(false) }
     LargeTopAppbarScaffold(navController = navHostController, title = "Location-based features") {
         item {
             Box(
@@ -30,15 +32,28 @@ fun LocationFeaturesScreen(navHostController: NavHostController) {
                     .clip(RoundedCornerShape(32.dp))
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                Image(
-                    painterResource(id = R.drawable.custom_settings_location),
-                    contentDescription = null,
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box {
+                    Image(
+                        painterResource(id = R.drawable.custom_settings_location_background),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(if (isLocationFeaturesEnabled.value) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Image(
+                        painterResource(id = R.drawable.custom_settings_location_foreground_pin),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(if (isLocationFeaturesEnabled.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.secondary),
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Image(
+                        painterResource(id = R.drawable.custom_settings_location_foreground_transport),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
         item {
-            val isLocationFeaturesEnabled = remember { mutableStateOf(false) }
             HeadlineToggleableSettingsItem(
                 name = "Use location-based features",
                 checked = isLocationFeaturesEnabled
