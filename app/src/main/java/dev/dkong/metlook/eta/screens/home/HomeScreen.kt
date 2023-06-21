@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -45,6 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffoldBox
+import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.screens.RootScreen
 
 @Composable
@@ -63,7 +65,15 @@ fun HomeScreen(navHostController: NavHostController) {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.statusBarsPadding())
+                Text(
+                    text = "metlook",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                        .padding(vertical = 16.dp)
+                )
+                SectionHeading(heading = "Dashboard")
                 HomeScreenItem.values().forEach { homeScreen ->
                     val isSelected = selectedNavBarItem == homeScreen
 
@@ -92,6 +102,7 @@ fun HomeScreen(navHostController: NavHostController) {
                     )
                 }
                 // Other Nav Drawer items
+                SectionHeading(heading = "More")
                 val navDrawerItems = listOf(
                     NavDrawerItem("Settings", "settings", R.drawable.fancy_outlined_settings)
                 )
