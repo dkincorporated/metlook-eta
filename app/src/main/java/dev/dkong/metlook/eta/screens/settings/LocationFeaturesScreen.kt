@@ -30,19 +30,19 @@ fun LocationFeaturesScreen(navHostController: NavHostController) {
                 modifier = Modifier
                     .padding(16.dp)
                     .clip(RoundedCornerShape(32.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
             ) {
                 Box {
                     Image(
                         painterResource(id = R.drawable.custom_settings_location_background),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (isLocationFeaturesEnabled.value) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceVariant),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.secondary),
                         modifier = Modifier.padding(16.dp)
                     )
                     Image(
                         painterResource(id = R.drawable.custom_settings_location_foreground_pin),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (isLocationFeaturesEnabled.value) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.secondary),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.secondary),
                         modifier = Modifier.padding(16.dp)
                     )
                     Image(

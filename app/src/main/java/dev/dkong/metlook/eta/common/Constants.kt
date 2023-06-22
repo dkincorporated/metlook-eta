@@ -23,7 +23,7 @@ class Constants {
          * @return background surface colour
          */
         @Composable
-        fun appSurfaceColour() = MaterialTheme.colorScheme.inverseOnSurface
+        fun appSurfaceColour() = MaterialTheme.colorScheme.surfaceContainer
 
         /**
          * Get the container colour for Material List Card
@@ -31,7 +31,7 @@ class Constants {
          */
         @Composable
         fun materialListCardContainerColour() =
-            MaterialTheme.colorScheme.surfaceColorAtElevation(0.5.dp)
+            MaterialTheme.colorScheme.surfaceContainerLow
 
         /**
          * Get the container colour of the top app bar when scrolled
@@ -39,6 +39,6 @@ class Constants {
          */
         @Composable
         fun scrolledAppbarContainerColour() =
-            MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+            MaterialTheme.colorScheme.surfaceContainerHighest
     }
 }

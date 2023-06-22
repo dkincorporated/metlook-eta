@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "dev.dkong.metlook.eta"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "dev.dkong.metlook.eta"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -66,6 +66,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("androidx.compose.material3:material3:1.2.0-alpha02")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha03")
     implementation("androidx.navigation:navigation-compose:2.7.0-beta01")
 }
