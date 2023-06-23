@@ -69,6 +69,7 @@ fun HomeScreen(navHostController: NavHostController) {
                 Text(
                     text = "metlook",
                     style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .padding(NavigationDrawerItemDefaults.ItemPadding)
                         .padding(vertical = 16.dp)

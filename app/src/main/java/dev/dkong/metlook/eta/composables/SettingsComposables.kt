@@ -138,7 +138,7 @@ internal fun SettingsItemBase(
         modifier = rowModifier
     ) {
         startContent?.let {
-            Box(content = startContent, modifier = Modifier.padding(end = horizontalPadding))
+            Box(content = it, modifier = Modifier.padding(end = horizontalPadding))
         }
         Column(
             modifier = Modifier
@@ -153,7 +153,7 @@ internal fun SettingsItemBase(
             )
             description?.let {
                 Text(
-                    text = description,
+                    text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -166,7 +166,7 @@ internal fun SettingsItemBase(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (showDivider == true) VerticalDivider()
-                Box(content = endContent)
+                Box(content = it)
             }
         }
     }

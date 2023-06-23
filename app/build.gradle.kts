@@ -68,4 +68,5 @@ dependencies {
 
     implementation("androidx.compose.material3:material3:1.2.0-alpha03")
     implementation("androidx.navigation:navigation-compose:2.7.0-beta01")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 }
