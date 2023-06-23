@@ -1,63 +1,55 @@
 package dev.dkong.metlook.eta.screens.settings
 
-import androidx.annotation.DrawableRes
-import androidx.compose.material3.Switch
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.common.tracker.TrackerManager
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import dev.dkong.metlook.eta.composables.MaterialColumn
-import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.SettingsItem
-import dev.dkong.metlook.eta.composables.SwitchSettingsItem
 
+/**
+ * Main settings screen for the app
+ * @param navHostController the nav controller for the app
+ */
 @Composable
 fun SettingsScreen(navHostController: NavHostController) {
     LargeTopAppbarScaffold(navController = navHostController, title = "Settings") {
         item {
-            SectionHeading(heading = "Privacy")
-        }
-        item {
-            MaterialColumn {
-                val isLocationChecked = remember { mutableStateOf(true) }
-                SwitchSettingsItem(
+            MaterialColumn(
+                modifier = Modifier.padding(vertical = 16.dp)
+            ) {
+                SettingsItem(
                     name = "Location-based features",
                     description = "Decide whether/how your location is used",
                     onClick = {
-                        navHostController.navigate("settings/location")
+                        navHostController.navigate(SettingsScreens.LocationFeatures.route)
                     },
-                    selected = isLocationChecked
+                    iconHasCircle = true,
+                    icon = R.drawable.outline_location_on_24
+                )
+                SettingsItem(
+                    name = "Dashboard recents",
+                    description = "Save recent stops, stations and services",
+                    onClick = {
+                        navHostController.navigate(SettingsScreens.Recents.route)
+                    },
+                    iconHasCircle = true,
+                    icon = R.drawable.baseline_history_24
+                )
+                SettingsItem(
+                    name = TrackerManager.integrationSettingsName,
+                    description = TrackerManager.integrationSettingsDescription,
+                    onClick = {
+                        navHostController.navigate(SettingsScreens.TrackerIntegration.route)
+                    },
+                    iconHasCircle = true,
+                    icon = R.drawable.outline_dataset_linked_24
                 )
             }
         }
-        item {
-            SectionHeading(heading = "Dashboard")
-        }
-        item {
-            MaterialColumn {
-                val isRecentStopsChecked = remember { mutableStateOf(true) }
-                SwitchSettingsItem(
-                    name = "Recent stops and stations",
-                    onClick = {
-                        navHostController.navigate(SettingsScreens.RecentStops.route)
-                    },
-                    description = "Save 5 recent stops and stations",
-                    selected = isRecentStopsChecked
-                )
-
-                val isRecentServicesChecked = remember { mutableStateOf(true) }
-                SwitchSettingsItem(
-                    name = "Recent services",
-                    onClick = {
-                        navHostController.navigate(SettingsScreens.RecentServices.route)
-                    },
-                    description = "Save 5 recent services",
-                    selected = isRecentServicesChecked
-                )
-            }
-        }
-
     }
 }

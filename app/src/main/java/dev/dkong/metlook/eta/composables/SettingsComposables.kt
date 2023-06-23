@@ -73,7 +73,7 @@ fun SettingsInfoFootnote(info: String) {
 fun HeadlineToggleableSettingsItem(
     name: String,
     checked: MutableState<Boolean>,
-    onCheckedChange: (() -> Unit)? = null
+    onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -81,10 +81,8 @@ fun HeadlineToggleableSettingsItem(
             .padding(16.dp)
             .clip(RoundedCornerShape(32.dp))
             .clickable {
-                checked.value = !checked.value
-                onCheckedChange?.let {
-                    onCheckedChange()
-                }
+//                checked.value = !checked.value
+                onCheckedChange(!checked.value)
             }
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(16.dp),
@@ -100,10 +98,8 @@ fun HeadlineToggleableSettingsItem(
         Switch(
             checked = checked.value,
             onCheckedChange = { newChecked ->
-                checked.value = newChecked
-                onCheckedChange?.let {
-                    onCheckedChange()
-                }
+//                checked.value = newChecked
+                onCheckedChange(newChecked)
             }
         )
     }

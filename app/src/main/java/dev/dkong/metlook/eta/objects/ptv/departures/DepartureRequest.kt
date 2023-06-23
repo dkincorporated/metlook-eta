@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
  * Object of the Departures request from PTV API
  * @author David Kong
  */
-@Serializable
-data class DepartureRequest()
+//@Serializable
+//data class DepartureRequest()

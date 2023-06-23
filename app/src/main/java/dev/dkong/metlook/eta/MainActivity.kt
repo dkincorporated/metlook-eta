@@ -3,20 +3,14 @@ package dev.dkong.metlook.eta
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,10 +21,10 @@ import dev.dkong.metlook.eta.common.Constants.Companion.transitionOffsetProporti
 import dev.dkong.metlook.eta.screens.RootScreen
 import dev.dkong.metlook.eta.screens.home.HomeScreen
 import dev.dkong.metlook.eta.screens.settings.LocationFeaturesScreen
-import dev.dkong.metlook.eta.screens.settings.RecentServicesSettingsScreen
-import dev.dkong.metlook.eta.screens.settings.RecentStopsSettingsScreen
+import dev.dkong.metlook.eta.screens.settings.RecentsSettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreens
+import dev.dkong.metlook.eta.common.tracker.TrackerIntegrationSettingsScreen
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 
 /**
@@ -104,11 +98,11 @@ fun MainScreen(navHostController: NavHostController) {
         composable(SettingsScreens.LocationFeatures.route) {
             LocationFeaturesScreen(navHostController = navHostController)
         }
-        composable(SettingsScreens.RecentStops.route) {
-            RecentStopsSettingsScreen(navHostController = navHostController)
+        composable(SettingsScreens.Recents.route) {
+            RecentsSettingsScreen(navHostController = navHostController)
         }
-        composable(SettingsScreens.RecentServices.route) {
-            RecentServicesSettingsScreen(navHostController = navHostController)
+        composable(SettingsScreens.TrackerIntegration.route) {
+            TrackerIntegrationSettingsScreen(navHostController = navHostController)
         }
     }
 }

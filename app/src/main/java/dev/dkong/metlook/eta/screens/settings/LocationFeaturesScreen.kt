@@ -21,6 +21,10 @@ import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import dev.dkong.metlook.eta.composables.SettingsInfoFootnote
 import dev.dkong.metlook.eta.composables.SettingsInfoText
 
+/**
+ * Settings screen for location-based features
+ * @param navHostController the nav controller for the app
+ */
 @Composable
 fun LocationFeaturesScreen(navHostController: NavHostController) {
     val isLocationFeaturesEnabled = remember { mutableStateOf(false) }
@@ -56,7 +60,10 @@ fun LocationFeaturesScreen(navHostController: NavHostController) {
         item {
             HeadlineToggleableSettingsItem(
                 name = "Use location-based features",
-                checked = isLocationFeaturesEnabled
+                checked = isLocationFeaturesEnabled,
+                onCheckedChange = {
+                    isLocationFeaturesEnabled.value = it
+                }
             )
         }
         item {

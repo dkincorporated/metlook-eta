@@ -4,21 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 
+/**
+ * Unified settings screen for recent stops and stations, and recent services
+ * @param navHostController the nav controller for the app
+ */
 @Composable
-fun RecentStopsSettingsScreen(navHostController: NavHostController) {
+fun RecentsSettingsScreen(navHostController: NavHostController) {
     LargeTopAppbarScaffold(
         navController = navHostController,
-        title = "Recent stops and stations"
-    ) {
-
-    }
-}
-
-@Composable
-fun RecentServicesSettingsScreen(navHostController: NavHostController) {
-    LargeTopAppbarScaffold(
-        navController = navHostController,
-        title = "Recent services"
+        title = "Dashboard recents"
     ) {
 
     }
