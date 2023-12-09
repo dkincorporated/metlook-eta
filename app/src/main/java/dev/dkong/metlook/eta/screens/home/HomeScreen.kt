@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.navigation.compose.NavHost
@@ -58,7 +59,7 @@ fun HomeScreen(navHostController: NavHostController) {
 
     val scope = rememberCoroutineScope()
 
-    var selectedNavBarItem by remember { mutableStateOf(HomeScreenItem.Dashboard) }
+    var selectedNavBarItem by rememberSaveable { mutableStateOf(HomeScreenItem.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     ModalNavigationDrawer(
@@ -96,7 +97,7 @@ fun HomeScreen(navHostController: NavHostController) {
                             Image(
                                 painter = painterResource(id = if (isSelected) homeScreen.selectedIcon else homeScreen.icon),
                                 contentDescription = homeScreen.displayName,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -123,7 +124,7 @@ fun HomeScreen(navHostController: NavHostController) {
                             Image(
                                 painter = painterResource(id = item.icon),
                                 contentDescription = item.name,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)

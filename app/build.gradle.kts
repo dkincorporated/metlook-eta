@@ -66,7 +66,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("androidx.compose.material3:material3:1.2.0-alpha03")
-    implementation("androidx.navigation:navigation-compose:2.7.0-beta01")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha04")
+    implementation("androidx.navigation:navigation-compose:2.7.0-rc01")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("com.beust:klaxon:5.5")
 }
