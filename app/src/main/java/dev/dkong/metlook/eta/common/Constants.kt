@@ -54,5 +54,9 @@ class Constants {
          * Client for ktor
          */
         val httpClient = HttpClient(Android)
+
+        // Corner radii
+        val largeListCornerRadius = 16.dp
+        val smallListCornerRadius = 4.dp
     }
 }
