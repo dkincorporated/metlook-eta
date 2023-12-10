@@ -2,6 +2,7 @@ package dev.dkong.metlook.eta.composables
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -86,7 +87,7 @@ fun HeadlineToggleableSettingsItem(
             .clip(RoundedCornerShape(32.dp))
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = LocalIndication.current,
                 onClick = {
                     onCheckedChange(!checked.value)
                 }
