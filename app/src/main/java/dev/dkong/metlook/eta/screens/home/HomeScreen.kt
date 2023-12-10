@@ -67,6 +67,20 @@ fun HomeScreen(navHostController: NavHostController) {
     var selectedNavBarItem by rememberSaveable { mutableStateOf(HomeScreenItem.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    val homeNavHostController = rememberNavController()
+
+    fun onNavigationSelected(screen: HomeScreenItem) {
+        if (selectedNavBarItem.route != screen.route) {
+            homeNavHostController.navigate(screen.route) {
+                // Do not add to backstack -- in other words, remove all backstack when navigating to the new route
+                popUpTo(0)
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+        selectedNavBarItem = screen
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -88,12 +102,13 @@ fun HomeScreen(navHostController: NavHostController) {
                         label = {
                             Text(
                                 text = homeScreen.displayName,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         selected = isSelected,
                         onClick = {
-                            selectedNavBarItem = homeScreen
+                            onNavigationSelected(homeScreen)
                             scope.launch {
                                 drawerState.close()
                             }
@@ -102,7 +117,7 @@ fun HomeScreen(navHostController: NavHostController) {
                             Image(
                                 painter = painterResource(id = if (isSelected) homeScreen.selectedIcon else homeScreen.icon),
                                 contentDescription = homeScreen.displayName,
-                                colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+                                colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -141,8 +156,6 @@ fun HomeScreen(navHostController: NavHostController) {
 
         }
     ) {
-        val homeNavHostController = rememberNavController()
-
         LargeTopAppbarScaffoldBox(
             navController = navHostController,
             title = selectedNavBarItem.displayName,
@@ -160,21 +173,13 @@ fun HomeScreen(navHostController: NavHostController) {
                         NavigationBarItem(
                             selected = isSelected,
                             onClick = {
-                                if (selectedNavBarItem.route != screen.route) {
-                                    homeNavHostController.navigate(screen.route) {
-                                        // Do not add to backstack -- in other words, remove all backstack when navigating to the new route
-                                        popUpTo(0)
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                                selectedNavBarItem = screen
+                                onNavigationSelected(screen)
                             },
                             icon = {
                                 Image(
                                     painter = painterResource(id = if (isSelected) screen.selectedIcon else screen.icon),
                                     contentDescription = screen.displayName,
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                    colorFilter = ColorFilter.tint(if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
                                 )
                             },
                             label = {
