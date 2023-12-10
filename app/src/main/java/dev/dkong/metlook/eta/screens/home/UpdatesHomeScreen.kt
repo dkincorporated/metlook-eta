@@ -46,6 +46,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -243,8 +247,21 @@ fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: C
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.titleMedium
                 )
+                if (disruption.description != disruption.title) {
+                    // Sometimes, they are the same, which would be redundant to show twice
+                    Text(
+                        text = disruption.description,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 Text(
-                    text = disruption.description,
+                    text = buildAnnotatedString {
+                        append("Status: ")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(disruption.disruptionStatus)
+                        }
+                    },
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
