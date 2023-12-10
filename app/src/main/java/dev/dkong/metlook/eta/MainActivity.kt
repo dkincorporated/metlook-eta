@@ -36,6 +36,28 @@ class MainActivity : ComponentActivity() {
      * Initialise the activity
      * @param savedInstanceState the [Bundle] of saved instance
      */
+    override fun onCreate(savedInstanceState: Bundle?) { 
+        super.onCreate(savedInstanceState)
+        setContent {
+            MetlookTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Constants.appSurfaceColour() // wait until new Surface
+                ) {
+                    val navController = rememberNavController()
+                    MainScreenHost(navController)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Activity for Settings
+ * @author David Kong
+ */
+class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -46,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     color = Constants.appSurfaceColour() // wait until new Surface
                 ) {
                     val navController = rememberNavController()
-                    MainScreen(navController)
+                    SettingsScreenHost(navController)
                 }
             }
         }
@@ -57,7 +79,7 @@ class MainActivity : ComponentActivity() {
  * Root screen for all screens in the Compose activity
  */
 @Composable
-fun MainScreen(navHostController: NavHostController) {
+fun MainScreenHost(navHostController: NavHostController) {
 
     NavHost(
         navController = navHostController,
@@ -91,6 +113,43 @@ fun MainScreen(navHostController: NavHostController) {
         composable(RootScreen.Home.route) {
             HomeScreen(navHostController = navHostController)
         }
+    }
+}
+
+/**
+ * Root screen for all Settings screens
+ */
+@Composable
+fun SettingsScreenHost(navHostController: NavHostController) {
+    NavHost(
+        navController = navHostController,
+        startDestination = RootScreen.Settings.route,
+        modifier = Modifier.fillMaxSize(),
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
+            ) + fadeIn()
+        },
+        exitTransition = {
+            fadeOut() + slideOutHorizontally(
+                targetOffsetX = { -it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
+            )
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { -it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
+            ) + fadeIn()
+        },
+        popExitTransition = {
+            fadeOut() + slideOutHorizontally(
+                targetOffsetX = { it / transitionOffsetProportion },
+                animationSpec = transitionAnimationSpec
+            )
+        }
+    ) {
         // Settings
         composable(RootScreen.Settings.route) {
             SettingsScreen(navHostController = navHostController)

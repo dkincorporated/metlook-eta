@@ -4,8 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Object for the Stop from PTV API
- * @author David Kong
+ * Stop object from PTV API
  */
 @Serializable
 data class Stop(

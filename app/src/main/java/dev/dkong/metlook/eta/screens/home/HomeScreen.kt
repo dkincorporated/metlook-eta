@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.screens.home
 
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -41,10 +42,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.SettingsActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffoldBox
 import dev.dkong.metlook.eta.composables.SectionHeading
@@ -58,6 +61,7 @@ fun HomeScreen(navHostController: NavHostController) {
     data class NavDrawerItem(val name: String, val route: String, @DrawableRes val icon: Int)
 
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var selectedNavBarItem by rememberSaveable { mutableStateOf(HomeScreenItem.Dashboard) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -115,7 +119,9 @@ fun HomeScreen(navHostController: NavHostController) {
                         },
                         selected = false,
                         onClick = {
-                            navHostController.navigate(item.route)
+                            context.startActivity(Intent(context, SettingsActivity::class.java))
+
+//                            navHostController.navigate(item.route)
                             scope.launch {
                                 drawerState.close()
                             }

@@ -22,3 +22,13 @@ data class Route(
     @SerialName("route_service_status")
     val routeServiceStatus: RouteServiceStatus
 )
+
+/**
+ * Service Status object for Route object
+ * @see Route
+ */
+@Serializable
+data class RouteServiceStatus(
+    val description: String,
+    val timestamp: String
+)
