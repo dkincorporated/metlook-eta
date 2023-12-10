@@ -1,14 +1,21 @@
 package dev.dkong.metlook.eta.common
 
+import androidx.annotation.DrawableRes
+import dev.dkong.metlook.eta.R
+
 /**
  * Modes of transport
  * @author David Kong
  */
-enum class RouteType(routeId: Int, name: String) {
-    Train(0, "Train"),
-    Tram(1, "Tram"),
-    Bus(2, "Bus"),
-    Other(99, "Other");
+enum class RouteType(
+    private val routeId: Int,
+    val displayName: String,
+    @DrawableRes val icon: Int
+) {
+    Train(0, "Train", R.drawable.outline_train_24),
+    Tram(1, "Tram", R.drawable.outline_tram_24),
+    Bus(2, "Bus", R.drawable.outline_directions_bus_24),
+    Other(99, "Other", R.drawable.outline_navigation_24);
 
     companion object {
         /**

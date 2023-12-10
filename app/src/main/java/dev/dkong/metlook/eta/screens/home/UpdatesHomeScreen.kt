@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,27 +16,36 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -147,9 +158,11 @@ suspend fun getDisruptions(): Disruptions? {
  * Individual disruption card
  * @param disruption the Disruption to display
  */
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: Context) {
+    var showDetail by remember { mutableStateOf(false) }
+
     ListItem(
         headlineContent = {
             Text(
@@ -176,19 +189,88 @@ fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: C
             .clickable {
                 // Open the Disruption page
 
-                // If the URL isn't helpful, don't open it
-                if (disruption.url == "http://ptv.vic.gov.au/live-travel-updates/") return@clickable
+                showDetail = true
 
-                // Build the Custom Tab
-                val customTabsIntent = CustomTabsIntent
-                    .Builder()
-                    .setUrlBarHidingEnabled(true)
-                    .build()
-
-                // Launch the built Intent
-                customTabsIntent.launchUrl(context, Uri.parse(disruption.url))
+//                // If the URL isn't helpful, don't open it
+//                if (disruption.url == "http://ptv.vic.gov.au/live-travel-updates/") return@clickable
+//
+//                // Build the Custom Tab
+//                val customTabsIntent = CustomTabsIntent
+//                    .Builder()
+//                    .setUrlBarHidingEnabled(true)
+//                    .build()
+//
+//                // Launch the built Intent
+//                customTabsIntent.launchUrl(context, Uri.parse(disruption.url))
             }
     )
+
+    // Modal bottom sheet
+    if (showDetail) {
+        ModalBottomSheet(onDismissRequest = { showDetail = false }) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = disruption.disruptionType,
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    disruption.routes.forEach { route ->
+                        AssistChip(
+                            onClick = {},
+                            label = {
+                                Text(
+                                    if (route.routeType == RouteType.Train) route.routeName
+                                    else route.routeNumber
+                                )
+                            },
+                            leadingIcon = {
+                                Image(
+                                    painterResource(id = route.routeType.icon),
+                                    route.routeType.displayName,
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                                )
+                            }
+                        )
+                    }
+                }
+                Text(
+                    text = disruption.title,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = disruption.description,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (disruption.url != "http://ptv.vic.gov.au/live-travel-updates/") {
+                    Button(
+                        onClick = {
+                            // Build the Custom Tab
+                            val customTabsIntent = CustomTabsIntent
+                                .Builder()
+                                .setUrlBarHidingEnabled(true)
+                                .build()
+
+                            // Launch the built Intent
+                            customTabsIntent.launchUrl(context, Uri.parse(disruption.url))
+
+                            // Dismiss the bottom sheet
+                            showDetail = false
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("More info")
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
