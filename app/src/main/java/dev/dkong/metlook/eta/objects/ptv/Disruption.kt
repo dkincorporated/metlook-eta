@@ -1,7 +1,41 @@
 package dev.dkong.metlook.eta.objects.ptv
 
+import dev.dkong.metlook.eta.common.RouteType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+/**
+ * Resultant object from PTV API Disruptions
+ */
+@Serializable
+data class DisruptionsResult(
+    val disruptions: Disruptions
+)
+
+/**
+ * Master object for Disruptions
+ */
+@Serializable
+data class Disruptions(
+    @SerialName("metro_train")
+    val metroTrain: List<Disruption>,
+    @SerialName("metro_tram")
+    val metroTram: List<Disruption>,
+    @SerialName("metro_bus")
+    val metroBus: List<Disruption>
+) {
+    /**
+     * Get the disruptions for the route type
+     * @param routeType the Route Type for which to filter
+     */
+    fun filterDisruptions(routeType: RouteType): List<Disruption> {
+        return when (routeType) {
+            RouteType.Train -> metroTrain
+            RouteType.Tram -> metroTram
+            RouteType.Bus -> metroBus
+        }
+    }
+}
 
 /**
  * Disruption object from PTV API
@@ -24,7 +58,7 @@ data class Disruption(
     @SerialName("from_date")
     val fromDate: String,
     @SerialName("to_date")
-    val toDate: String,
+    val toDate: String?,
     val routes: List<DisruptionRoute>,
     val stops: List<DisruptionStop>,
     val colour: String,
@@ -49,7 +83,7 @@ data class DisruptionRoute(
     val routeNumber: String,
     @SerialName("route_gtfs_id")
     val routeGtfsId: String,
-    val direction: String? // Replace with the actual type of the direction if known
+    val direction: DisruptionRouteDirection?
 )
 
 /**

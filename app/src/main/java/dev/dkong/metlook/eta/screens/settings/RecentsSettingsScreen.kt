@@ -36,7 +36,10 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 pages.forEachIndexed { index, page ->
                     SegmentedButton(
-                        shape = SegmentedButtonDefaults.shape(position = index, count = pages.size),
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = pages.size
+                        ),
                         onClick = {
                             selectedPage = index
                         },

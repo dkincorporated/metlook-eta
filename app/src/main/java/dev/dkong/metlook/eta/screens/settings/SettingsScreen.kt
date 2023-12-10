@@ -1,8 +1,10 @@
 package dev.dkong.metlook.eta.screens.settings
 
+import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
@@ -17,7 +19,16 @@ import dev.dkong.metlook.eta.composables.SettingsItem
  */
 @Composable
 fun SettingsScreen(navHostController: NavHostController) {
-    LargeTopAppbarScaffold(navController = navHostController, title = "Settings") {
+    val context = LocalContext.current
+
+    LargeTopAppbarScaffold(
+        navController = navHostController,
+        title = "Settings",
+        onNavigationIconClick = {
+            // Exit the activity
+            (context as? Activity)?.finish()
+        }
+    ) {
         item {
             MaterialColumn(
                 modifier = Modifier.padding(vertical = 16.dp)

@@ -1,6 +1,5 @@
 package dev.dkong.metlook.eta.common.utils
 
-import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.RouteType
@@ -21,7 +20,7 @@ class ResourceUtils {
          */
         fun getRouteColour(routeType: RouteType?, routeId: Int? = null): Color {
             return when (routeType) {
-                RouteType.TRAIN -> {
+                RouteType.Train -> {
                     if (routeId == null) return PtvTrain
                     when (routeId) {
                         1, 2, 7, 9 -> TrainBurnley
@@ -33,7 +32,7 @@ class ResourceUtils {
                         else -> PtvSpecialServices
                     }
                 }
-                RouteType.TRAM -> {
+                RouteType.Tram -> {
                     if (routeId == null) return PtvTram
                     when (routeId) {
                         721 -> Yt1
@@ -63,7 +62,7 @@ class ResourceUtils {
                         else -> PtvTram
                     }
                 }
-                RouteType.BUS -> PtvBus
+                RouteType.Bus -> PtvBus
                 else -> PtvSpecialServices
             }
         }
@@ -76,21 +75,21 @@ class ResourceUtils {
          */
         fun getRouteForegroundColour(routeType: RouteType?, intRouteId: Int?): Color {
             return when (routeType) {
-                RouteType.TRAIN -> {
+                RouteType.Train -> {
                     if (intRouteId == null) return White
                     when (intRouteId) {
                         12, 4, 11, 3, 14, 15 -> Black
                         else -> White
                     }
                 }
-                RouteType.TRAM -> {
+                RouteType.Tram -> {
                     if (intRouteId == null) return White
                     when (intRouteId) {
                         721, 722, 724, 761, 887, 940, 947, 958, 976, 1002, 1881, 3343 -> Black
                         else -> White
                     }
                 }
-                RouteType.BUS -> White
+                RouteType.Bus -> White
                 else -> White
             }
         }
@@ -104,9 +103,9 @@ class ResourceUtils {
         fun getRouteTypeIcon(routeType: RouteType?, routeId: Int? = null): Int {
             if (routeId in arrayOf(1123, 13621)) return R.drawable.outline_local_airport_24
             return when (routeType) {
-                RouteType.TRAIN -> R.drawable.outline_train_24
-                RouteType.TRAM -> R.drawable.outline_tram_24
-                RouteType.BUS -> R.drawable.outline_directions_bus_24
+                RouteType.Train -> R.drawable.outline_train_24
+                RouteType.Tram -> R.drawable.outline_tram_24
+                RouteType.Bus -> R.drawable.outline_directions_bus_24
                 else -> R.drawable.outline_navigation_24
             }
         }

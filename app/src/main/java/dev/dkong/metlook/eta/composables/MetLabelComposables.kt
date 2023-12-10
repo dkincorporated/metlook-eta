@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.ResourceUtils
@@ -142,8 +141,8 @@ fun PlatformDepartureLabel(
     flags: String? = null
 ) {
     // Get the colours of the label/icon
-    val routeBackgroundColor = ResourceUtils.getRouteColour(RouteType.TRAIN, routeId)
-    val routeForegroundColor = ResourceUtils.getRouteForegroundColour(RouteType.TRAIN, routeId)
+    val routeBackgroundColor = ResourceUtils.getRouteColour(RouteType.Train, routeId)
+    val routeForegroundColor = ResourceUtils.getRouteForegroundColour(RouteType.Train, routeId)
     // Check whether the platform no. should be overriden
     if (flags?.contains("RRB") == true) {
         // Rail-replacement bus service

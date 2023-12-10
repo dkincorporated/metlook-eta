@@ -7,6 +7,9 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
+import kotlinx.serialization.json.Json
 
 /**
  * Constants maintained throughout the app
@@ -40,5 +43,16 @@ class Constants {
         @Composable
         fun scrolledAppbarContainerColour() =
             MaterialTheme.colorScheme.surfaceContainerHighest
+
+        // JSON
+        /**
+         * Format for parsing JSON using Kotlinx Serialization
+         */
+        val jsonFormat = Json { ignoreUnknownKeys = true }
+
+        /**
+         * Client for ktor
+         */
+        val httpClient = HttpClient(Android)
     }
 }
