@@ -3,13 +3,18 @@ package dev.dkong.metlook.eta.screens.home
 import android.content.Context
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
@@ -23,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -48,7 +54,7 @@ import io.ktor.client.request.get
 /**
  * Updates page for the home screen
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun UpdatesHomeScreen(navHostController: NavHostController) {
     val context = LocalContext.current
@@ -58,23 +64,31 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
 
     // Get all disruptions
     var allDisruptions: Disruptions? = null
-    val disruptions = remember { mutableStateListOf<Disruption>() }
+    val disruptions = remember { mutableStateMapOf<Int, List<Disruption>>() }
 
-    LaunchedEffect(Unit) {
-        allDisruptions = getDisruptions()
-
+    fun updateView(routeType: RouteType) {
         disruptions.clear()
-        val updatedDisruptions = allDisruptions?.filterDisruptions(pages[selectedPage])
-        updatedDisruptions?.let {
-            disruptions.addAll(updatedDisruptions)
+        allDisruptions?.let {
+            val filteredDisruptions = it.filterDisruptions(routeType)
+            val groupedDisruptions = filteredDisruptions
+                .groupBy { it.typePriority }
+                .toList()
+                .sortedBy { it.first }
+            disruptions.putAll(groupedDisruptions)
         }
     }
 
+    LaunchedEffect(Unit) {
+        // Fetch disruptions (async)
+        allDisruptions = getDisruptions()
+        updateView(pages[selectedPage])
+    }
+
     LazyColumn {
-        item {
+        stickyHeader {
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
             ) {
                 pages.forEachIndexed { index, page ->
@@ -85,11 +99,7 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
                         ),
                         onClick = {
                             selectedPage = index
-
-                            disruptions.clear()
-                            allDisruptions?.let {
-                                disruptions.addAll(it.filterDisruptions(pages[index]))
-                            }
+                            updateView(pages[index])
                         },
                         selected = selectedPage == index,
                         icon = {}
@@ -99,13 +109,18 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
                 }
             }
         }
-        disruptions.forEachIndexed { index, disruption ->
+        disruptions.forEach { type ->
             item {
-                DisruptionCard(
-                    disruption = disruption,
-                    shape = ListPosition.fromPosition(index, disruptions.size).roundedShape,
-                    context = context
+                SectionHeading(heading = type.value[0].disruptionType)
+            }
+            type.value.forEachIndexed { index, disruption ->
+                item {
+                    DisruptionCard(
+                        disruption = disruption,
+                        shape = ListPosition.fromPosition(index, type.value.size).roundedShape,
+                        context = context
                     )
+                }
             }
         }
     }
@@ -132,14 +147,28 @@ suspend fun getDisruptions(): Disruptions? {
  * Individual disruption card
  * @param disruption the Disruption to display
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: Context) {
     ListItem(
         headlineContent = {
-            Text(text = disruption.title, color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = disruption.title,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleMedium
+            )
         },
         supportingContent = {
-            Text(text = disruption.disruptionType, color = MaterialTheme.colorScheme.secondary)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                disruption.routes.forEach { route ->
+                    AssistChip(
+                        onClick = {},
+                        label = { Text(if (route.routeType == RouteType.Train) route.routeName else route.routeNumber) }
+                    )
+                }
+            }
         },
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
@@ -162,10 +191,19 @@ fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: C
     )
 }
 
+/**
+ * Preview
+ */
 @Preview
 @Composable
 fun PreviewDisruptionCard() {
-    UpdatesHomeScreen(navHostController = rememberNavController())
+    val parsedDisruptions =
+        jsonFormat.decodeFromString<DisruptionsResult>(sampleDisruptions).disruptions
+    DisruptionCard(
+        disruption = parsedDisruptions.metroTrain[0],
+        shape = ListPosition.FirstAndLast.roundedShape,
+        context = LocalContext.current
+    )
 }
 
 val sampleDisruptions = """

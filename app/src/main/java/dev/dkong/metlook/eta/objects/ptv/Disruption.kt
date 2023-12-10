@@ -33,6 +33,7 @@ data class Disruptions(
             RouteType.Train -> metroTrain
             RouteType.Tram -> metroTram
             RouteType.Bus -> metroBus
+            else -> emptyList()
         }
     }
 }
@@ -66,7 +67,24 @@ data class Disruption(
     val displayOnBoard: Boolean,
     @SerialName("display_status")
     val displayStatus: Boolean
-)
+) {
+    /**
+     * Priority of the disruption type when being shown
+     */
+    val typePriority = when (disruptionType.lowercase()) {
+        "suspended" -> 1
+        "part suspended" -> 2
+        "major delays" -> 3
+        "minor delays" -> 4
+        "planned works" -> 5
+        "diversion" -> 6
+        "timetable/route changes" -> 7
+        "service information" -> 8
+        "other information" -> 9
+        "planned closure" -> 10
+        else -> 99
+    }
+}
 
 /**
  * Route object for Disruption object
@@ -74,7 +92,7 @@ data class Disruption(
 @Serializable
 data class DisruptionRoute(
     @SerialName("route_type")
-    val routeType: Int,
+    private val routeTypeId: Int,
     @SerialName("route_id")
     val routeId: Int,
     @SerialName("route_name")
@@ -84,7 +102,9 @@ data class DisruptionRoute(
     @SerialName("route_gtfs_id")
     val routeGtfsId: String,
     val direction: DisruptionRouteDirection?
-)
+) {
+    val routeType = RouteType.fromId(routeTypeId)
+}
 
 /**
  * Direction object for Disruption Route object
