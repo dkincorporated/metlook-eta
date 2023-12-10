@@ -25,6 +25,7 @@ import dev.dkong.metlook.eta.screens.settings.RecentsSettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreen
 import dev.dkong.metlook.eta.screens.settings.SettingsScreens
 import dev.dkong.metlook.eta.common.tracker.TrackerIntegrationSettingsScreen
+import dev.dkong.metlook.eta.screens.search.SearchScreen
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 
 /**
@@ -69,6 +70,27 @@ class SettingsActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     SettingsScreenHost(navController)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Activity for Search
+ */
+class SearchActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MetlookTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Constants.appSurfaceColour() // wait until new Surface
+                ) {
+                    val navController = rememberNavController()
+                    SearchScreen(navController)
                 }
             }
         }

@@ -86,9 +86,9 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
         allDisruptions?.let {
             val filteredDisruptions = it.filterDisruptions(routeType)
             val groupedDisruptions = filteredDisruptions
-                .groupBy { it.typePriority }
+                .groupBy { d -> d.typePriority }
                 .toList()
-                .sortedBy { it.first }
+                .sortedBy { p -> p.first }
             disruptions.putAll(groupedDisruptions)
         }
     }
@@ -192,20 +192,7 @@ fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: C
             .clip(shape)
             .clickable {
                 // Open the Disruption page
-
                 showDetail = true
-
-//                // If the URL isn't helpful, don't open it
-//                if (disruption.url == "http://ptv.vic.gov.au/live-travel-updates/") return@clickable
-//
-//                // Build the Custom Tab
-//                val customTabsIntent = CustomTabsIntent
-//                    .Builder()
-//                    .setUrlBarHidingEnabled(true)
-//                    .build()
-//
-//                // Launch the built Intent
-//                customTabsIntent.launchUrl(context, Uri.parse(disruption.url))
             }
     )
 

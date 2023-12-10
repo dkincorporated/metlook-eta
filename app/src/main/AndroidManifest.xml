@@ -27,6 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name="dev.dkong.metlook.eta.SettingsActivity" />
+        <activity android:name="dev.dkong.metlook.eta.SearchActivity" />
     </application>
 
 </manifest>
