@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">metlook</string>
+
+    <!-- Fun messages -->
+    <string-array name="fun_msg_loading">
+        <item>很快就行了</item>
+        <item>稍等一会儿</item>
+        <item>等待PTV的回复</item>
+        <item>差不多了</item>
+    </string-array>
+    <string-array name="fun_msg_getting_disruptions">
+        <item>正在下载最新的信息</item>
+        <item>正在查看网络状况</item>
+        <item>正在探索网络故障</item>
+        <item>希望一切正常</item>
+        <item>希望一切顺利</item>
+    </string-array>
+    <string-array name="fun_msg_search">
+        <item>想想去哪！</item>
+        <item>要到哪去呢？</item>
+        <item>你要去哪？</item>
+        <item>想去哪呢？</item>
+        <item>有什么任务？</item>
+    </string-array>
+</resources>

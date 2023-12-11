@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">metlook</string>
+
+    <!-- Fun messages -->
+    <string-array name="fun_msg_loading">
+        <item>Won\'t be a moment…</item>
+        <item>Just a sec…</item>
+        <item>Waiting for PTV to respond…</item>
+        <item>Any second now…</item>
+    </string-array>
+    <string-array name="fun_msg_getting_disruptions">
+        <item>Fetching the latest updates</item>
+        <item>Getting the latest updates</item>
+        <item>Checking the network conditions</item>
+        <item>Checking for network faults</item>
+        <item>Fingers crossed for good service</item>
+    </string-array>
+    <string-array name="fun_msg_search">
+        <item>Oh, the places you\'ll go!</item>
+        <item>Where to next?</item>
+        <item>Where are you headed?</item>
+        <item>Adventure awaits!</item>
+        <item>What\'s your quest?</item>
+    </string-array>
 </resources>

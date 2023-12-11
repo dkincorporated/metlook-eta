@@ -46,6 +46,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,7 @@ import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.NavBarPadding
+import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
 import dev.dkong.metlook.eta.objects.ptv.Route
@@ -81,6 +84,8 @@ fun SearchScreen(navHostController: NavHostController) {
     // Search results: for Stops and Routes
     val searchResultsStop = remember { mutableStateListOf<Pair<RouteType, List<Stop>>>() }
     val searchResultsRoute = remember { mutableStateListOf<Route>() }
+
+    val placeholderTitle = stringArrayResource(id = R.array.fun_msg_search).random()
 
     /**
      * Run the search, and update the results lists
@@ -213,14 +218,11 @@ fun SearchScreen(navHostController: NavHostController) {
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    SearchPlaceholder()
-                }
+                PlaceholderMessage(
+                    largeIcon = R.drawable.baseline_travel_explore_24,
+                    title = placeholderTitle,
+                    subtitle = "Search for something to get started."
+                )
             }
         }
         searchResultsStop.forEach { routeType ->
@@ -261,47 +263,9 @@ suspend fun getSearchResults(query: String): SearchResult? {
 }
 
 /**
- * Placeholder graphic for no search query
- */
-@Composable
-fun SearchPlaceholder() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Image(
-                painterResource(id = R.drawable.baseline_travel_explore_24),
-                contentDescription = "Explore",
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
-                modifier = Modifier.size(64.dp)
-            )
-            Text(
-                text = "Oh, the places you'll go!",
-                style = MaterialTheme.typography.titleLarge,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = "Search for something to get started.",
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-}
-
-/**
  * Preview
  */
 @Preview
 @Composable
 fun PreviewSearch() {
-    SearchPlaceholder()
 }

@@ -3,6 +3,9 @@ package dev.dkong.metlook.eta.screens.home
 import android.content.Context
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,6 +41,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -45,11 +49,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants.Companion.httpClient
 import dev.dkong.metlook.eta.common.Constants.Companion.jsonFormat
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.objects.ptv.Disruption
 import dev.dkong.metlook.eta.objects.ptv.Disruptions
@@ -71,6 +77,9 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
     // Get all disruptions
     var allDisruptions: Disruptions? = null
     val disruptions = remember { mutableStateListOf<Pair<Int, List<Disruption>>>() }
+
+    val placeholderTitle = stringArrayResource(id = R.array.fun_msg_getting_disruptions).random()
+    val placeholderSubtitle = stringArrayResource(id = R.array.fun_msg_loading).random()
 
     fun updateView(routeType: RouteType) {
         disruptions.clear()
@@ -113,6 +122,19 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
                         Text(text = page.name, maxLines = 1)
                     }
                 }
+            }
+        }
+        item {
+            AnimatedVisibility(
+                visible = disruptions.isEmpty(),
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                PlaceholderMessage(
+                    largeIcon = R.drawable.ic_outline_cloud_download,
+                    title = placeholderTitle,
+                    subtitle = placeholderSubtitle
+                )
             }
         }
         disruptions.forEach { type ->
