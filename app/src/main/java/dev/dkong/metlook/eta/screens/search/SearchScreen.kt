@@ -6,6 +6,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -71,7 +72,7 @@ import kotlinx.coroutines.launch
 /**
  * Main Search interface
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun SearchScreen(navHostController: NavHostController) {
     val context = LocalContext.current
@@ -118,7 +119,7 @@ fun SearchScreen(navHostController: NavHostController) {
     LazyColumn(
         modifier = Modifier.statusBarsPadding()
     ) {
-        item {
+        stickyHeader {
             DockedSearchBar(
                 query = searchQuery,
                 onQueryChange = { s -> searchQuery = s },
@@ -226,11 +227,11 @@ fun SearchScreen(navHostController: NavHostController) {
             }
         }
         searchResultsStop.forEach { routeType ->
-            item {
+            item(key = routeType.first.id) {
                 SectionHeading(heading = routeType.first.displayName)
             }
             routeType.second.forEachIndexed { index, stop ->
-                item {
+                item(key = "${stop.routeType.id}-${stop.stopId}") {
                     StopCard(
                         stop = stop,
                         shape = ListPosition.fromPosition(index, routeType.second.size).roundedShape
