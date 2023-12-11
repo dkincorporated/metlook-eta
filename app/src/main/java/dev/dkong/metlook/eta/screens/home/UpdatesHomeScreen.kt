@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -164,7 +165,7 @@ suspend fun getDisruptions(): Disruptions? {
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun DisruptionCard(disruption: Disruption, shape: RoundedCornerShape, context: Context) {
+fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
     var showDetail by remember { mutableStateOf(false) }
 
     ListItem(
