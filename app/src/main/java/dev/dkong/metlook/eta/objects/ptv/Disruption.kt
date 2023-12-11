@@ -5,17 +5,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Savable object for Disruptions
- * @param disruptions the disruptions for all modes
- * @param lastUpdated the last-updated time in Unix time
- */
-@Serializable
-data class DisruptionsSavable(
-    val disruptions: Disruptions,
-    val lastUpdated: Long
-)
-
-/**
  * Resultant object from PTV API Disruptions
  */
 @Serializable
