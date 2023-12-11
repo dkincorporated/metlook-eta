@@ -216,8 +216,8 @@ fun SearchScreen(navHostController: NavHostController) {
         item {
             AnimatedVisibility(
                 visible = searchResultsStop.isEmpty() && searchResultsRoute.isEmpty(),
-                enter = expandVertically(),
-                exit = shrinkVertically()
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
                 PlaceholderMessage(
                     largeIcon = R.drawable.baseline_travel_explore_24,
@@ -228,13 +228,20 @@ fun SearchScreen(navHostController: NavHostController) {
         }
         searchResultsStop.forEach { routeType ->
             item(key = routeType.first.id) {
-                SectionHeading(heading = routeType.first.displayName)
+                SectionHeading(
+                    heading = routeType.first.displayName,
+                    modifier = Modifier.animateItemPlacement()
+                )
             }
             routeType.second.forEachIndexed { index, stop ->
                 item(key = "${stop.routeType.id}-${stop.stopId}") {
                     StopCard(
                         stop = stop,
-                        shape = ListPosition.fromPosition(index, routeType.second.size).roundedShape
+                        shape = ListPosition.fromPosition(
+                            index,
+                            routeType.second.size
+                        ).roundedShape,
+                        modifier = Modifier.animateItemPlacement()
                     )
                 }
             }

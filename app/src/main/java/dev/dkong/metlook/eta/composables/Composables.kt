@@ -43,7 +43,7 @@ fun NavBarPadding() {
  * @see Stop
  */
 @Composable
-fun StopCard(stop: Stop, shape: Shape) {
+fun StopCard(stop: Stop, shape: Shape, modifier: Modifier = Modifier) {
     val stopName = stop.stopName()
 
     ListItem(
@@ -74,14 +74,13 @@ fun StopCard(stop: Stop, shape: Shape) {
                 }
             }
         },
-        modifier = Modifier
+        modifier = modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
             .background(MaterialTheme.colorScheme.surface)
             .clickable {
                 // Open the Stop
                 // TODO: Pass Stop information to new Activity
-
             }
 
     )
