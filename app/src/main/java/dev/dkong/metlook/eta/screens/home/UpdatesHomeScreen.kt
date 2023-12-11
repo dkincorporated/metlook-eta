@@ -80,7 +80,7 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
 
     // Get all disruptions
     var allDisruptions: Disruptions? = null
-    val disruptions = remember { mutableStateMapOf<Int, List<Disruption>>() }
+    val disruptions = remember { mutableStateListOf<Pair<Int, List<Disruption>>>() }
 
     fun updateView(routeType: RouteType) {
         disruptions.clear()
@@ -90,7 +90,7 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
                 .groupBy { d -> d.typePriority }
                 .toList()
                 .sortedBy { p -> p.first }
-            disruptions.putAll(groupedDisruptions)
+            disruptions.addAll(groupedDisruptions)
         }
     }
 
@@ -127,13 +127,13 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
         }
         disruptions.forEach { type ->
             item {
-                SectionHeading(heading = type.value[0].disruptionType)
+                SectionHeading(heading = type.second[0].disruptionType)
             }
-            type.value.forEachIndexed { index, disruption ->
+            type.second.forEachIndexed { index, disruption ->
                 item {
                     DisruptionCard(
                         disruption = disruption,
-                        shape = ListPosition.fromPosition(index, type.value.size).roundedShape,
+                        shape = ListPosition.fromPosition(index, type.second.size).roundedShape,
                         context = context
                     )
                 }
