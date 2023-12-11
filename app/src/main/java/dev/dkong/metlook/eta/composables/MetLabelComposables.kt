@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.RouteType
@@ -111,6 +113,12 @@ fun TextMetLabel(
                 .padding(horizontal = 2.dp)
         )
     }
+}
+
+@Preview
+@Composable
+fun PreviewMetLabel() {
+    TextMetLabel(text = "8")
 }
 
 /**

@@ -32,16 +32,16 @@ data class Stop(
 ) {
     val routeType = RouteType.fromId(routeTypeId)
 
-    val stopName = when (routeType) {
-        RouteType.Train -> stopNameResult.replace(" Station", "")
-        else -> stopNameResult
-    }
-
     /**
      * Attempt to split the stop name for on-road stops (tram, bus)
      * @return stop road, stop on-road, stop number (if applicable)
      */
-    fun splitName(): Triple<String, String?, String?> {
+    fun stopName(): Triple<String, String?, String?> {
+        val stopName = when (routeType) {
+            RouteType.Train -> stopNameResult.replace(" Station", "")
+            else -> stopNameResult
+        }.trim()
+
         // Only Tram and Bus can be split; other route types will just return the stop name as-is
         if (!arrayOf(RouteType.Tram, RouteType.Bus).contains(routeType))
             return Triple(stopName, null, null)
@@ -54,10 +54,17 @@ data class Stop(
         return if (splitItems[1].split("#").size == 2) {
             // A stop number is available
             val splitStopNumber = splitItems[1].split("#")
-            Triple(splitItems[0], splitStopNumber[0], splitStopNumber[1])
+            Triple(splitItems[0].trim(), splitStopNumber[0].trim(), splitStopNumber[1].trim())
+        } else if (Regex("""D(\d+)-""").find(splitItems[0])?.groupValues?.size == 2) {
+            // D-style stop number is available
+            Triple(
+                splitItems[0].trim().split("-")[1],
+                splitItems[1].trim(),
+                "D" + Regex("""D(\d+)-""").find(splitItems[0])?.groupValues?.get(1)
+            )
         } else {
             // Stop number is not available
-            Triple(splitItems[0], splitItems[1], null)
+            Triple(splitItems[0].trim(), splitItems[1].trim(), null)
         }
     }
 }

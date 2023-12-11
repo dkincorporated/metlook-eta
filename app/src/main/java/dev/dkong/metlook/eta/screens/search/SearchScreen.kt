@@ -128,7 +128,10 @@ fun SearchScreen(navHostController: NavHostController) {
             DockedSearchBar(
                 query = searchQuery,
                 onQueryChange = { s -> searchQuery = s },
-                onSearch = { _ -> updateSearch() },
+                onSearch = { _ ->
+                    isSearchActive = false
+                    updateSearch()
+                },
                 active = isSearchActive,
                 onActiveChange = { a ->
                     isSearchActive = a
@@ -156,6 +159,8 @@ fun SearchScreen(navHostController: NavHostController) {
                         IconButton(onClick = {
                             // Clear the search field
                             searchQuery = ""
+                            // Re-focus the search field
+                            focusRequester.requestFocus()
                         }) {
                             Icon(Icons.Default.Clear, "Clear query")
                         }
