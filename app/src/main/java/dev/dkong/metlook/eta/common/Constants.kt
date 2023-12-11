@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.common
 
+import android.content.Context
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
@@ -7,6 +8,9 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import kotlinx.serialization.json.Json
@@ -17,6 +21,10 @@ import kotlinx.serialization.json.Json
  */
 class Constants {
     companion object {
+        // DataStore
+        val Context.dataStoreRecents: DataStore<Preferences> by preferencesDataStore(name = "recents")
+        val Context.dataStoreSettings: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
         // Transition between screens
         val transitionOffsetProportion = 10
         val transitionAnimationSpec: FiniteAnimationSpec<IntOffset> = tween(300)

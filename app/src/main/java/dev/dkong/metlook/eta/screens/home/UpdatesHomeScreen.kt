@@ -2,6 +2,7 @@ package dev.dkong.metlook.eta.screens.home
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -53,8 +54,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import dev.dkong.metlook.eta.common.Constants.Companion.dataStoreRecents
 import dev.dkong.metlook.eta.common.Constants.Companion.httpClient
 import dev.dkong.metlook.eta.common.Constants.Companion.jsonFormat
 import dev.dkong.metlook.eta.common.ListPosition
@@ -64,8 +68,15 @@ import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.objects.ptv.Disruption
 import dev.dkong.metlook.eta.objects.ptv.Disruptions
 import dev.dkong.metlook.eta.objects.ptv.DisruptionsResult
+import dev.dkong.metlook.eta.objects.ptv.DisruptionsSavable
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+
+val RECENT_DISRUPTIONS_KEY = stringPreferencesKey("all_disruptions")
 
 /**
  * Updates page for the home screen
@@ -95,8 +106,8 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
     }
 
     LaunchedEffect(Unit) {
-        // Fetch disruptions (async)
-        allDisruptions = getDisruptions()
+        // Fetch disruptions
+        allDisruptions = getDisruptions(context)
         updateView(pages[selectedPage])
     }
 
@@ -146,14 +157,48 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
  * Get the latest disruptions
  * @return list of disruptions
  */
-suspend fun getDisruptions(): Disruptions? {
+suspend fun getDisruptions(context: Context, ignoreCached: Boolean = false): Disruptions? {
+    // Check whether a cached version is available
+    val cachedDisruptionsString = context.dataStoreRecents.data.first()
+        .asMap()[RECENT_DISRUPTIONS_KEY]
+
+    if (cachedDisruptionsString != null && !ignoreCached) {
+        try {
+            val cached = jsonFormat
+                .decodeFromString<DisruptionsSavable>(cachedDisruptionsString.toString())
+
+            // Check whether cached version is too old
+            // If less than 10 min old, return the cached version
+            // TODO: Decide or let user decide the threshold
+            if (
+                ((System.currentTimeMillis()) - cached.lastUpdated)
+                    .floorDiv(1000)
+                    .floorDiv(60)
+                <= 10
+            ) return cached.disruptions
+        } catch (_: SerializationException) { /* Failed to deserialise for some reason */
+        }
+    }
+
+    // Cached version didn't work, so proceed to fetch a new copy
     val request = PtvApi.getApiUrl(
         "/v3/disruptions?route_types=0&route_types=1&route_types=2&disruption_status=current&"
     )
 
     request?.let {
         val response: String = httpClient.get(request).body()
-        return jsonFormat.decodeFromString<DisruptionsResult>(response).disruptions
+        val result = jsonFormat.decodeFromString<DisruptionsResult>(response).disruptions
+
+        // Cache the disruptions
+        context.dataStoreRecents.edit { ds ->
+            ds[RECENT_DISRUPTIONS_KEY] = jsonFormat.encodeToString(
+                DisruptionsSavable(
+                    disruptions = result,
+                    lastUpdated = System.currentTimeMillis()
+                )
+            )
+        }
+        return result
     }
 
     return null
