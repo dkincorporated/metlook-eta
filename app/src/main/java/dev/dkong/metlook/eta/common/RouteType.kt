@@ -8,13 +8,14 @@ import dev.dkong.metlook.eta.R
  * @author David Kong
  */
 enum class RouteType(
-    private val routeId: Int,
+    val id: Int,
     val displayName: String,
     @DrawableRes val icon: Int
 ) {
     Train(0, "Train", R.drawable.outline_train_24),
     Tram(1, "Tram", R.drawable.outline_tram_24),
     Bus(2, "Bus", R.drawable.outline_directions_bus_24),
+    Regional(3, "Regional", R.drawable.outline_commute_24),
     Other(99, "Other", R.drawable.outline_navigation_24);
 
     companion object {
@@ -26,6 +27,7 @@ enum class RouteType(
                 0 -> Train
                 1 -> Tram
                 2 -> Bus
+                3 -> Regional
                 else -> Other
             }
         }

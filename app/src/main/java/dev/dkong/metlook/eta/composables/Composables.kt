@@ -1,6 +1,12 @@
 package dev.dkong.metlook.eta.composables
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -9,11 +15,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.objects.ptv.Stop
+
+/**
+ * Spacing to place at the end of a full-height list
+ */
+@Composable
+fun NavBarPadding() {
+    Box(modifier = Modifier.navigationBarsPadding())
+}
 
 /**
  * Card for displaying a Stop
@@ -43,7 +60,7 @@ fun StopCard(stop: Stop, shape: Shape) {
         leadingContent = {
             if (stopName.third == null) {
                 // Route type icon
-
+                IconMetLabel(stop.routeType.icon)
             } else {
                 stopName.third?.let { stopNumber ->
                     // Stop number
@@ -56,6 +73,7 @@ fun StopCard(stop: Stop, shape: Shape) {
             }
         },
         modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
             .background(MaterialTheme.colorScheme.surface)
     )

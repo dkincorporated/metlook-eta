@@ -1,13 +1,16 @@
 package dev.dkong.metlook.eta.screens.search
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandIn
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -39,6 +43,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -54,7 +61,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.SectionHeading
+import dev.dkong.metlook.eta.composables.StopCard
+import dev.dkong.metlook.eta.objects.ptv.DisruptionsResult
+import dev.dkong.metlook.eta.objects.ptv.Route
+import dev.dkong.metlook.eta.objects.ptv.SearchResult
+import dev.dkong.metlook.eta.objects.ptv.Stop
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import kotlinx.coroutines.launch
 
 /**
  * Main Search interface
@@ -63,10 +83,39 @@ import dev.dkong.metlook.eta.composables.SectionHeading
 @Composable
 fun SearchScreen(navHostController: NavHostController) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isSearchActive by rememberSaveable { mutableStateOf(true) }
+
+    // Search results: for Stops and Routes
+    val searchResultsStop = remember { mutableStateListOf<Pair<RouteType, List<Stop>>>() }
+    val searchResultsRoute = remember { mutableStateListOf<Route>() }
+
+    /**
+     * Run the search, and update the results lists
+     */
+    fun updateSearch() {
+        // API does not respond to queries less than 3 in length
+        if (searchQuery.length < 3) return
+
+        scope.launch {
+            val results = getSearchResults(searchQuery)
+
+            // TODO: Handle the Route results
+
+            searchResultsStop.clear()
+            val groupedStops = results?.stops
+                ?.groupBy { s -> s.routeType }
+                ?.toList()
+                ?.sortedBy { s -> s.first.id }
+
+            groupedStops?.let { l ->
+                searchResultsStop.addAll(l)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -79,9 +128,12 @@ fun SearchScreen(navHostController: NavHostController) {
             DockedSearchBar(
                 query = searchQuery,
                 onQueryChange = { s -> searchQuery = s },
-                onSearch = {},
+                onSearch = { _ -> updateSearch() },
                 active = isSearchActive,
-                onActiveChange = { a -> isSearchActive = a },
+                onActiveChange = { a ->
+                    isSearchActive = a
+                    if (!a) updateSearch()
+                },
                 placeholder = { Text("Search stops and stations") },
                 leadingIcon = {
                     IconButton(onClick = {
@@ -153,6 +205,7 @@ fun SearchScreen(navHostController: NavHostController) {
                                     // Put query in search bar
                                     searchQuery = suggestion
                                     isSearchActive = false
+                                    updateSearch()
                                 }
                         )
                     }
@@ -161,14 +214,56 @@ fun SearchScreen(navHostController: NavHostController) {
         }
         // Search results
         item {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            AnimatedVisibility(
+                visible = searchResultsStop.isEmpty() && searchResultsRoute.isEmpty(),
+                enter = expandVertically(),
+                exit = shrinkVertically()
             ) {
-                SearchPlaceholder()
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    SearchPlaceholder()
+                }
             }
         }
+        searchResultsStop.forEach { routeType ->
+            item {
+                SectionHeading(heading = routeType.first.displayName)
+            }
+            routeType.second.forEachIndexed { index, stop ->
+                item {
+                    StopCard(
+                        stop = stop,
+                        shape = ListPosition.fromPosition(index, routeType.second.size).roundedShape
+                    )
+                }
+            }
+        }
+        item {
+            NavBarPadding()
+        }
     }
+}
+
+/**
+ * Run a search for a query
+ * @param query the search query
+ * @return the search result (consisting of stops and routes)
+ */
+suspend fun getSearchResults(query: String): SearchResult? {
+    val request = PtvApi.getApiUrl(
+        "/v3/search/${query.replace(" ", "%20")}?"
+    )
+
+    request?.let {
+        val response: String = Constants.httpClient.get(request).body()
+        return Constants.jsonFormat.decodeFromString<SearchResult>(response)
+    }
+
+    return null
 }
 
 /**
@@ -185,7 +280,9 @@ fun SearchPlaceholder() {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
             Image(
                 painterResource(id = R.drawable.baseline_travel_explore_24),
