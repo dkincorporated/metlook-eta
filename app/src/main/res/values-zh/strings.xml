@@ -2,6 +2,14 @@
 <resources>
     <string name="app_name">metlook</string>
 
+    <string name="not_applicable">Not applicable</string>
+
+    <!-- Stopping patterns -->
+    <string name="pattern_all_stops">All stops</string>
+    <string name="pattern_skips_one_stop">Skips one stop</string>
+    <string name="pattern_limited_stops">Express</string>
+    <string name="pattern_super_limited_stops">Ltd Express</string>
+
     <!-- Fun messages -->
     <string-array name="fun_msg_loading">
         <item>很快就行了</item>
