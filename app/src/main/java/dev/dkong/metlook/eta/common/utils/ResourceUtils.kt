@@ -5,6 +5,7 @@ import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.ui.official.*
 import dev.dkong.metlook.eta.ui.theme.*
+import dev.dkong.metlook.eta.ui.official.OfficialColour
 
 /**
  * Utility functions for resource-related calls
@@ -19,51 +20,55 @@ class ResourceUtils {
          * @return the route color
          */
         fun getRouteColour(routeType: RouteType?, routeId: Int? = null): Color {
-            return when (routeType) {
-                RouteType.Train -> {
-                    if (routeId == null) return PtvTrain
-                    when (routeId) {
-                        1, 2, 7, 9 -> TrainBurnley
-                        5, 8 -> TrainCliftonHill
-                        4, 11 -> TrainDandenong
-                        6, 16, 17 -> TrainCrosscity
-                        12 -> TrainSandringham
-                        3, 14, 15 -> TrainNorthern
-                        else -> PtvSpecialServices
+            return with(OfficialColour) {
+                when (routeType) {
+                    RouteType.Train -> {
+                        if (routeId == null) return PtvTrain
+                        when (routeId) {
+                            1, 2, 7, 9 -> TrainBurnley
+                            5, 8 -> TrainCliftonHill
+                            4, 11 -> TrainDandenong
+                            6, 16, 17 -> TrainCrosscity
+                            12 -> TrainSandringham
+                            3, 14, 15 -> TrainNorthern
+                            else -> PtvSpecialServices
+                        }
                     }
-                }
-                RouteType.Tram -> {
-                    if (routeId == null) return PtvTram
-                    when (routeId) {
-                        721 -> Yt1
-                        722 -> Yt109
-                        724 -> Yt16
-                        725 -> Yt19
-                        761 -> Yt3
-                        887 -> Yt57
-                        897 -> Yt59
-                        909 -> Yt64
-                        913 -> Yt67
-                        940 -> Yt70
-                        947 -> Yt72
-                        958 -> Yt75
-                        976 -> Yt78
-                        1002 -> Yt82
-                        1041 -> Yt96
-                        1083 -> Yt5
-                        1112 -> Yt35
-                        1880 -> Yt30
-                        1881 -> Yt86
-                        2903 -> Yt48
-                        3343 -> Yt11
-                        8314 -> Yt12
-                        11529 -> Yt58
-                        11544 -> Yt6
-                        else -> PtvTram
+
+                    RouteType.Tram -> {
+                        if (routeId == null) return PtvTram
+                        when (routeId) {
+                            721 -> Yt1
+                            722 -> Yt109
+                            724 -> Yt16
+                            725 -> Yt19
+                            761 -> Yt3
+                            887 -> Yt57
+                            897 -> Yt59
+                            909 -> Yt64
+                            913 -> Yt67
+                            940 -> Yt70
+                            947 -> Yt72
+                            958 -> Yt75
+                            976 -> Yt78
+                            1002 -> Yt82
+                            1041 -> Yt96
+                            1083 -> Yt5
+                            1112 -> Yt35
+                            1880 -> Yt30
+                            1881 -> Yt86
+                            2903 -> Yt48
+                            3343 -> Yt11
+                            8314 -> Yt12
+                            11529 -> Yt58
+                            11544 -> Yt6
+                            else -> PtvTram
+                        }
                     }
+
+                    RouteType.Bus -> PtvBus
+                    else -> PtvSpecialServices
                 }
-                RouteType.Bus -> PtvBus
-                else -> PtvSpecialServices
             }
         }
 
@@ -82,6 +87,7 @@ class ResourceUtils {
                         else -> White
                     }
                 }
+
                 RouteType.Tram -> {
                     if (intRouteId == null) return White
                     when (intRouteId) {
@@ -89,6 +95,7 @@ class ResourceUtils {
                         else -> White
                     }
                 }
+
                 RouteType.Bus -> White
                 else -> White
             }
