@@ -1,5 +1,7 @@
 package dev.dkong.metlook.eta.composables
 
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,14 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.objects.ptv.Stop
+import kotlinx.serialization.encodeToString
 
 /**
  * Spacing to place at the end of a full-height list
@@ -43,7 +48,7 @@ fun NavBarPadding() {
  * @see Stop
  */
 @Composable
-fun StopCard(stop: Stop, shape: Shape, modifier: Modifier = Modifier) {
+fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Modifier) {
     val stopName = stop.stopName()
 
     ListItem(
@@ -81,6 +86,9 @@ fun StopCard(stop: Stop, shape: Shape, modifier: Modifier = Modifier) {
             .clickable {
                 // Open the Stop
                 // TODO: Pass Stop information to new Activity
+                val stopIntent = Intent(context, StopActivity::class.java)
+                stopIntent.putExtra("stop", Constants.jsonFormat.encodeToString(stop))
+                context.startActivity(stopIntent)
             }
 
     )
@@ -143,7 +151,8 @@ fun PreviewStopCard() {
     if (stops.isNotEmpty()) {
         StopCard(
             stops[1],
-            ListPosition.FirstAndLast.roundedShape
+            ListPosition.FirstAndLast.roundedShape,
+            LocalContext.current
         )
     }
 }

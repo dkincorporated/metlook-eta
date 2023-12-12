@@ -242,6 +242,7 @@ fun SearchScreen(navHostController: NavHostController) {
                             index,
                             routeType.second.size
                         ).roundedShape,
+                        context,
                         modifier = Modifier.animateItemPlacement()
                     )
                 }

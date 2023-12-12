@@ -66,6 +66,7 @@ import dev.dkong.metlook.eta.common.Constants
  * @param onNavigationIconClick the click action for the navigation icon
  * @param content the content to be displayed (must be lazy list)
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LargeTopAppbarScaffold(
     navController: NavHostController,
@@ -124,6 +125,7 @@ fun LargeTopAppbarScaffold(
  * @param onNavigationIconClick the click action for the navigation icon
  * @param content the content to be displayed (in box form)
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LargeTopAppbarScaffoldBox(
     navController: NavHostController,

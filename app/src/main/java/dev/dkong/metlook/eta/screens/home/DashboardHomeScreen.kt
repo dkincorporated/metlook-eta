@@ -26,7 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.activities.SearchActivity
+import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.composables.SectionHeading
+import dev.dkong.metlook.eta.composables.StopCard
+import dev.dkong.metlook.eta.objects.ptv.Stop
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +68,38 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
         }
         item {
             SectionHeading(heading = "Recent stops and stations")
+            StopCard(
+                stop = Stop(
+                    0.0,
+                    "Melbourne city",
+                    0,
+                    emptyList(),
+                    0.0,
+                    0.0,
+                    0,
+                    1180,
+                    "Southern Cross Station",
+                    "Southern Cross station"
+                ),
+                shape = ListPosition.First.roundedShape,
+                context = context
+            )
+            StopCard(
+                stop = Stop(
+                    0.0,
+                    "Box Hill",
+                    1,
+                    emptyList(),
+                    0.0,
+                    0.0,
+                    0,
+                    2409,
+                    "Box Hill Central/Whitehorse Road #59",
+                    "Box Hill Central"
+                ),
+                shape = ListPosition.Last.roundedShape,
+                context = context
+            )
         }
         item {
             SectionHeading(heading = "Recent services")
