@@ -49,6 +49,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
@@ -185,6 +186,9 @@ class StopActivity : ComponentActivity() {
                                 departure.disruptionIds.contains(entry.value.disruptionId)
                             }.values.toList()
                         )
+
+                        // Filter out unwanted departures
+                        if (!processedDeparture.isValid()) return@forEach
 
                         // Add new departure to list
                         processedDepartures.add(processedDeparture)

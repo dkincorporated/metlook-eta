@@ -35,12 +35,12 @@ data class Run(
  */
 @Serializable
 data class VehiclePosition(
-    val latitude: Double,
-    val longitude: Double,
-    val easting: Double,
-    val northing: Double,
-    val direction: String,
-    val bearing: Double,
+    val latitude: Double?,
+    val longitude: Double?,
+    val easting: Double?,
+    val northing: Double?,
+    val direction: String?,
+    val bearing: Double?,
     val supplier: String,
     @SerialName("datetime_utc") private val datetimeUtcString: String,
     @SerialName("expiry_time") private val expiryTimeString: String
@@ -56,13 +56,13 @@ data class VehiclePosition(
  */
 @Serializable
 data class VehicleDescriptor(
-    val operator: String,
-    val id: String,
+    val operator: String?,
+    val id: String?,
     @SerialName("low_floor")
     val lowFloor: Boolean?,
     @SerialName("air_conditioned")
     val airConditioned: Boolean?,
-    val description: String,
+    val description: String?,
     val supplier: String,
-    val length: String
+    val length: String?
 )

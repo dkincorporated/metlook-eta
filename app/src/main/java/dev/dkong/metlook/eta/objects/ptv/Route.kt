@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.objects.ptv
 
+import dev.dkong.metlook.eta.common.RouteType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,7 +15,7 @@ data class Route(
     @SerialName("route_number")
     private val routeNumberString: String,
     @SerialName("route_type")
-    val routeType: Int,
+    private val routeTypeId: Int,
     @SerialName("route_id")
     val routeId: Int,
     @SerialName("route_gtfs_id")
@@ -22,7 +23,11 @@ data class Route(
     @SerialName("route_service_status")
     val routeServiceStatus: RouteServiceStatus? = null
 ) {
-    val routeNumber = if (routeNumberString == "") null else routeNumberString
+    val routeType = RouteType.fromId(routeTypeId)
+
+    val routeNumber =
+        if (routeNumberString == "") null
+        else routeNumberString
 }
 
 /**

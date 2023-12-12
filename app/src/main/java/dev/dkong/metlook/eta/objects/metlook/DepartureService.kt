@@ -27,7 +27,7 @@ data class DepartureService(
 ) {
     val departureStopId = departure.stopId
     val runRef = departure.runRef
-    private val runId = departure.runId
+    val runId = departure.runId
     val routeType = run.routeType
     val routeId = departure.routeId
     val scheduledDeparture = departure.scheduledDeparture
@@ -42,6 +42,15 @@ data class DepartureService(
     private val expressStopCount = run.expressStopCount
     val vehicleDescriptor = run.vehicleDescriptor
     val vehiclePosition = run.vehiclePosition
+
+    /**
+     * Whether the service is valid
+     */
+    fun isValid(): Boolean {
+        if (routeType == RouteType.Bus && runId != -1) return false
+
+        return true
+    }
 
     /**
      * Whether the service is cancelled
