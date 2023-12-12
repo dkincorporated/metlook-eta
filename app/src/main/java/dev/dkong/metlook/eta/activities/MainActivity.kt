@@ -20,12 +20,6 @@ import dev.dkong.metlook.eta.common.Constants.transitionAnimationSpec
 import dev.dkong.metlook.eta.common.Constants.transitionOffsetProportion
 import dev.dkong.metlook.eta.screens.RootScreen
 import dev.dkong.metlook.eta.screens.home.HomeScreen
-import dev.dkong.metlook.eta.screens.settings.LocationFeaturesScreen
-import dev.dkong.metlook.eta.screens.settings.RecentsSettingsScreen
-import dev.dkong.metlook.eta.screens.settings.SettingsScreen
-import dev.dkong.metlook.eta.screens.settings.SettingsScreens
-import dev.dkong.metlook.eta.common.tracker.TrackerIntegrationSettingsScreen
-import dev.dkong.metlook.eta.screens.search.SearchScreen
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 
 /**
