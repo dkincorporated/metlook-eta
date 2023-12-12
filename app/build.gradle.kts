@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.0-alpha12")
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-client-android:2.3.7")
     implementation("androidx.browser:browser:1.7.0")
 }

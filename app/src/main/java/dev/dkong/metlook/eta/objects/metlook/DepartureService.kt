@@ -1,7 +1,17 @@
-package dev.dkong.metlook.eta.objects.ptv
+package dev.dkong.metlook.eta.objects.metlook
 
+import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
-import dev.dkong.metlook.eta.objects.metlook.PatternType
+import dev.dkong.metlook.eta.objects.ptv.Departure
+import dev.dkong.metlook.eta.objects.ptv.Direction
+import dev.dkong.metlook.eta.objects.ptv.Disruption
+import dev.dkong.metlook.eta.objects.ptv.Route
+import dev.dkong.metlook.eta.objects.ptv.Run
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Duration
 
 /**
  * All-in-one object for a service departure from a Stop
@@ -34,6 +44,54 @@ data class DepartureService(
     val vehiclePosition = run.vehiclePosition
 
     /**
+     * Whether the service is cancelled
+     */
+    val isCancelled = status == "cancelled"
+
+    /**
+     * Get the title of the service
+     */
+    val serviceTitle =
+        if (routeType == RouteType.Train) {
+            // Flinders Street, Flagstaff, Parliament services get displayed as Flinders St
+            if (arrayOf(1071, 1068, 1155).contains(finalStopId)) "Flinders St"
+            // Frankston services to Southern Cross get displayed as Flinders St
+            else if (routeId == 6 && finalStopId == 1181) "Flinders St"
+            else destinationName
+        }
+        else direction.directionName
+
+    /**
+     * Get the time to the scheduled departure
+     * @return duration until scheduled departure
+     */
+    fun timeToScheduledDeparture(): Duration = scheduledDeparture - Clock.System.now()
+
+    /**
+     * Get the time to the estimated departure
+     * @return duration until estimated departure
+     */
+    fun timeToEstimatedDeparture(): Duration? =
+        if (estimatedDeparture != null) estimatedDeparture - Clock.System.now()
+        else null
+
+    /**
+     * Get the delay of the service
+     * @return delay duration
+     */
+    fun delay(): Duration? = estimatedDeparture?.minus(scheduledDeparture)
+
+    /**
+     * Get the display time of the scheduled departure
+     */
+    fun scheduledDepartureTime() =
+        Constants.displayTimeFormatter.format(
+            scheduledDeparture
+                .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
+                .toJavaLocalDateTime()
+        ).lowercase() // the lowercase() turns the am/pm indicator to lowercase
+
+    /**
      * Get the discrete stopping pattern description/type (only for Train)
      */
     fun patternType(): PatternType {
@@ -50,24 +108,29 @@ data class DepartureService(
                     return PatternType.LimitedStops
                 }
             }
+
             1, 4, 11, 3, 6, 8 -> {
                 if (expressStopCount <= 4) {
                     return PatternType.LimitedStops
                 }
             }
+
             5, 14, 16 -> {
                 if (expressStopCount <= 3) {
                     return PatternType.LimitedStops
                 }
             }
+
             7 -> {
                 if (expressStopCount <= 7) {
                     return PatternType.LimitedStops
                 }
             }
+
             12, 13, 15, 17 -> {
                 return PatternType.LimitedStops
             }
+
             1482 -> {
                 if (expressStopCount <= 2) {
                     return PatternType.LimitedStops

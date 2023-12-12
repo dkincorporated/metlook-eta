@@ -45,6 +45,11 @@ object Constants {
     val dateTimeFormat = DateTimeFormatter.ISO_DATE_TIME
 
     /**
+     * Format for displaying time of DateTime objects
+     */
+    val displayTimeFormatter = DateTimeFormatter.ofPattern("h:mma")
+
+    /**
      * Get the base surface colour for background-type surfaces
      * @return background surface colour
      */

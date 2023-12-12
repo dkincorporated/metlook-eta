@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.objects.ptv
 
 import dev.dkong.metlook.eta.common.Constants
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -49,11 +50,11 @@ data class Departure(
     @SerialName("departure_sequence")
     val departureSequence: Int
 ) {
-    // TODO: Find safer way to do this
+    @Contextual
+    val scheduledDeparture = Instant.parse(scheduledDepartureUtcString)
 
     @Contextual
-    val scheduledDeparture = scheduledDepartureUtcString
-
-    @Contextual
-    val estimatedDeparture = estimatedDepartureUtcString
+    val estimatedDeparture =
+        if (estimatedDepartureUtcString != null) Instant.parse(estimatedDepartureUtcString)
+        else null
 }

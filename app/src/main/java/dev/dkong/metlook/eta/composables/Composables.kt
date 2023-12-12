@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,12 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
-import dev.dkong.metlook.eta.objects.ptv.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.DepartureService
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.serialization.encodeToString
 
@@ -111,20 +111,18 @@ fun DepartureCard(
 ) {
     ListItem(
         headlineContent = {
-            val serviceTitle =
-                if (departure.routeType == RouteType.Train) departure.destinationName
-                else departure.direction.directionName
+            val serviceTitle = "${departure.scheduledDepartureTime()} ${departure.serviceTitle}"
 
             Text(
                 text = serviceTitle,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleLarge
             )
         },
         supportingContent = {
             val serviceSubtitle =
-                if (departure.routeType == RouteType.Train)
-                    stringResource(departure.patternType().displayName)
+                if (departure.isCancelled) "Not running today"
+                else if (departure.routeType == RouteType.Train)
+                    stringResource(id = departure.patternType().displayName)
                 else "To ${departure.destinationName}"
             Text(
                 text = serviceSubtitle,
@@ -143,10 +141,43 @@ fun DepartureCard(
                 TextMetLabel(text = departure.route.routeNumber)
             }
         },
+        trailingContent = {
+            if (departure.isCancelled) return@ListItem
+            val timeText =
+                if (departure.isAtPlatform) "Now"
+                else if (departure.estimatedDeparture != null
+                    && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
+                ) "<1"
+                else if (departure.estimatedDeparture != null)
+                    "${departure.timeToEstimatedDeparture()?.inWholeMinutes}"
+                else "${departure.timeToScheduledDeparture().inWholeMinutes}*"
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = timeText,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (!departure.isAtPlatform) {
+                    Text(
+                        text = "min",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = if (departure.isCancelled) MaterialTheme.colorScheme.errorContainer
+            else MaterialTheme.colorScheme.surface,
+            headlineColor = if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+            else MaterialTheme.colorScheme.onSurface
+        ),
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
+            // TODO: Add check for cancelled service (from flag)
             .clickable {
                 // TODO: Open the Departure
             }

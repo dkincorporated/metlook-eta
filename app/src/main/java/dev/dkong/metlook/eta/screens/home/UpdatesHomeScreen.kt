@@ -8,6 +8,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,8 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
@@ -174,17 +177,18 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
 /**
  * Individual disruption card
  * @param disruption the Disruption to display
+ * TODO: Consider moving to all Composables file
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
     var showDetail by remember { mutableStateOf(false) }
+    val isSuspended = disruption.disruptionType.lowercase().contains("suspended")
 
     ListItem(
         headlineContent = {
             Text(
                 text = disruption.title,
-                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium
             )
         },
@@ -200,6 +204,14 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                 }
             }
         },
+        colors = ListItemDefaults.colors(
+            containerColor =
+                if (isSuspended) MaterialTheme.colorScheme.errorContainer
+                else MaterialTheme.colorScheme.surface,
+            headlineColor =
+                if (isSuspended) MaterialTheme.colorScheme.onErrorContainer
+                else MaterialTheme.colorScheme.primary
+        ),
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
