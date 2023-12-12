@@ -7,6 +7,18 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
 /**
+ * Resultant object from PTV API Departures
+ */
+@Serializable
+data class DepartureResult(
+    val departures: List<Departure>,
+    val stops: List<Stop>,
+    val runs: Map<String, Run>,
+    val directions: List<Direction>,
+    val disruptions: List<Disruption>
+)
+
+/**
  * Departure object from PTV API
  */
 @Serializable
@@ -37,7 +49,10 @@ data class Departure(
     val departureSequence: Int
 ) {
     @Contextual
-    val scheduledDeparture = LocalDateTime.parse(scheduledDepartureUtcString, Constants.dateTimeFormat)
+    val scheduledDeparture =
+        LocalDateTime.parse(scheduledDepartureUtcString, Constants.dateTimeFormat)
+
     @Contextual
-    val estimatedDeparture = LocalDateTime.parse(estimatedDepartureUtcString, Constants.dateTimeFormat)
+    val estimatedDeparture =
+        LocalDateTime.parse(estimatedDepartureUtcString, Constants.dateTimeFormat)
 }

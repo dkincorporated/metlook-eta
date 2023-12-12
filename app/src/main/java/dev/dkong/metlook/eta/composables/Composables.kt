@@ -32,6 +32,8 @@ import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.objects.ptv.DepartureService
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.serialization.encodeToString
 
@@ -89,6 +91,52 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
                 val stopIntent = Intent(context, StopActivity::class.java)
                 stopIntent.putExtra("stop", Constants.jsonFormat.encodeToString(stop))
                 context.startActivity(stopIntent)
+            }
+
+    )
+}
+
+/**
+ * Card for a Departure service
+ * @see DepartureService
+ */
+@Composable
+fun DepartureCard(departure: DepartureService, shape: Shape, context: Context, modifier: Modifier) {
+    ListItem(
+        headlineContent = {
+            val serviceTitle =
+                if (departure.routeType == RouteType.Train) departure.destinationName
+                else departure.direction.directionName
+
+            Text(
+                text = serviceTitle,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        supportingContent = {
+            val serviceSubtitle =
+                if (departure.routeType == RouteType.Train) departure.expressStopCount.toString()
+                else "To ${departure.destinationName}"
+            Text(
+                text = serviceSubtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        leadingContent = {
+            if (departure.routeType == RouteType.Train && departure.platformNumber != null) {
+                TextMetLabel(text = departure.platformNumber) // TODO: change to round label
+            } else if (departure.route.routeNumber != null) {
+                TextMetLabel(text = departure.route.routeNumber)
+            }
+        },
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 1.dp)
+            .clip(shape)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable {
+                // TODO: Open the Departure
             }
 
     )

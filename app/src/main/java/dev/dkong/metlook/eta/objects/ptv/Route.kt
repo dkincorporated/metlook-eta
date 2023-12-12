@@ -12,7 +12,7 @@ data class Route(
     @SerialName("route_name")
     val routeName: String,
     @SerialName("route_number")
-    val routeNumber: String,
+    private val routeNumberString: String,
     @SerialName("route_type")
     val routeType: Int,
     @SerialName("route_id")
@@ -21,7 +21,9 @@ data class Route(
     val routeGtfsId: String,
     @SerialName("route_service_status")
     val routeServiceStatus: RouteServiceStatus?
-)
+) {
+    val routeNumber = if (routeNumberString == "") null else routeNumberString
+}
 
 /**
  * Service Status object for Route object

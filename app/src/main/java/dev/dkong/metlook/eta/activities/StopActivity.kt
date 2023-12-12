@@ -24,6 +24,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,7 +38,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
+import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.TextMetLabel
+import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 
@@ -71,6 +77,7 @@ class StopActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberBottomSheetScaffoldState()
 
+        var departureResult by remember { mutableStateOf<DepartureResult?>(null) }
         val stopName = stop.stopName()
 
         BottomSheetScaffold(
@@ -122,9 +129,7 @@ class StopActivity : ComponentActivity() {
             },
             sheetContent = {
                 // Departures
-                Text(
-                    text = stop.stopSuburb
-                )
+
             }
         ) { innerPadding ->
             // Map
@@ -133,7 +138,10 @@ class StopActivity : ComponentActivity() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                Text("Some cool map", modifier = Modifier.align(Alignment.Center))
+                PlaceholderMessage(
+                    title = "We're busy making the map",
+                    subtitle = "Promise you it'll be worth the wait."
+                )
             }
         }
     }

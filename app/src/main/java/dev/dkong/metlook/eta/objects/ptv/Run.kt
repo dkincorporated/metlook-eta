@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.objects.ptv
 
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.RouteType
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
@@ -15,7 +16,7 @@ data class Run(
     @SerialName("run_id") val runId: Int,
     @SerialName("run_ref") val runRef: String,
     @SerialName("route_id") val routeId: Int,
-    @SerialName("route_type") val routeType: Int,
+    @SerialName("route_type") private val routeTypeId: Int,
     @SerialName("final_stop_id") val finalStopId: Int,
     @SerialName("destination_name") val destinationName: String,
     val status: String,
@@ -25,7 +26,9 @@ data class Run(
     @SerialName("vehicle_position") val vehiclePosition: VehiclePosition,
     @SerialName("vehicle_descriptor") val vehicleDescriptor: VehicleDescriptor,
     val geopath: List<Long>
-)
+) {
+    val routeType = RouteType.fromId(routeTypeId)
+}
 
 /**
  * Vehicle Position object from PTV API Run object
