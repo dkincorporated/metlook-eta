@@ -12,10 +12,11 @@ import java.time.LocalDateTime
 @Serializable
 data class DepartureResult(
     val departures: List<Departure>,
-    val stops: List<Stop>,
+    val stops: Map<Int, Stop>,
+    val routes: Map<Int, Route>,
     val runs: Map<String, Run>,
-    val directions: List<Direction>,
-    val disruptions: List<Disruption>
+    val directions: Map<Int, Direction>,
+    val disruptions: Map<Int, Disruption>
 )
 
 /**
@@ -38,21 +39,21 @@ data class Departure(
     @SerialName("scheduled_departure_utc")
     private val scheduledDepartureUtcString: String,
     @SerialName("estimated_departure_utc")
-    private val estimatedDepartureUtcString: String,
+    private val estimatedDepartureUtcString: String?,
     @SerialName("at_platform")
     val atPlatform: Boolean,
     @SerialName("platform_number")
-    val platformNumber: String,
+    val platformNumber: String?,
     @SerialName("flags")
     val flags: String,
     @SerialName("departure_sequence")
     val departureSequence: Int
 ) {
-    @Contextual
-    val scheduledDeparture =
-        LocalDateTime.parse(scheduledDepartureUtcString, Constants.dateTimeFormat)
+    // TODO: Find safer way to do this
 
     @Contextual
-    val estimatedDeparture =
-        LocalDateTime.parse(estimatedDepartureUtcString, Constants.dateTimeFormat)
+    val scheduledDeparture = scheduledDepartureUtcString
+
+    @Contextual
+    val estimatedDeparture = estimatedDepartureUtcString
 }

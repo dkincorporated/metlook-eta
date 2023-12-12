@@ -10,17 +10,15 @@ data class DepartureService(
     val route: Route,
     private val run: Run,
     val direction: Direction,
-    private val allDisruptions: List<Disruption>
+    val disruptions: List<Disruption>
 ) {
     val departureStopId = departure.stopId
     val runRef = departure.runRef
     private val runId = departure.runId
     val routeType = run.routeType
-    val disruptions = allDisruptions
-        .filter { d -> departure.disruptionIds.contains(d.disruptionId) }
     val scheduledDeparture = departure.scheduledDeparture
     val estimatedDeparture = departure.estimatedDeparture
-    val platformNumber = if (departure.platformNumber == "") null else departure.platformNumber
+    val platformNumber = departure.platformNumber
     val isAtPlatform = departure.atPlatform
     val flags = if (departure.flags == "") null else departure.flags
 

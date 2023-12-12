@@ -112,7 +112,7 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
                 // TODO: Handle error
             }
         }
-        
+
         // TODO: Handle error
     }
 

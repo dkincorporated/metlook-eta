@@ -23,8 +23,8 @@ data class Run(
     @SerialName("direction_id") val directionId: Int,
     @SerialName("run_sequence") val runSequence: Int,
     @SerialName("express_stop_count") val expressStopCount: Int,
-    @SerialName("vehicle_position") val vehiclePosition: VehiclePosition,
-    @SerialName("vehicle_descriptor") val vehicleDescriptor: VehicleDescriptor,
+    @SerialName("vehicle_position") val vehiclePosition: VehiclePosition?,
+    @SerialName("vehicle_descriptor") val vehicleDescriptor: VehicleDescriptor?,
     val geopath: List<Long>
 ) {
     val routeType = RouteType.fromId(routeTypeId)

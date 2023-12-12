@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -101,7 +102,12 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
  * @see DepartureService
  */
 @Composable
-fun DepartureCard(departure: DepartureService, shape: Shape, context: Context, modifier: Modifier) {
+fun DepartureCard(
+    departure: DepartureService,
+    shape: Shape,
+    context: Context,
+    modifier: Modifier = Modifier
+) {
     ListItem(
         headlineContent = {
             val serviceTitle =
@@ -126,7 +132,11 @@ fun DepartureCard(departure: DepartureService, shape: Shape, context: Context, m
         },
         leadingContent = {
             if (departure.routeType == RouteType.Train && departure.platformNumber != null) {
-                TextMetLabel(text = departure.platformNumber) // TODO: change to round label
+                TextMetLabel(
+                    text = departure.platformNumber, modifier = metLabelModifier.clip(
+                        CircleShape
+                    )
+                )
             } else if (departure.route.routeNumber != null) {
                 TextMetLabel(text = departure.route.routeNumber)
             }

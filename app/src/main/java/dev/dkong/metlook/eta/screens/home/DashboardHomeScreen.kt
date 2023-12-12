@@ -77,7 +77,7 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                     0.0,
                     0.0,
                     0,
-                    1180,
+                    1181,
                     "Southern Cross Station",
                     "Southern Cross station"
                 ),

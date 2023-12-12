@@ -16,7 +16,7 @@ data class Stop(
     @SerialName("route_type")
     private val routeTypeId: Int,
     @SerialName("routes")
-    val routes: List<Route>,
+    val routes: List<Route>? = null,
     @SerialName("stop_latitude")
     val stopLatitude: Double,
     @SerialName("stop_longitude")
