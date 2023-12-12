@@ -58,8 +58,7 @@ data class DepartureService(
             // Frankston services to Southern Cross get displayed as Flinders St
             else if (routeId == 6 && finalStopId == 1181) "Flinders St"
             else destinationName
-        }
-        else direction.directionName
+        } else direction.directionName
 
     /**
      * Get the time to the scheduled departure
@@ -90,6 +89,35 @@ data class DepartureService(
                 .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
                 .toJavaLocalDateTime()
         ).lowercase() // the lowercase() turns the am/pm indicator to lowercase
+
+    /**
+     * Value to be used as the grouping identifier for the direction group stage
+     *
+     * Triple: grouping ID, route number (if applicable), grouping name
+     */
+    val directionGroupingValue = when (routeType) {
+        RouteType.Train -> {
+            // Group based on sets of routes
+            when (direction.directionId) {
+                1 -> DepartureGroup(10, null, "To City") // City
+                0 -> DepartureGroup(11, null, "Alamein line") // Alamein
+                2, 13, 14 -> DepartureGroup(12, null, "Upfield, Craigieburn, Sunbury lines") // Northern
+                3, 8 -> DepartureGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
+                4, 10 -> DepartureGroup(14, null, "Pakenham and Cranbourne lines") // Dandenong
+                5 -> DepartureGroup(15, null, "Frankston line") // Frankston
+                6 -> DepartureGroup(16, null, "Glen Waverley line") // Glen Waverley
+                7, 9 -> DepartureGroup(17, null, "Hurstbridge and Mernda lines") // Clifton Hill
+                11 -> DepartureGroup(18, null, "Sandringham line") // Sandringham
+                15, 16 -> DepartureGroup(19, null, "Werribee and Williamstown lines") // Newport
+                18 -> DepartureGroup(20, null, "Racecourse line") // Flemington Racecourse / Showgrounds
+                else -> DepartureGroup(0, null, "")
+            }
+        }
+        else -> {
+            // Group based on individual route
+            DepartureGroup(routeId, route.routeNumber, route.routeName)
+        }
+    }
 
     /**
      * Get the discrete stopping pattern description/type (only for Train)
