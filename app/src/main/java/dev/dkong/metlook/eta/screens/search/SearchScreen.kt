@@ -259,7 +259,7 @@ fun SearchScreen(navHostController: NavHostController) {
  */
 suspend fun getSearchResults(query: String): SearchResult? {
     val request = PtvApi.getApiUrl(
-        "/v3/search/${query.replace(" ", "%20")}?"
+        "/v3/search/${query.trim().replace(" ", "%20")}?"
     )
 
     request?.let {
