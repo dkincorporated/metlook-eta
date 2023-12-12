@@ -62,6 +62,7 @@ import dev.dkong.metlook.eta.objects.ptv.Disruptions
 import dev.dkong.metlook.eta.objects.ptv.DisruptionsResult
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.serialization.SerializationException
 
 /**
  * Updates page for the home screen
@@ -95,8 +96,24 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
 
     LaunchedEffect(Unit) {
         // Fetch disruptions
-        allDisruptions = getDisruptions()
-        updateView(pages[selectedPage])
+
+        val request = PtvApi.getApiUrl(
+            "/v3/disruptions?route_types=0&route_types=1&route_types=2&disruption_status=current&"
+        )
+
+        request?.let {
+            val response: String = httpClient.get(request).body()
+
+            try {
+                allDisruptions =
+                    jsonFormat.decodeFromString<DisruptionsResult>(response).disruptions
+                updateView(pages[selectedPage])
+            } catch (e: SerializationException) {
+                // TODO: Handle error
+            }
+        }
+        
+        // TODO: Handle error
     }
 
     LazyColumn {
@@ -152,24 +169,6 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
             }
         }
     }
-}
-
-/**
- * Get the latest disruptions
- * @return list of disruptions
- */
-suspend fun getDisruptions(): Disruptions? {
-    // Cached version didn't work, so proceed to fetch a new copy
-    val request = PtvApi.getApiUrl(
-        "/v3/disruptions?route_types=0&route_types=1&route_types=2&disruption_status=current&"
-    )
-
-    request?.let {
-        val response: String = httpClient.get(request).body()
-        return jsonFormat.decodeFromString<DisruptionsResult>(response).disruptions
-    }
-
-    return null
 }
 
 /**
