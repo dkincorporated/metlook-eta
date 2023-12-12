@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -70,7 +71,7 @@ fun LargeTopAppbarScaffold(
     navController: NavHostController,
     title: String,
     horizontalPadding: Dp = 0.dp,
-    navigationIcon: ImageVector = Icons.Default.ArrowBack,
+    navigationIcon: ImageVector = Icons.AutoMirrored.Default.ArrowBack,
     onNavigationIconClick: () -> Unit = { navController.navigateUp() },
     navigationBar: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit
@@ -128,7 +129,7 @@ fun LargeTopAppbarScaffoldBox(
     navController: NavHostController,
     title: String,
     horizontalPadding: Dp = 0.dp,
-    navigationIcon: ImageVector = Icons.Default.ArrowBack,
+    navigationIcon: ImageVector = Icons.AutoMirrored.Default.ArrowBack,
     onNavigationIconClick: () -> Unit = { navController.navigateUp() },
     navigationBar: @Composable () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
@@ -273,7 +274,7 @@ fun ExpandableSection(
 @Composable
 fun ElevatedAppBarNavigationIcon(
     onClick: () -> Unit,
-    icon: ImageVector = Icons.Default.ArrowBack,
+    icon: ImageVector = Icons.AutoMirrored.Default.ArrowBack,
     iconContentDescription: String = "Go back"
 ) {
     IconButton(

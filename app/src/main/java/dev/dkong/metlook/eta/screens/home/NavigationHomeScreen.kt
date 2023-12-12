@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
@@ -17,8 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import dev.dkong.metlook.eta.SearchActivity
-import dev.dkong.metlook.eta.composables.HeadlineToggleableSettingsItem
+import dev.dkong.metlook.eta.activities.SearchActivity
 import dev.dkong.metlook.eta.composables.SectionHeading
 
 @Composable

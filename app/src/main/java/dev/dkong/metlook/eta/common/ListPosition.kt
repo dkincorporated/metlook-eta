@@ -2,8 +2,8 @@ package dev.dkong.metlook.eta.common
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
-import dev.dkong.metlook.eta.common.Constants.Companion.largeListCornerRadius
-import dev.dkong.metlook.eta.common.Constants.Companion.smallListCornerRadius
+import dev.dkong.metlook.eta.common.Constants.largeListCornerRadius
+import dev.dkong.metlook.eta.common.Constants.smallListCornerRadius
 
 /**
  * Record class for specifying the position of an item in a list (mainly for rounding corners)

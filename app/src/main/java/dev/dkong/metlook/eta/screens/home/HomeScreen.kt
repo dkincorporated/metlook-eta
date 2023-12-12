@@ -2,20 +2,15 @@ package dev.dkong.metlook.eta.screens.home
 
 import android.content.Intent
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
@@ -30,11 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
-import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -48,11 +41,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
-import dev.dkong.metlook.eta.SettingsActivity
+import dev.dkong.metlook.eta.activities.SettingsActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffoldBox
 import dev.dkong.metlook.eta.composables.SectionHeading
-import dev.dkong.metlook.eta.screens.RootScreen
 
 @Composable
 fun HomeScreen(navHostController: NavHostController) {

@@ -50,8 +50,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
-import dev.dkong.metlook.eta.common.Constants.Companion.httpClient
-import dev.dkong.metlook.eta.common.Constants.Companion.jsonFormat
+import dev.dkong.metlook.eta.common.Constants.httpClient
+import dev.dkong.metlook.eta.common.Constants.jsonFormat
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
