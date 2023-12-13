@@ -343,7 +343,10 @@ class StopActivity : ComponentActivity() {
                     colors = TopAppBarDefaults.largeTopAppBarColors(
                         // TODO: Always show scrolled colour (?)
                         containerColor =
-                        if (isSheetExpanded)
+                        if (with(scaffoldState.bottomSheetState) {
+                                currentValue == SheetValue.Expanded
+                                        && targetValue == SheetValue.Expanded
+                            })
                             Constants.scrolledAppbarContainerColour()
                         else Constants.appSurfaceColour()
                     ),
