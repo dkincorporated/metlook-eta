@@ -1,13 +1,16 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -27,6 +31,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,13 +39,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -109,6 +120,7 @@ class StopActivity : ComponentActivity() {
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
         val stopName = stop.stopName()
         val filters = remember { mutableStateMapOf<String, Boolean>() }
+        var loadingState by remember { mutableFloatStateOf(0f) }
 
         // Initialise the filters
         filters["next-sixty"] = true
@@ -166,6 +178,8 @@ class StopActivity : ComponentActivity() {
          * Get (or update) list of departures
          */
         suspend fun updateDepartures() {
+            loadingState = 0.01f
+
             departures.clear()
 
             // Get departures from web API
@@ -176,10 +190,14 @@ class StopActivity : ComponentActivity() {
                         "?expand=all&max_results=100&"
             )
 
+            loadingState = 0.1f
+
             Log.d("DEPARTURES", "Request: $request")
 
             request?.let {
                 val response: String = Constants.httpClient.get(request).body()
+
+                loadingState = 0.5f
 
                 Log.d("DEPARTURES", "Received web response")
 
@@ -189,6 +207,7 @@ class StopActivity : ComponentActivity() {
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
 
                     Log.d("DEPARTURES", "JSON decoded")
+                    loadingState = 0.7f
 
                     // Temporarily store the processed departure objects
                     val processedDepartures = mutableListOf<DepartureService>()
@@ -222,6 +241,7 @@ class StopActivity : ComponentActivity() {
                     }
 
                     Log.d("DEPARTURES", "Departures processed")
+                    loadingState = 0.8f
 
                     // Group the departures
                     val groupedDepartures = processedDepartures
@@ -253,13 +273,18 @@ class StopActivity : ComponentActivity() {
                         }
 
                     Log.d("DEPARTURES", "Departures grouped")
+                    loadingState = 0.9f
 
                     // Add all departures
                     allDepartures.clear()
                     allDepartures.addAll(groupedDepartures)
 
+                    loadingState = 0.95f
+
                     // Run any filters
                     updateFilters()
+
+                    loadingState = 1f
 
                     return
                 } catch (e: SerializationException) {
@@ -335,6 +360,23 @@ class StopActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
+                    // Progress bar (temporary)
+                    item {
+                        AnimatedVisibility(
+                            visible = loadingState in 0.01f..0.99f,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            LinearProgressIndicator(
+                                progress = { loadingState },
+                                strokeCap = StrokeCap.Round,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .height(8.dp),
+                            )
+                        }
+                    }
                     // Filter chip(s)
                     item {
                         FlowRow(
@@ -376,7 +418,7 @@ class StopActivity : ComponentActivity() {
                                 val listedDepartures =
                                     departure.second.slice(0 until min(2, departure.second.size))
 
-                                item(key = listedDepartures.joinToString(",") { d -> d.runRef }) {
+                                item(key = listedDepartures.first().runRef) {
                                     DepartureCard(
                                         departureList = listedDepartures,
                                         shape = ListPosition.fromPosition(
