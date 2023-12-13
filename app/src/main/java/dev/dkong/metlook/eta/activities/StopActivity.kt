@@ -368,12 +368,8 @@ class StopActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     // Progress bar (temporary)
-                    item {
-                        AnimatedVisibility(
-                            visible = loadingState,
-                            enter = expandVertically(),
-                            exit = shrinkVertically()
-                        ) {
+                    if (loadingState)
+                        item(key = "progress") {
                             LinearProgressIndicator(
                                 strokeCap = StrokeCap.Round,
                                 modifier = Modifier
@@ -382,7 +378,6 @@ class StopActivity : ComponentActivity() {
                                     .height(8.dp),
                             )
                         }
-                    }
                     // Filter chip(s)
                     item {
                         FlowRow(
