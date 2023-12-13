@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -292,7 +293,8 @@ class StopActivity : ComponentActivity() {
 
         // Aesthetic values for bottom sheet
         val isSheetExpanded =
-            ((scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded)
+            ((scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                    || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded)
                     && scaffoldState.bottomSheetState.targetValue != SheetValue.PartiallyExpanded)
 
         val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
@@ -357,12 +359,23 @@ class StopActivity : ComponentActivity() {
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp
             ),
+            sheetDragHandle = {
+                Column {
+                    AnimatedVisibility(
+                        visible = isSheetExpanded,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
+                    ) {
+                        Box(modifier = Modifier.statusBarsPadding())
+                    }
+                    BottomSheetDefaults.DragHandle()
+                }
+            },
             sheetContent = {
                 // Departures
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                        .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     // Progress bar (temporary)
