@@ -113,7 +113,11 @@ fun DepartureCard(
 
     ListItem(
         headlineContent = {
-            val serviceTitle = "${departure.scheduledDepartureTime()} ${departure.serviceTitle}"
+            val serviceTitle =
+                if (departureList.size == 1)
+                    "${departure.scheduledDepartureTime()} ${departure.serviceTitle}"
+                else
+                    departure.serviceTitle
 
             Text(
                 text = serviceTitle,
