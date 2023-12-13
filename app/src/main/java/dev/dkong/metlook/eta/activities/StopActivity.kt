@@ -120,7 +120,7 @@ class StopActivity : ComponentActivity() {
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
         val stopName = stop.stopName()
         val filters = remember { mutableStateMapOf<String, Boolean>() }
-        var loadingState by remember { mutableFloatStateOf(0f) }
+        var loadingState by remember { mutableStateOf(true) }
 
         // Initialise the filters
         filters["next-sixty"] = true
@@ -178,7 +178,7 @@ class StopActivity : ComponentActivity() {
          * Get (or update) list of departures
          */
         suspend fun updateDepartures() {
-            loadingState = 0.01f
+            loadingState = true
 
             departures.clear()
 
@@ -190,14 +190,10 @@ class StopActivity : ComponentActivity() {
                         "?expand=all&max_results=100&"
             )
 
-            loadingState = 0.1f
-
             Log.d("DEPARTURES", "Request: $request")
 
             request?.let {
                 val response: String = Constants.httpClient.get(request).body()
-
-                loadingState = 0.5f
 
                 Log.d("DEPARTURES", "Received web response")
 
@@ -207,7 +203,6 @@ class StopActivity : ComponentActivity() {
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
 
                     Log.d("DEPARTURES", "JSON decoded")
-                    loadingState = 0.7f
 
                     // Temporarily store the processed departure objects
                     val processedDepartures = mutableListOf<DepartureService>()
@@ -241,19 +236,12 @@ class StopActivity : ComponentActivity() {
                     }
 
                     Log.d("DEPARTURES", "Departures processed")
-                    loadingState = 0.8f
 
                     // Group the departures
                     val groupedDepartures = processedDepartures
                         .groupBy { d -> d.directionGroupingValue }
                         .toList()
-                        .sortedBy { pair ->
-                            if (pair.first.routeNumber?.isDigitsOnly() == true) {
-                                pair.first.routeNumber?.toInt()
-                            } else {
-                                pair.first.groupingId
-                            }
-                        }
+                        .sortedBy { pair -> pair.first }
                         .map { entry ->
                             Pair(
                                 entry.first,
@@ -273,19 +261,15 @@ class StopActivity : ComponentActivity() {
                         }
 
                     Log.d("DEPARTURES", "Departures grouped")
-                    loadingState = 0.9f
 
                     // Add all departures
                     allDepartures.clear()
                     allDepartures.addAll(groupedDepartures)
 
-                    loadingState = 0.95f
-
                     // Run any filters
                     updateFilters()
 
-                    loadingState = 1f
-
+                    loadingState = false
                     return
                 } catch (e: SerializationException) {
                     // TODO: Show error for failed request
@@ -363,12 +347,11 @@ class StopActivity : ComponentActivity() {
                     // Progress bar (temporary)
                     item {
                         AnimatedVisibility(
-                            visible = loadingState in 0.01f..0.99f,
+                            visible = loadingState,
                             enter = expandVertically(),
                             exit = shrinkVertically()
                         ) {
                             LinearProgressIndicator(
-                                progress = { loadingState },
                                 strokeCap = StrokeCap.Round,
                                 modifier = Modifier
                                     .fillMaxWidth()
