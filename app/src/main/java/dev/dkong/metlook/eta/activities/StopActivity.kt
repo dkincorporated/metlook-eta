@@ -291,11 +291,11 @@ class StopActivity : ComponentActivity() {
         }
 
         // Aesthetic values for bottom sheet
-        val isSheetExpanded =
-            with(scaffoldState.bottomSheetState) {
-                ((currentValue == SheetValue.Expanded || targetValue == SheetValue.Expanded)
-                        && targetValue != SheetValue.PartiallyExpanded)
-            }
+        // TODO: This breaks the bottom sheet content if filter is toggled while sheet is expanded
+        // Cause unknown
+        val isSheetExpanded = false
+//        ((scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded)
+//                && scaffoldState.bottomSheetState.targetValue != SheetValue.PartiallyExpanded)
 
         val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
 
