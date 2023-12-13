@@ -175,7 +175,8 @@ fun DepartureCard(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                if (!departure.isAtPlatform) {
+                // Display the 'min' indicator if at least one departure is not at platform
+                if (departureList.any { d -> !d.isAtPlatform }) {
                     Text(
                         text = "min",
                         style = MaterialTheme.typography.bodySmall
