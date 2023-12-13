@@ -6,10 +6,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +47,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
-import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
@@ -57,7 +54,7 @@ import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TextMetLabel
-import dev.dkong.metlook.eta.objects.metlook.DepartureGroup
+import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
 import dev.dkong.metlook.eta.objects.ptv.Stop
@@ -104,10 +101,11 @@ class StopActivity : ComponentActivity() {
         val scaffoldState = rememberBottomSheetScaffoldState()
 
         // "Clean" list of all departures (no filters)
-        val allDepartures = mutableListOf<Pair<DepartureGroup, List<DepartureService>>>()
+        val allDepartures =
+            mutableListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>()
         // Observed list of departures (for filters)
         val departures =
-            remember { mutableStateListOf<Pair<DepartureGroup, List<DepartureService>>>() }
+            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
         val stopName = stop.stopName()
         val filters = remember { mutableStateMapOf<String, Boolean>() }
 
@@ -125,15 +123,37 @@ class StopActivity : ComponentActivity() {
                     Pair(
                         entry.first,
                         entry.second
-                            .filter { departure ->
-                                if ((departure.timeToEstimatedDeparture()?.inWholeMinutes
-                                        ?: departure.timeToScheduledDeparture().inWholeMinutes) > 60
-                                ) {
-                                    filters["next-sixty"] != true
-                                } else true
+                            .map { destinationGroup ->
+                                Pair(
+                                    destinationGroup.first,
+                                    destinationGroup.second
+                                        .filter { departure ->
+                                            if ((departure.timeToEstimatedDeparture()?.inWholeMinutes
+                                                    ?: departure.timeToScheduledDeparture().inWholeMinutes) > 60
+                                            ) {
+                                                filters["next-sixty"] != true
+                                            } else true
+                                        }
+                                )
                             }
+                            // Filter empty destination groups
+                            .filter { destinationGroup -> destinationGroup.second.isNotEmpty() }
                     )
                 }
+                // Filter empty route groups
+                .filter { entry -> entry.second.isNotEmpty() }
+            // Remove any groups that have no children (req. if another filter is added)
+//            result = result
+//                .map { entry ->
+//                    Pair(
+//                        entry.first,
+//                        entry.second
+//                            .filter { destinationGroup -> destinationGroup.second.isNotEmpty() }
+//                    )
+//                }
+//                .filter { entry ->
+//                    entry.second.isNotEmpty()
+//                }
             // Final step
             departures.clear()
             departures.addAll(result)
@@ -150,7 +170,7 @@ class StopActivity : ComponentActivity() {
             // of the day.
             val request = PtvApi.getApiUrl(
                 "/v3/departures/route_type/${stop.routeType.id}/stop/${stop.stopId}" +
-                        "?expand=all&max_results=100&include_cancelled=true&"
+                        "?expand=all&max_results=100&"
             )
 
             Log.d("DEPARTURES", "Request: $request")
@@ -194,16 +214,34 @@ class StopActivity : ComponentActivity() {
                         processedDepartures.add(processedDeparture)
                     }
 
+                    // Group the departures
                     val groupedDepartures = processedDepartures
                         .groupBy { d -> d.directionGroupingValue }
                         .toList()
                         .sortedBy { pair -> pair.first.groupingId }
+                        .map { entry ->
+                            Pair(
+                                entry.first,
+                                entry.second
+                                    .groupBy { service ->
+                                        service.finalStopId
+                                    }
+                                    .toList()
+                                    // Sort by earliest departure
+                                    .sortedBy { destinationGroup ->
+                                        with(destinationGroup.second[0]) {
+                                            timeToEstimatedDeparture()?.inWholeSeconds
+                                                ?: timeToScheduledDeparture().inWholeSeconds
+                                        }
+                                    }
+                            )
+                        }
 
+                    // Add all departures
                     allDepartures.clear()
                     allDepartures.addAll(groupedDepartures)
-                    departures.clear()
-                    departures.addAll(groupedDepartures)
 
+                    // Run any filters
                     updateFilters()
 
                     return
@@ -217,7 +255,8 @@ class StopActivity : ComponentActivity() {
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
 
-        LaunchedEffect(Unit) {
+        LaunchedEffect(Unit)
+        {
             updateDepartures()
         }
 
@@ -226,7 +265,8 @@ class StopActivity : ComponentActivity() {
             containerColor = Constants.appSurfaceColour(),
             sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             sheetPeekHeight = 384.dp,
-            topBar = {
+            topBar =
+            {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(
@@ -270,7 +310,8 @@ class StopActivity : ComponentActivity() {
                     }
                 )
             },
-            sheetContent = {
+            sheetContent =
+            {
                 // Departures
                 LazyColumn(
                     modifier = Modifier
@@ -295,8 +336,8 @@ class StopActivity : ComponentActivity() {
                                 leadingIcon = {
                                     AnimatedVisibility(
                                         visible = filters["next-sixty"] == true,
-                                        enter = expandHorizontally(),
-                                        exit = shrinkHorizontally()
+                                        enter = scaleIn(),
+                                        exit = scaleOut()
                                     ) {
                                         Icon(Icons.Default.Check, "Checked")
                                     }
@@ -313,11 +354,14 @@ class StopActivity : ComponentActivity() {
                         }
                         // Display the services
                         // TODO: Decide what to do with extra services
-                        group.second.slice(0..min(2, group.second.lastIndex))
+                        group.second.slice(0 until min(3, group.second.size))
                             .forEachIndexed { index, departure ->
-                                item(key = departure.runRef) {
+                                val listedDepartures =
+                                    departure.second.slice(0 until min(2, departure.second.size))
+
+                                item(key = listedDepartures.joinToString(",") { d -> d.runRef }) {
                                     DepartureCard(
-                                        departure = departure,
+                                        departureList = listedDepartures,
                                         shape = ListPosition.fromPosition(
                                             index,
                                             min(3, group.second.size) // TODO
@@ -326,6 +370,7 @@ class StopActivity : ComponentActivity() {
                                         modifier = Modifier.animateItemPlacement()
                                     )
                                 }
+
                             }
                     }
                     item {
@@ -333,7 +378,8 @@ class StopActivity : ComponentActivity() {
                     }
                 }
             }
-        ) { innerPadding ->
+        )
+        { innerPadding ->
             // Map
             Box(
                 modifier = Modifier

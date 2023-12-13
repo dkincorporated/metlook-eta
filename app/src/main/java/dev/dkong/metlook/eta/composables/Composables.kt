@@ -104,11 +104,13 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
  */
 @Composable
 fun DepartureCard(
-    departure: DepartureService,
+    departureList: List<DepartureService>,
     shape: Shape,
     context: Context,
     modifier: Modifier = Modifier
 ) {
+    val departure = departureList.first()
+
     ListItem(
         headlineContent = {
             val serviceTitle = "${departure.scheduledDepartureTime()} ${departure.serviceTitle}"
@@ -119,13 +121,15 @@ fun DepartureCard(
             )
         },
         supportingContent = {
-            val serviceSubtitle =
-                if (departure.isCancelled) "Not running today"
-                else if (departure.routeType == RouteType.Train)
-                    stringResource(id = departure.patternType().displayName)
-                else "To ${departure.destinationName}"
+            val serviceSubtitles = departureList
+                .map { departure ->
+                    if (departure.isCancelled) "Not running today"
+                    else if (departure.routeType == RouteType.Train)
+                        stringResource(id = departure.patternType().displayName)
+                    else "To ${departure.destinationName}"
+                }
             Text(
-                text = serviceSubtitle,
+                text = serviceSubtitles.joinToString(" • "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -143,7 +147,8 @@ fun DepartureCard(
         },
         trailingContent = {
             if (departure.isCancelled) return@ListItem
-            val timeText =
+
+            val timeTexts = departureList.map { departure ->
                 if (departure.isAtPlatform) "Now"
                 else if (departure.estimatedDeparture != null
                     && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
@@ -151,12 +156,14 @@ fun DepartureCard(
                 else if (departure.estimatedDeparture != null)
                     "${departure.timeToEstimatedDeparture()?.inWholeMinutes}"
                 else "${departure.timeToScheduledDeparture().inWholeMinutes}*"
+            }
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = timeText,
+                    text = timeTexts.joinToString(" • "),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

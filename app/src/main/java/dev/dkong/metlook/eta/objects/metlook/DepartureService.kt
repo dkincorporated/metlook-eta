@@ -101,30 +101,28 @@ data class DepartureService(
 
     /**
      * Value to be used as the grouping identifier for the direction group stage
-     *
-     * Triple: grouping ID, route number (if applicable), grouping name
      */
     val directionGroupingValue = when (routeType) {
         RouteType.Train -> {
             // Group based on sets of routes
             when (direction.directionId) {
-                1 -> DepartureGroup(10, null, "To City") // City
-                0 -> DepartureGroup(11, null, "Alamein line") // Alamein
-                2, 13, 14 -> DepartureGroup(12, null, "Upfield, Craigieburn, Sunbury lines") // Northern
-                3, 8 -> DepartureGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
-                4, 10 -> DepartureGroup(14, null, "Pakenham and Cranbourne lines") // Dandenong
-                5 -> DepartureGroup(15, null, "Frankston line") // Frankston
-                6 -> DepartureGroup(16, null, "Glen Waverley line") // Glen Waverley
-                7, 9 -> DepartureGroup(17, null, "Hurstbridge and Mernda lines") // Clifton Hill
-                11 -> DepartureGroup(18, null, "Sandringham line") // Sandringham
-                15, 16 -> DepartureGroup(19, null, "Werribee and Williamstown lines") // Newport
-                18 -> DepartureGroup(20, null, "Racecourse line") // Flemington Racecourse / Showgrounds
-                else -> DepartureGroup(0, null, "")
+                1 -> DepartureDirectionGroup(10, null, "To City") // City
+                0 -> DepartureDirectionGroup(11, null, "Alamein line") // Alamein
+                2, 13, 14 -> DepartureDirectionGroup(12, null, "Upfield, Craigieburn, Sunbury lines") // Northern
+                3, 8 -> DepartureDirectionGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
+                4, 10 -> DepartureDirectionGroup(14, null, "Pakenham and Cranbourne lines") // Dandenong
+                5 -> DepartureDirectionGroup(15, null, "Frankston line") // Frankston
+                6 -> DepartureDirectionGroup(16, null, "Glen Waverley line") // Glen Waverley
+                7, 9 -> DepartureDirectionGroup(17, null, "Hurstbridge and Mernda lines") // Clifton Hill
+                11 -> DepartureDirectionGroup(18, null, "Sandringham line") // Sandringham
+                15, 16 -> DepartureDirectionGroup(19, null, "Werribee and Williamstown lines") // Newport
+                18 -> DepartureDirectionGroup(20, null, "Racecourse line") // Flemington Racecourse / Showgrounds
+                else -> DepartureDirectionGroup(0, null, "")
             }
         }
         else -> {
             // Group based on individual route
-            DepartureGroup(routeId, route.routeNumber, route.routeName)
+            DepartureDirectionGroup(routeId, route.routeNumber, route.routeName)
         }
     }
 
