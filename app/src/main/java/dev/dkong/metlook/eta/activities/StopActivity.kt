@@ -119,7 +119,7 @@ class StopActivity : ComponentActivity() {
 
         // "Clean" list of all departures (no filters)
         val allDepartures =
-            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
+            mutableListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>()
         // Observed list of departures (for filters)
         val departures =
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
@@ -293,9 +293,9 @@ class StopActivity : ComponentActivity() {
         // Aesthetic values for bottom sheet
         // TODO: This breaks the bottom sheet content if filter is toggled while sheet is expanded
         // Cause unknown
-        val isSheetExpanded =
-            ((scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded)
-                    && scaffoldState.bottomSheetState.targetValue != SheetValue.PartiallyExpanded)
+        val isSheetExpanded = false
+//        ((scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded)
+//                && scaffoldState.bottomSheetState.targetValue != SheetValue.PartiallyExpanded)
 
         val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
 
