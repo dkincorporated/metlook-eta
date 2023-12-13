@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -19,13 +20,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +37,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -281,18 +286,25 @@ class StopActivity : ComponentActivity() {
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
 
-        LaunchedEffect(Unit)
-        {
+        LaunchedEffect(Unit) {
             updateDepartures()
         }
 
+        // Aesthetic values for bottom sheet
+        val isSheetExpanded =
+            with(scaffoldState.bottomSheetState) {
+                ((currentValue == SheetValue.Expanded || targetValue == SheetValue.Expanded)
+                        && targetValue != SheetValue.PartiallyExpanded)
+            }
+
+        val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
+
         BottomSheetScaffold(
             scaffoldState = scaffoldState,
-            containerColor = Constants.appSurfaceColour(),
-            sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            sheetPeekHeight = 384.dp,
-            topBar =
-            {
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            sheetPeekHeight = 512.dp,
+            topBar = {
                 CenterAlignedTopAppBar(
                     title = {
                         Row(
@@ -325,8 +337,10 @@ class StopActivity : ComponentActivity() {
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
                         // TODO: Always show scrolled colour (?)
-                        containerColor = Constants.appSurfaceColour(),
-                        scrolledContainerColor = Constants.scrolledAppbarContainerColour()
+                        containerColor =
+                        if (isSheetExpanded)
+                            Constants.scrolledAppbarContainerColour()
+                        else Constants.appSurfaceColour()
                     ),
                     navigationIcon = {
                         ElevatedAppBarNavigationIcon(onClick = {
@@ -336,13 +350,22 @@ class StopActivity : ComponentActivity() {
                     }
                 )
             },
-            sheetContent =
-            {
+            sheetShape = RoundedCornerShape(
+                topStart = animateDpAsState(
+                    targetValue = bottomSheetCornerRadius,
+                    label = ""
+                ).value,
+                topEnd = animateDpAsState(targetValue = bottomSheetCornerRadius, label = "").value,
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp
+            ),
+            sheetContent = {
                 // Departures
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     // Progress bar (temporary)
                     item {
@@ -396,7 +419,8 @@ class StopActivity : ComponentActivity() {
                         }
                         // Display the services
                         // TODO: Decide what to do with extra services
-                        group.second.slice(0 until min(3, group.second.size))
+                        val maxNumberOfGroups = 4
+                        group.second.slice(0 until min(maxNumberOfGroups, group.second.size))
                             .forEachIndexed { index, departure ->
                                 val listedDepartures =
                                     departure.second.slice(0 until min(2, departure.second.size))
@@ -406,7 +430,7 @@ class StopActivity : ComponentActivity() {
                                         departureList = listedDepartures,
                                         shape = ListPosition.fromPosition(
                                             index,
-                                            min(3, group.second.size) // TODO
+                                            min(maxNumberOfGroups, group.second.size) // TODO
                                         ).roundedShape,
                                         context = context,
                                         modifier = Modifier.animateItemPlacement()
@@ -420,8 +444,7 @@ class StopActivity : ComponentActivity() {
                     }
                 }
             }
-        )
-        { innerPadding ->
+        ) { innerPadding ->
             // Map
             Box(
                 modifier = Modifier
