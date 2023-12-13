@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -19,10 +20,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +40,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,6 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -55,8 +62,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
@@ -299,197 +308,198 @@ class StopActivity : ComponentActivity() {
 
         val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
 
-        @Composable
-        fun AppBar() {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Stop number
-                        stopName.third?.let { n ->
-                            TextMetLabel(text = n)
-                        }
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = stopName.first,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            // Secondary name
-                            stopName.second?.let { s ->
-                                Text(
-                                    text = "on $s",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = 1
-                                )
-                            }
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    // TODO: Always show scrolled colour (?)
-                    containerColor =
-                    if (with(scaffoldState.bottomSheetState) {
-                            currentValue == SheetValue.Expanded
-                                    && targetValue == SheetValue.Expanded
-                        })
-                        Constants.scrolledAppbarContainerColour()
-                    else Constants.appSurfaceColour()
-                ),
-                navigationIcon = {
-                    ElevatedAppBarNavigationIcon(onClick = {
-                        // Finish the Activity
-                        (context as? Activity)?.finish()
-                    })
-                },
-                modifier = Modifier
-                    .onGloballyPositioned { coordinates ->
-                        with(density) {
-                            appBarHeight = coordinates.size.height.toDp()
-                        }
-                    }
-            )
-        }
-
-        BottomSheetScaffold(
-            scaffoldState = scaffoldState,
+        Scaffold(
             topBar = {
-                AppBar()
-            },
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-            sheetPeekHeight = 512.dp,
-            sheetShape = RoundedCornerShape(
-                topStart = animateDpAsState(
-                    targetValue = bottomSheetCornerRadius,
-                    label = ""
-                ).value,
-                topEnd = animateDpAsState(
-                    targetValue = bottomSheetCornerRadius,
-                    label = ""
-                ).value,
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp
-            ),
-            sheetDragHandle = {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    AnimatedVisibility(
-                        visible = (with(scaffoldState.bottomSheetState) {
-                                currentValue == SheetValue.Expanded
-                                        && targetValue == SheetValue.Expanded
-                            }),
-//                        visible = isSheetExpanded,
-                        enter = expandVertically(),
-                        exit = shrinkVertically()
-                    ) {
-                        AppBar()
-                    }
-                    BottomSheetDefaults.DragHandle()
-                }
-            },
-            sheetContent = {
-                // Departures
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                ) {
-                    // Progress bar (temporary)
-                    if (loadingState)
-                        item(key = "progress") {
-                            LinearProgressIndicator(
-                                strokeCap = StrokeCap.Round,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .height(8.dp),
-                            )
-                        }
-                    // Filter chip(s)
-                    item {
-                        FlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                CenterAlignedTopAppBar(
+                    title = {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            FilterChip(
-                                selected = filters["next-sixty"] == true,
-                                onClick = {
-                                    filters["next-sixty"] =
-                                        filters["next-sixty"] != true
-                                    updateFilters()
-                                },
-                                label = { Text("Next 60 min") },
-                                leadingIcon = {
-                                    AnimatedVisibility(
-                                        visible = filters["next-sixty"] == true,
-                                        enter = scaleIn(),
-                                        exit = scaleOut()
-                                    ) {
-                                        Icon(Icons.Default.Check, "Checked")
-                                    }
-                                })
-                        }
-                    }
-                    departures.forEach { group ->
-                        // Display group heading
-                        item(key = group.first.groupingId) {
-                            SectionHeading(
-                                heading = group.first.name,
-                                modifier = Modifier.animateItemPlacement()
-                            )
-                        }
-                        // Display the services
-                        // TODO: Decide what to do with extra services
-                        val maxNumberOfGroups = 4
-                        group.second.slice(0 until min(maxNumberOfGroups, group.second.size))
-                            .forEachIndexed { index, departure ->
-                                val listedDepartures =
-                                    departure.second.slice(
-                                        0 until min(
-                                            2,
-                                            departure.second.size
-                                        )
-                                    )
+                            // Stop number
+                            stopName.third?.let { n ->
+                                TextMetLabel(text = n)
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = stopName.first,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
 
-                                item(key = listedDepartures.first().runRef) {
-                                    DepartureCard(
-                                        departureList = listedDepartures,
-                                        shape = ListPosition.fromPosition(
-                                            index,
-                                            min(maxNumberOfGroups, group.second.size) // TODO
-                                        ).roundedShape,
-                                        context = context,
-                                        modifier = Modifier.animateItemPlacement()
+                                // Secondary name
+                                stopName.second?.let { s ->
+                                    Text(
+                                        text = "on $s",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1
                                     )
                                 }
-
                             }
-                    }
-                    item {
-                        NavBarPadding()
-                    }
-                }
+                        }
+                    },
+                    colors = TopAppBarDefaults.largeTopAppBarColors(
+                        containerColor =
+                        if (with(scaffoldState.bottomSheetState) {
+                                currentValue == SheetValue.Expanded
+                                        && targetValue == SheetValue.Expanded
+                            })
+                            Constants.scrolledAppbarContainerColour()
+                        else Constants.appSurfaceColour()
+                    ),
+                    navigationIcon = {
+                        ElevatedAppBarNavigationIcon(onClick = {
+                            // Finish the Activity
+                            (context as? Activity)?.finish()
+                        })
+                    },
+                    modifier = Modifier
+                        .onGloballyPositioned { coordinates ->
+                            with(density) {
+                                appBarHeight = coordinates.size.height.toDp()
+                            }
+                        }
+                )
             }
-        ) { innerPadding ->
-            // Map
+        ) { padding ->
+            // Below is a stupid solution to a stupid problem of not being able to easily have
+            // the persistent bottom sheet expand to just under the top app bar.
+            // Hopefully, future API changes make it less stupid.
+
+            // All main content goes in this Box
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(padding)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
             ) {
+                // Main content
+                // Map
                 PlaceholderMessage(
                     title = "We're busy making the map",
                     subtitle = "Promise you it'll be worth the wait."
                 )
+            }
+            // Bottom Sheet, padded so the sheet expands to just under the app bar
+            // Note: All main content (behind the bottom sheet) must go in the above Box
+            Box(modifier = Modifier.padding(top = appBarHeight)) {
+                BottomSheetScaffold(
+                    scaffoldState = scaffoldState,
+                    sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    sheetPeekHeight = 512.dp, // TODO: Peek height
+                    sheetShape = RoundedCornerShape(
+                        topStart = animateDpAsState(
+                            targetValue = bottomSheetCornerRadius,
+                            label = ""
+                        ).value,
+                        topEnd = animateDpAsState(
+                            targetValue = bottomSheetCornerRadius,
+                            label = ""
+                        ).value,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    ),
+                    sheetContent = {
+                        // Sheet content goes in this column
+
+                        // Departures
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                        ) {
+                            // Progress bar (temporary)
+                            if (loadingState)
+                                item(key = "progress") {
+                                    LinearProgressIndicator(
+                                        strokeCap = StrokeCap.Round,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                            .height(8.dp),
+                                    )
+                                }
+                            // Filter chip(s)
+                            item {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                ) {
+                                    FilterChip(
+                                        selected = filters["next-sixty"] == true,
+                                        onClick = {
+                                            filters["next-sixty"] =
+                                                filters["next-sixty"] != true
+                                            updateFilters()
+                                        },
+                                        label = { Text("Next 60 min") },
+                                        leadingIcon = {
+                                            AnimatedVisibility(
+                                                visible = filters["next-sixty"] == true,
+                                                enter = scaleIn(),
+                                                exit = scaleOut()
+                                            ) {
+                                                Icon(Icons.Default.Check, "Checked")
+                                            }
+                                        })
+                                }
+                            }
+                            departures.forEach { group ->
+                                // Display group heading
+                                item(key = group.first.groupingId) {
+                                    SectionHeading(
+                                        heading = group.first.name,
+                                        modifier = Modifier.animateItemPlacement()
+                                    )
+                                }
+                                // Display the services
+                                // TODO: Decide what to do with extra services
+                                val maxNumberOfGroups = 4
+                                group.second.slice(
+                                    0 until min(
+                                        maxNumberOfGroups,
+                                        group.second.size
+                                    )
+                                )
+                                    .forEachIndexed { index, departure ->
+                                        val listedDepartures =
+                                            departure.second.slice(
+                                                0 until min(
+                                                    2,
+                                                    departure.second.size
+                                                )
+                                            )
+
+                                        item(key = listedDepartures.first().runRef) {
+                                            DepartureCard(
+                                                departureList = listedDepartures,
+                                                shape = ListPosition.fromPosition(
+                                                    index,
+                                                    min(
+                                                        maxNumberOfGroups,
+                                                        group.second.size
+                                                    ) // TODO
+                                                ).roundedShape,
+                                                context = context,
+                                                modifier = Modifier.animateItemPlacement()
+                                            )
+                                        }
+
+                                    }
+                            }
+                            item {
+                                NavBarPadding()
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .padding(padding)
+                ) { innerPadding ->
+                    // Bottom Sheet Scaffold content is not used; use parent Scaffold for content
+                }
             }
         }
     }
