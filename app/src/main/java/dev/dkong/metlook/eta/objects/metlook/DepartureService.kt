@@ -108,21 +108,64 @@ data class DepartureService(
             when (direction.directionId) {
                 1 -> DepartureDirectionGroup(10, null, "To City") // City
                 0 -> DepartureDirectionGroup(11, null, "Alamein line") // Alamein
-                2, 13, 14 -> DepartureDirectionGroup(12, null, "Upfield, Craigieburn, Sunbury lines") // Northern
+                2, 13, 14 -> DepartureDirectionGroup(
+                    12,
+                    null,
+                    "Upfield, Craigieburn, Sunbury lines"
+                ) // Northern
                 3, 8 -> DepartureDirectionGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
-                4, 10 -> DepartureDirectionGroup(14, null, "Pakenham and Cranbourne lines") // Dandenong
+                4, 10 -> DepartureDirectionGroup(
+                    14,
+                    null,
+                    "Pakenham and Cranbourne lines"
+                ) // Dandenong
                 5 -> DepartureDirectionGroup(15, null, "Frankston line") // Frankston
                 6 -> DepartureDirectionGroup(16, null, "Glen Waverley line") // Glen Waverley
-                7, 9 -> DepartureDirectionGroup(17, null, "Hurstbridge and Mernda lines") // Clifton Hill
+                7, 9 -> DepartureDirectionGroup(
+                    17,
+                    null,
+                    "Hurstbridge and Mernda lines"
+                ) // Clifton Hill
                 11 -> DepartureDirectionGroup(18, null, "Sandringham line") // Sandringham
-                15, 16 -> DepartureDirectionGroup(19, null, "Werribee and Williamstown lines") // Newport
-                18 -> DepartureDirectionGroup(20, null, "Racecourse line") // Flemington Racecourse / Showgrounds
+                15, 16 -> DepartureDirectionGroup(
+                    19,
+                    null,
+                    "Werribee and Williamstown lines"
+                ) // Newport
+                18 -> DepartureDirectionGroup(
+                    20,
+                    null,
+                    "Racecourse line"
+                ) // Flemington Racecourse / Showgrounds
                 else -> DepartureDirectionGroup(0, null, "")
             }
         }
+
         else -> {
             // Group based on individual route
-            DepartureDirectionGroup(routeId, route.routeNumber, route.routeName)
+
+            // For buses and trams, edit the route name
+            if (arrayOf(RouteType.Tram, RouteType.Bus).contains(routeType)) {
+                // Alter name
+                var correctedName = route.routeName
+                    // Remove Smartbus name
+                    .replace(" (SMARTBUS Service)", "")
+                    // Remove via info
+                    .split(" via ").first()
+
+                // Replace hyphen with en dash in route path
+                val hyphenSplitName = correctedName.split(" - ")
+                if (hyphenSplitName.size > 1)
+                    correctedName = "${hyphenSplitName[0].trim()} – ${hyphenSplitName[1].trim()}"
+
+                DepartureDirectionGroup(
+                    routeId,
+                    route.routeNumber,
+                    correctedName
+                )
+            } else {
+                DepartureDirectionGroup(routeId, route.routeNumber, route.routeName)
+            }
         }
     }
 

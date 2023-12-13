@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
@@ -157,6 +158,8 @@ class StopActivity : ComponentActivity() {
             // Final step
             departures.clear()
             departures.addAll(result)
+
+            Log.d("DEPARTURES", "Filters complete")
         }
 
         /**
@@ -178,10 +181,14 @@ class StopActivity : ComponentActivity() {
             request?.let {
                 val response: String = Constants.httpClient.get(request).body()
 
+                Log.d("DEPARTURES", "Received web response")
+
                 try {
                     // Parse departure result
                     val decodedDepartures =
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
+
+                    Log.d("DEPARTURES", "JSON decoded")
 
                     // Temporarily store the processed departure objects
                     val processedDepartures = mutableListOf<DepartureService>()
@@ -214,11 +221,19 @@ class StopActivity : ComponentActivity() {
                         processedDepartures.add(processedDeparture)
                     }
 
+                    Log.d("DEPARTURES", "Departures processed")
+
                     // Group the departures
                     val groupedDepartures = processedDepartures
                         .groupBy { d -> d.directionGroupingValue }
                         .toList()
-                        .sortedBy { pair -> pair.first.groupingId }
+                        .sortedBy { pair ->
+                            if (pair.first.routeNumber?.isDigitsOnly() == true) {
+                                pair.first.routeNumber?.toInt()
+                            } else {
+                                pair.first.groupingId
+                            }
+                        }
                         .map { entry ->
                             Pair(
                                 entry.first,
@@ -236,6 +251,8 @@ class StopActivity : ComponentActivity() {
                                     }
                             )
                         }
+
+                    Log.d("DEPARTURES", "Departures grouped")
 
                     // Add all departures
                     allDepartures.clear()

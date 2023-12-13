@@ -97,6 +97,22 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                     "Box Hill Central/Whitehorse Road #59",
                     "Box Hill Central"
                 ),
+                shape = ListPosition.InBetween.roundedShape,
+                context = context
+            )
+            StopCard(
+                stop = Stop(
+                    0.0,
+                    "Clayton",
+                    2,
+                    emptyList(),
+                    0.0,
+                    0.0,
+                    0,
+                    33430,
+                    "Monash University",
+                    "Monash University"
+                ),
                 shape = ListPosition.Last.roundedShape,
                 context = context
             )

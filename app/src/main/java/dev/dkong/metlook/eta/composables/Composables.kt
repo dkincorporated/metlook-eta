@@ -128,8 +128,12 @@ fun DepartureCard(
                         stringResource(id = departure.patternType().displayName)
                     else "To ${departure.destinationName}"
                 }
+
             Text(
-                text = serviceSubtitles.joinToString(" • "),
+                text =
+                // If all the subtitles are the same, just show the first one
+                if (serviceSubtitles.all { it == serviceSubtitles.first() }) serviceSubtitles.first()
+                else serviceSubtitles.joinToString(" • "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
