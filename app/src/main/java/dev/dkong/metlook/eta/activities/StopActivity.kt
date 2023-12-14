@@ -124,7 +124,10 @@ class StopActivity : ComponentActivity() {
         val departures =
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
         val stopName = stop.stopName()
-        val filters = remember { mutableStateMapOf<String, Boolean>() }
+        val filters = remember { mutableStateMapOf(
+            // Initialise filters with default values
+            "next-sixty" to true
+        ) }
         var loadingState by remember { mutableStateOf(true) }
 
         // Lifecycle states
@@ -133,9 +136,6 @@ class StopActivity : ComponentActivity() {
         var isScreenActive by remember { mutableStateOf(true) }
 
         var appBarHeight by remember { mutableStateOf(0.dp) }
-
-        // Initialise the filters
-        filters["next-sixty"] = true
 
         /**
          * Trigger upon a filter update to update the data
@@ -296,7 +296,7 @@ class StopActivity : ComponentActivity() {
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
 
-        val refreshInterval = 10000L
+        val refreshInterval = 15000L
 
         // This block runs while the screen is not yet destroyed
         LaunchedEffect(Unit) {
