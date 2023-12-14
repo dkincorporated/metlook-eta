@@ -84,6 +84,7 @@ import dev.dkong.metlook.eta.objects.ptv.Stop
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.coroutines.delay
 import kotlinx.serialization.SerializationException
 import kotlin.math.min
 
@@ -191,10 +192,12 @@ class StopActivity : ComponentActivity() {
         /**
          * Get (or update) list of departures
          */
-        suspend fun updateDepartures() {
-            loadingState = true
-
-            departures.clear()
+        suspend fun updateDepartures(
+            isFirstLoad: Boolean = false
+        ) {
+            // Don't show the progress indicator on subsequent updates
+            if (isFirstLoad)
+                loadingState = true
 
             // Get departures from web API
             // A max-result value must be provided or it will return departures from the start
@@ -296,7 +299,21 @@ class StopActivity : ComponentActivity() {
         }
 
         LaunchedEffect(Unit) {
-            updateDepartures()
+            // This block runs while the screen is composed
+
+            val refreshInterval = 10000L
+
+            // Load departures for the first time
+            updateDepartures(isFirstLoad = true)
+            delay(refreshInterval)
+
+            while (true) {
+                // Refresh departures every refresh interval
+                updateDepartures()
+
+                // Wait the interval
+                delay(refreshInterval)
+            }
         }
 
         // Aesthetic values for bottom sheet
