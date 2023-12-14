@@ -121,7 +121,10 @@ fun DepartureCard(
 
             Text(
                 text = serviceTitle,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                color =
+                    if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+                    else MaterialTheme.colorScheme.onSurface
             )
         },
         supportingContent = {
