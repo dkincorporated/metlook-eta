@@ -1,17 +1,14 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
-import android.graphics.fonts.FontStyle
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,19 +17,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,7 +40,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -62,14 +53,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
@@ -85,6 +76,7 @@ import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlin.math.min
 
@@ -134,6 +126,11 @@ class StopActivity : ComponentActivity() {
         val stopName = stop.stopName()
         val filters = remember { mutableStateMapOf<String, Boolean>() }
         var loadingState by remember { mutableStateOf(true) }
+
+        // Lifecycle states
+        // TODO: Try to find a more elegant way to handle these
+        var hasFirstLoaded by remember { mutableStateOf(false) }
+        var isScreenActive by remember { mutableStateOf(true) }
 
         var appBarHeight by remember { mutableStateOf(0.dp) }
 
@@ -287,6 +284,7 @@ class StopActivity : ComponentActivity() {
                     updateFilters()
 
                     loadingState = false
+                    hasFirstLoaded = true
                     return
                 } catch (e: SerializationException) {
                     // TODO: Show error for failed request
@@ -298,21 +296,35 @@ class StopActivity : ComponentActivity() {
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
 
+        val refreshInterval = 10000L
+
+        // This block runs while the screen is not yet destroyed
         LaunchedEffect(Unit) {
-            // This block runs while the screen is composed
-
-            val refreshInterval = 10000L
-
-            // Load departures for the first time
-            updateDepartures(isFirstLoad = true)
+            updateDepartures()
             delay(refreshInterval)
-
             while (true) {
                 // Refresh departures every refresh interval
-                updateDepartures()
+                if (isScreenActive) {
+                    updateDepartures()
+                }
 
                 // Wait the interval
                 delay(refreshInterval)
+            }
+        }
+
+        // Listen for Composable lifecycle
+        Utils.ComposableEventListener { event ->
+            when (event) {
+                // On pause, disable refresh
+                Lifecycle.Event.ON_PAUSE -> isScreenActive = false
+                // On resume, update departures, and enable refresh
+                Lifecycle.Event.ON_RESUME -> scope.launch {
+                    if (hasFirstLoaded)
+                        updateDepartures(isFirstLoad = true)
+                    isScreenActive = true
+                }
+                else -> {}
             }
         }
 
