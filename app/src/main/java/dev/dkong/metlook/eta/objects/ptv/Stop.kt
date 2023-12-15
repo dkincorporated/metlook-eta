@@ -26,7 +26,7 @@ data class Stop(
     @SerialName("stop_id")
     val stopId: Int,
     @SerialName("stop_name")
-    private val stopNameResult: String,
+    val fullStopName: String,
     @SerialName("stop_landmark")
     val stopLandmark: String
 ) {
@@ -38,8 +38,8 @@ data class Stop(
      */
     fun stopName(): Triple<String, String?, String?> {
         val stopName = when (routeType) {
-            RouteType.Train -> stopNameResult.replace(" Station", "")
-            else -> stopNameResult
+            RouteType.Train -> fullStopName.replace(" Station", "")
+            else -> fullStopName
         }.trim()
 
         // Only Tram and Bus can be split; other route types will just return the stop name as-is

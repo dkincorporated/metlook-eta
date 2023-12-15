@@ -65,9 +65,11 @@ import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
+import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TextMetLabel
+import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
@@ -124,10 +126,12 @@ class StopActivity : ComponentActivity() {
         val departures =
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
         val stopName = stop.stopName()
-        val filters = remember { mutableStateMapOf(
-            // Initialise filters with default values
-            "next-sixty" to true
-        ) }
+        val filters = remember {
+            mutableStateMapOf(
+                // Initialise filters with default values
+                "next-sixty" to true
+            )
+        }
         var loadingState by remember { mutableStateOf(true) }
 
         // Lifecycle states
@@ -324,20 +328,13 @@ class StopActivity : ComponentActivity() {
                         updateDepartures(isFirstLoad = true)
                     isScreenActive = true
                 }
+
                 else -> {}
             }
         }
 
-        // Aesthetic values for bottom sheet
-        val isSheetExpanded = with(scaffoldState.bottomSheetState) {
-            ((currentValue == SheetValue.Expanded
-                    || targetValue == SheetValue.Expanded)
-                    && targetValue != SheetValue.PartiallyExpanded)
-        }
-
-        val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
-
-        Scaffold(
+        PersistentBottomSheetScaffold(
+            scaffoldState = scaffoldState,
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -349,24 +346,10 @@ class StopActivity : ComponentActivity() {
                             stopName.third?.let { n ->
                                 TextMetLabel(text = n)
                             }
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = stopName.first,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
 
-                                // Secondary name
-                                stopName.second?.let { s ->
-                                    Text(
-                                        text = "on $s",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = 1
-                                    )
-                                }
-                            }
+                            TwoLineCenterTopAppBarText(
+                                title = stopName.first,
+                                subtitle = stopName.second?.let { s -> "on $s" })
                         }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -391,145 +374,108 @@ class StopActivity : ComponentActivity() {
                             }
                         }
                 )
-            }
-        ) { padding ->
-            // Below is a stupid solution to a stupid problem of not being able to easily have
-            // the persistent bottom sheet expand to just under the top app bar.
-            // Hopefully, future API changes make it less stupid.
-
-            // All main content goes in this Box
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-            ) {
-                // Main content
+            },
+            topBarHeight = appBarHeight,
+            mainContent = {
                 // Map
                 PlaceholderMessage(
                     title = "We're busy making the map",
                     subtitle = "Promise you it'll be worth the wait."
                 )
-            }
-            // Bottom Sheet, padded so the sheet expands to just under the app bar
-            // Note: All main content (behind the bottom sheet) must go in the above Box
-            Box(modifier = Modifier.padding(top = appBarHeight)) {
-                BottomSheetScaffold(
-                    scaffoldState = scaffoldState,
-                    sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    sheetPeekHeight = 512.dp, // TODO: Peek height
-                    sheetShape = RoundedCornerShape(
-                        topStart = animateDpAsState(
-                            targetValue = bottomSheetCornerRadius,
-                            label = ""
-                        ).value,
-                        topEnd = animateDpAsState(
-                            targetValue = bottomSheetCornerRadius,
-                            label = ""
-                        ).value,
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp
-                    ),
-                    sheetContent = {
-                        // Sheet content goes in this column
-
-                        // Departures
-                        LazyColumn(
+            },
+            sheetPeekHeight = 512.dp, // TODO: peek height
+            sheetContent = {
+                // Departures
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                ) {
+                    // Progress bar (temporary)
+                    if (loadingState)
+                        item(key = "progress") {
+                            LinearProgressIndicator(
+                                strokeCap = StrokeCap.Round,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .height(8.dp),
+                            )
+                        }
+                    // Filter chip(s)
+                    item {
+                        FlowRow(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
                         ) {
-                            // Progress bar (temporary)
-                            if (loadingState)
-                                item(key = "progress") {
-                                    LinearProgressIndicator(
-                                        strokeCap = StrokeCap.Round,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp)
-                                            .height(8.dp),
+                            FilterChip(
+                                selected = filters["next-sixty"] == true,
+                                onClick = {
+                                    filters["next-sixty"] =
+                                        filters["next-sixty"] != true
+                                    updateFilters()
+                                },
+                                label = { Text("Next 60 min") },
+                                leadingIcon = {
+                                    AnimatedVisibility(
+                                        visible = filters["next-sixty"] == true,
+                                        enter = scaleIn(),
+                                        exit = scaleOut()
+                                    ) {
+                                        Icon(Icons.Default.Check, "Checked")
+                                    }
+                                })
+                        }
+                    }
+                    departures.forEach { group ->
+                        // Display group heading
+                        item(key = group.first.groupingId) {
+                            SectionHeading(
+                                heading = group.first.name,
+                                modifier = Modifier.animateItemPlacement()
+                            )
+                        }
+                        // Display the services
+                        // TODO: Decide what to do with extra services
+                        val maxNumberOfGroups = 4
+                        group.second.slice(
+                            0 until min(
+                                maxNumberOfGroups,
+                                group.second.size
+                            )
+                        )
+                            .forEachIndexed { index, departure ->
+                                val listedDepartures =
+                                    departure.second.slice(
+                                        0 until min(
+                                            2,
+                                            departure.second.size
+                                        )
                                     )
-                                }
-                            // Filter chip(s)
-                            item {
-                                FlowRow(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp)
-                                ) {
-                                    FilterChip(
-                                        selected = filters["next-sixty"] == true,
-                                        onClick = {
-                                            filters["next-sixty"] =
-                                                filters["next-sixty"] != true
-                                            updateFilters()
-                                        },
-                                        label = { Text("Next 60 min") },
-                                        leadingIcon = {
-                                            AnimatedVisibility(
-                                                visible = filters["next-sixty"] == true,
-                                                enter = scaleIn(),
-                                                exit = scaleOut()
-                                            ) {
-                                                Icon(Icons.Default.Check, "Checked")
-                                            }
-                                        })
-                                }
-                            }
-                            departures.forEach { group ->
-                                // Display group heading
-                                item(key = group.first.groupingId) {
-                                    SectionHeading(
-                                        heading = group.first.name,
+
+                                item(key = listedDepartures.first().runRef) {
+                                    DepartureCard(
+                                        departureList = listedDepartures,
+                                        shape = ListPosition.fromPosition(
+                                            index,
+                                            min(
+                                                maxNumberOfGroups,
+                                                group.second.size
+                                            ) // TODO
+                                        ).roundedShape,
+                                        context = context,
                                         modifier = Modifier.animateItemPlacement()
                                     )
                                 }
-                                // Display the services
-                                // TODO: Decide what to do with extra services
-                                val maxNumberOfGroups = 4
-                                group.second.slice(
-                                    0 until min(
-                                        maxNumberOfGroups,
-                                        group.second.size
-                                    )
-                                )
-                                    .forEachIndexed { index, departure ->
-                                        val listedDepartures =
-                                            departure.second.slice(
-                                                0 until min(
-                                                    2,
-                                                    departure.second.size
-                                                )
-                                            )
 
-                                        item(key = listedDepartures.first().runRef) {
-                                            DepartureCard(
-                                                departureList = listedDepartures,
-                                                shape = ListPosition.fromPosition(
-                                                    index,
-                                                    min(
-                                                        maxNumberOfGroups,
-                                                        group.second.size
-                                                    ) // TODO
-                                                ).roundedShape,
-                                                context = context,
-                                                modifier = Modifier.animateItemPlacement()
-                                            )
-                                        }
-
-                                    }
                             }
-                            item {
-                                NavBarPadding()
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .padding(padding)
-                ) { innerPadding ->
-                    // Bottom Sheet Scaffold content is not used; use parent Scaffold for content
+                    }
+                    item {
+                        NavBarPadding()
+                    }
                 }
             }
-        }
+        )
     }
 }

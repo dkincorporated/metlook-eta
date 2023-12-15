@@ -2,20 +2,28 @@
 
 package dev.dkong.metlook.eta.composables
 
+import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -26,15 +34,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,12 +62,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.ListPosition
+import kotlin.math.min
 
 // Scaffold-type Composables, used throughout the app
 // Author: David Kong
@@ -285,5 +305,106 @@ fun ElevatedAppBarNavigationIcon(
             .background(Constants.scrolledAppbarContainerColour())
     ) {
         Icon(icon, contentDescription = iconContentDescription)
+    }
+}
+
+/**
+ * Scaffold for a persistent bottom sheet layout
+ * @param scaffoldState the [BottomSheetScaffoldState] for the bottom sheet
+ * @param topBar the top app bar for the scaffold; [CenterAlignedTopAppBar] is recommend
+ * @param topBarHeight the height of the top bar *after composition* -- use [Modifier.onGloballyPositioned] in a `remember`, and pass the value
+ * @param mainContent the content to be placed underneath the bottom sheet
+ * @param sheetContent the content of the persistent bottom sheet
+ * @param sheetPeekHeight the initialisation height of the bottom sheet
+ */
+@Composable
+fun PersistentBottomSheetScaffold(
+    scaffoldState: BottomSheetScaffoldState,
+    topBar: @Composable (() -> Unit),
+    topBarHeight: Dp,
+    mainContent: @Composable (BoxScope.() -> Unit),
+    sheetContent: @Composable (ColumnScope.() -> Unit),
+    sheetPeekHeight: Dp
+) {
+    // Aesthetic values for bottom sheet
+    val isSheetExpanded = with(scaffoldState.bottomSheetState) {
+        ((currentValue == SheetValue.Expanded
+                || targetValue == SheetValue.Expanded)
+                && targetValue != SheetValue.PartiallyExpanded)
+    }
+    val bottomSheetCornerRadius = if (isSheetExpanded) 0.dp else 28.dp
+
+    Scaffold(
+        topBar = topBar
+    ) { padding ->
+        // Below is a stupid solution to a stupid problem of not being able to easily have
+        // the persistent bottom sheet expand to just under the top app bar.
+        // Hopefully, future API changes make it less stupid.
+
+        // All main content goes in this Box
+        Box(
+            content = mainContent,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+        )
+
+        // Bottom Sheet, padded so the sheet expands to just under the app bar
+        // Note: All main content (behind the bottom sheet) must go in the above Box
+        Box(modifier = Modifier.padding(top = topBarHeight)) {
+            BottomSheetScaffold(
+                scaffoldState = scaffoldState,
+                sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                sheetPeekHeight = sheetPeekHeight,
+                sheetShape = RoundedCornerShape(
+                    topStart = animateDpAsState(
+                        targetValue = bottomSheetCornerRadius,
+                        label = ""
+                    ).value,
+                    topEnd = animateDpAsState(
+                        targetValue = bottomSheetCornerRadius,
+                        label = ""
+                    ).value,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ),
+                // Sheet content goes in this column
+                sheetContent = sheetContent,
+                modifier = Modifier
+                    .padding(padding)
+            ) { innerPadding ->
+                // Bottom Sheet Scaffold content is not used; use parent Scaffold for content
+            }
+        }
+    }
+}
+
+/**
+ * Layout for a two-line center-aligned app bar
+ * @param title the primary text
+ * @param subtitle the secondary text (if `null`, it will not be shown)
+ */
+@Composable
+fun TwoLineCenterTopAppBarText(
+    title: String,
+    subtitle: String?
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        subtitle?.let { s ->
+            Text(
+                text = s,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1
+            )
+        }
     }
 }

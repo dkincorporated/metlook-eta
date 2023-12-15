@@ -47,9 +47,7 @@ data class DepartureService(
      * Whether the service is valid
      */
     fun isValid(): Boolean {
-        if (routeType == RouteType.Bus && runId != -1) return false
-
-        return true
+        return !(routeType == RouteType.Bus && runId != -1)
     }
 
     /**
