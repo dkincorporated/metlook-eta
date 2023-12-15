@@ -89,7 +89,6 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
             .background(MaterialTheme.colorScheme.surface)
             .clickable {
                 // Open the Stop
-                // TODO: Pass Stop information to new Activity
                 val stopIntent = Intent(context, StopActivity::class.java)
                 stopIntent.putExtra("stop", Constants.jsonFormat.encodeToString(stop))
                 context.startActivity(stopIntent)
@@ -107,6 +106,7 @@ fun DepartureCard(
     departureList: List<DepartureService>,
     shape: Shape,
     context: Context,
+    onClick: (List<DepartureService>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val departure = departureList.first()
@@ -198,7 +198,7 @@ fun DepartureCard(
             .clip(shape)
             // TODO: Add check for cancelled service (from flag)
             .clickable {
-                // TODO: Open the Departure
+                onClick(departureList)
             }
 
     )

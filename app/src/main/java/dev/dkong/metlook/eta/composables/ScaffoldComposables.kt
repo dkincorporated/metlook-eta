@@ -2,28 +2,22 @@
 
 package dev.dkong.metlook.eta.composables
 
-import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -33,8 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
@@ -42,11 +34,9 @@ import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
@@ -62,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -71,8 +60,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.common.Constants
-import dev.dkong.metlook.eta.common.ListPosition
-import kotlin.math.min
 
 // Scaffold-type Composables, used throughout the app
 // Author: David Kong
@@ -323,7 +310,9 @@ fun PersistentBottomSheetScaffold(
     topBar: @Composable (() -> Unit),
     topBarHeight: Dp,
     mainContent: @Composable (BoxScope.() -> Unit),
+    mainContentBackgroundColour: Color = MaterialTheme.colorScheme.surface,
     sheetContent: @Composable (ColumnScope.() -> Unit),
+    sheetContainerColour: Color = MaterialTheme.colorScheme.surfaceContainer,
     sheetPeekHeight: Dp
 ) {
     // Aesthetic values for bottom sheet
@@ -347,7 +336,7 @@ fun PersistentBottomSheetScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .background(mainContentBackgroundColour)
         )
 
         // Bottom Sheet, padded so the sheet expands to just under the app bar
@@ -355,7 +344,7 @@ fun PersistentBottomSheetScaffold(
         Box(modifier = Modifier.padding(top = topBarHeight)) {
             BottomSheetScaffold(
                 scaffoldState = scaffoldState,
-                sheetContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                sheetContainerColor = sheetContainerColour,
                 sheetPeekHeight = sheetPeekHeight,
                 sheetShape = RoundedCornerShape(
                     topStart = animateDpAsState(

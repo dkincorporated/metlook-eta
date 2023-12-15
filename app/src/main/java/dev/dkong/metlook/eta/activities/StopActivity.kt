@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -80,6 +81,7 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 import kotlin.math.min
 
 class StopActivity : ComponentActivity() {
@@ -383,6 +385,7 @@ class StopActivity : ComponentActivity() {
                     subtitle = "Promise you it'll be worth the wait."
                 )
             },
+            mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
             sheetPeekHeight = 512.dp, // TODO: peek height
             sheetContent = {
                 // Departures
@@ -465,6 +468,30 @@ class StopActivity : ComponentActivity() {
                                             ) // TODO
                                         ).roundedShape,
                                         context = context,
+                                        onClick = { departures ->
+                                            val firstDeparture = departures.first()
+                                            if (departures.size == 1) {
+                                                // Launch Service directly
+                                                // TODO
+                                            } else {
+                                                // Launch Direction Departures
+                                                val directionDeparturesIntent = Intent(
+                                                    context,
+                                                    DirectionStopActivity::class.java
+                                                )
+                                                directionDeparturesIntent.putExtra(
+                                                    "stop",
+                                                    Constants.jsonFormat.encodeToString(stop)
+                                                )
+                                                directionDeparturesIntent.putExtra(
+                                                    "direction",
+                                                    Constants.jsonFormat.encodeToString(
+                                                        firstDeparture.direction
+                                                    )
+                                                )
+                                                context.startActivity(directionDeparturesIntent)
+                                            }
+                                        },
                                         modifier = Modifier.animateItemPlacement()
                                     )
                                 }

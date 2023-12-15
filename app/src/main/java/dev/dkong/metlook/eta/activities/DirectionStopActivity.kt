@@ -33,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
+import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.ptv.Direction
@@ -85,8 +86,6 @@ class DirectionStopActivity : ComponentActivity() {
         val scaffoldState = rememberBottomSheetScaffoldState()
         var topBarHeight by remember { mutableStateOf(0.dp) }
 
-        val stopName = stop.stopName()
-
         PersistentBottomSheetScaffold(
             scaffoldState = scaffoldState,
             topBar = {
@@ -97,7 +96,7 @@ class DirectionStopActivity : ComponentActivity() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             TwoLineCenterTopAppBarText(
-                                title = direction.directionName,
+                                title = "To ${direction.directionName}",
                                 subtitle = stop.fullStopName
                             )
                         }
@@ -129,8 +128,10 @@ class DirectionStopActivity : ComponentActivity() {
             mainContent = {
                 // TODO: Map
             },
+            mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
             sheetContent = {
-
+                // Departures content
+                SectionHeading(heading = direction.directionName)
             },
             sheetPeekHeight = 512.dp
         )
