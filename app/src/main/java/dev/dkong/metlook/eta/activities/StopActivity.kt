@@ -59,11 +59,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.Utils
@@ -128,8 +130,7 @@ class StopActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val scaffoldState = rememberBottomSheetScaffoldState(
             bottomSheetState = rememberStandardBottomSheetState(
-                initialValue = SheetValue.PartiallyExpanded,
-                skipHiddenState = false
+                initialValue = SheetValue.Expanded
             )
         )
 
@@ -396,8 +397,8 @@ class StopActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     PlaceholderMessage(
-                        title = "We're busy making the map",
-                        subtitle = "Promise you it'll be worth the wait."
+                        title = "The map is coming soon",
+                        subtitle = "Please excuse us as we work behind the scenes."
                     )
                     ExtendedFloatingActionButton(
                         onClick = {
@@ -517,7 +518,7 @@ class StopActivity : ComponentActivity() {
                     }
                     if (departures.isNotEmpty()) {
                         item(key = "footnote") {
-                            SettingsInfoFootnote(info = "Departure times marked with an asterisk (*) indicate that they are based on the scheduled time, not the live estimated time.")
+                            SettingsInfoFootnote(info = stringResource(id = R.string.departures_asterisk_departure_times))
                         }
                     }
                     item {

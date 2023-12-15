@@ -25,6 +25,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,6 +56,7 @@ import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
+import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
@@ -117,7 +119,11 @@ class DirectionStopActivity : ComponentActivity() {
         val context = LocalContext.current
         val density = LocalDensity.current
         val scope = rememberCoroutineScope()
-        val scaffoldState = rememberBottomSheetScaffoldState()
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            bottomSheetState = rememberStandardBottomSheetState(
+                initialValue = SheetValue.Expanded
+            )
+        )
         var topBarHeight by remember { mutableStateOf(0.dp) }
 
         // "Clean" list of all departures (no filters)
@@ -320,6 +326,10 @@ class DirectionStopActivity : ComponentActivity() {
             topBarHeight = topBarHeight,
             mainContent = {
                 // TODO: Map
+                PlaceholderMessage(
+                    title = "The map is coming soon",
+                    subtitle = "Please excuse us as we work behind the scenes."
+                )
             },
             mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
             sheetContent = {

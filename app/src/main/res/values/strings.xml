@@ -12,6 +12,10 @@
     <string name="pattern_class_local">All/most stops</string>
     <string name="pattern_class_limited_stops">Limited stops</string>
 
+    <string name="departures_asterisk_departure_times">
+        Departure times marked with an asterisk (*) indicate that they are based on the scheduled time, not the live estimated time.
+    </string>
+
     <!-- Fun messages -->
     <string-array name="fun_msg_loading">
         <item>Won\'t be a moment…</item>
