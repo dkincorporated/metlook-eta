@@ -156,14 +156,16 @@ fun DepartureCard(
             }
         },
         trailingContent = {
-            if (
-                departure.isCancelled
-                || (departure.timeToEstimatedDeparture() == null && departureList.size == 1)
-            )
-                return@ListItem
+            if (departure.isCancelled) return@ListItem
 
             val timeTexts = departureList.map { departure ->
                 if (departure.isAtPlatform) "Now"
+                else if (
+                    departure.routeType == RouteType.Train
+                    && with(departure.delay()) {
+                        (this?.inWholeSeconds?.rem(60L) ?: 0) != 0L
+                    }
+                ) "Now*" // train is arriving if est. time is not in whole minutes
                 else if (departure.estimatedDeparture != null
                     && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
                 ) "<1"

@@ -74,6 +74,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
@@ -225,15 +226,16 @@ class StopActivity : ComponentActivity() {
             // A max-result value must be provided or it will return departures from the start
             // of the day.
             val request = PtvApi.getApiUrl(
-                Uri.Builder()
-                    .appendPath("v3")
-                    .appendPath("departures")
-                    .appendPath("route_type")
-                    .appendPath(stop.routeType.id.toString())
-                    .appendPath("stop")
-                    .appendPath(stop.stopId.toString())
-                    .appendQueryParameter("expand", "all")
-                    .appendQueryParameter("max_results", 100.toString())
+                Uri.Builder().apply {
+                    appendPath("v3")
+                    appendPath("departures")
+                    appendPath("route_type")
+                    appendPath(stop.routeType.id.toString())
+                    appendPath("stop")
+                    appendPath(stop.stopId.toString())
+                    appendQueryParameter("expand", "all")
+                    appendQueryParameter("max_results", 100.toString())
+                }
             )
 
             Log.d("DEPARTURES", "Request: $request")
@@ -501,27 +503,27 @@ class StopActivity : ComponentActivity() {
                                         ).roundedShape,
                                         onClick = { departures ->
                                             val firstDeparture = departures.first()
-                                            if (departures.size == 1) {
-                                                // Launch Service directly
-                                                // TODO
-                                            } else {
-                                                // Launch Direction Departures
-                                                val directionDeparturesIntent = Intent(
-                                                    context,
-                                                    DirectionStopActivity::class.java
+//                                            if (departures.size == 1) {
+//                                                // Launch Service directly
+//                                                // TODO
+//                                            } else {
+                                            // Launch Direction Departures
+                                            val directionDeparturesIntent = Intent(
+                                                context,
+                                                DirectionStopActivity::class.java
+                                            )
+                                            directionDeparturesIntent.putExtra(
+                                                "stop",
+                                                Constants.jsonFormat.encodeToString(stop)
+                                            )
+                                            directionDeparturesIntent.putExtra(
+                                                "direction",
+                                                Constants.jsonFormat.encodeToString(
+                                                    firstDeparture.direction
                                                 )
-                                                directionDeparturesIntent.putExtra(
-                                                    "stop",
-                                                    Constants.jsonFormat.encodeToString(stop)
-                                                )
-                                                directionDeparturesIntent.putExtra(
-                                                    "direction",
-                                                    Constants.jsonFormat.encodeToString(
-                                                        firstDeparture.direction
-                                                    )
-                                                )
-                                                context.startActivity(directionDeparturesIntent)
-                                            }
+                                            )
+                                            context.startActivity(directionDeparturesIntent)
+//                                            }
                                         },
                                         modifier = Modifier.animateItemPlacement()
                                     )
@@ -531,7 +533,13 @@ class StopActivity : ComponentActivity() {
                     }
                     if (departures.isNotEmpty()) {
                         item(key = "footnote") {
-                            SettingsInfoFootnote(info = stringResource(id = R.string.departures_asterisk_departure_times))
+                            SettingsInfoFootnote(
+                                info = StringBuilder().apply {
+                                    append(stringResource(id = R.string.departures_asterisk_departure_times))
+                                    if (stop.routeType == RouteType.Train)
+                                        append("\n" + stringResource(id = R.string.departures_now_asterisk))
+                                }.toString()
+                            )
                         }
                     }
                     item {

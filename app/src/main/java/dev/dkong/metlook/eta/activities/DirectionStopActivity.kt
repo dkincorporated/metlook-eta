@@ -179,17 +179,18 @@ class DirectionStopActivity : ComponentActivity() {
 
             // Get departures from web API
             val request = PtvApi.getApiUrl(
-                Uri.Builder()
-                    .appendPath("v3")
-                    .appendPath("departures")
-                    .appendPath("route_type")
-                    .appendPath(stop.routeType.id.toString())
-                    .appendPath("stop")
-                    .appendPath(stop.stopId.toString())
-                    .appendQueryParameter("direction_id", direction.directionId.toString())
-                    .appendQueryParameter("include_cancelled", true.toString())
-                    .appendQueryParameter("max_results", 100.toString())
-                    .appendQueryParameter("expand", "all")
+                Uri.Builder().apply {
+                    appendPath("v3")
+                    appendPath("departures")
+                    appendPath("route_type")
+                    appendPath(stop.routeType.id.toString())
+                    appendPath("stop")
+                    appendPath(stop.stopId.toString())
+                    appendQueryParameter("direction_id", direction.directionId.toString())
+                    appendQueryParameter("include_cancelled", true.toString())
+                    appendQueryParameter("max_results", 100.toString())
+                    appendQueryParameter("expand", "all")
+                }
             )
 
             Log.d("DIRECTION", request.toString())

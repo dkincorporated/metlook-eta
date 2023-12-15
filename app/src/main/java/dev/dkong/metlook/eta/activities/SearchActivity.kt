@@ -114,13 +114,13 @@ class SearchActivity : ComponentActivity() {
             if (searchQuery.length < 3) return
 
             scope.launch {
-                val request = PtvApi.getApiUrl(Uri.Builder()
-                    .appendPath("v3")
-                    .appendPath("search")
-                    .appendPath(searchQuery.trim())
+                val request = PtvApi.getApiUrl(Uri.Builder().apply {
+                    appendPath("v3")
+                    appendPath("search")
+                    appendPath(searchQuery.trim())
                     // Search query must not have whitespaces before or after,
                     // else the API will crash.
-                )
+                })
 
                 request?.let {
                     val response: String = Constants.httpClient.get(request).body()
