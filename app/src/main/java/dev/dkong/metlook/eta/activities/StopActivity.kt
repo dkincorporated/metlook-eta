@@ -26,19 +26,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -121,7 +126,12 @@ class StopActivity : ComponentActivity() {
         val context = LocalContext.current
         val density = LocalDensity.current
         val scope = rememberCoroutineScope()
-        val scaffoldState = rememberBottomSheetScaffoldState()
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            bottomSheetState = rememberStandardBottomSheetState(
+                initialValue = SheetValue.PartiallyExpanded,
+                skipHiddenState = false
+            )
+        )
 
         // "Clean" list of all departures (no filters)
         val allDepartures =
@@ -382,10 +392,28 @@ class StopActivity : ComponentActivity() {
             topBarHeight = appBarHeight,
             mainContent = {
                 // Map
-                PlaceholderMessage(
-                    title = "We're busy making the map",
-                    subtitle = "Promise you it'll be worth the wait."
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    PlaceholderMessage(
+                        title = "We're busy making the map",
+                        subtitle = "Promise you it'll be worth the wait."
+                    )
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                        },
+                        icon = {
+                            Icon(Icons.Outlined.KeyboardArrowUp, "Expand departures")
+                        },
+                        text = {
+                            Text(text = "Departures")
+                        },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(16.dp)
+                    )
+                }
             },
             mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
             sheetPeekHeight = 512.dp, // TODO: peek height
