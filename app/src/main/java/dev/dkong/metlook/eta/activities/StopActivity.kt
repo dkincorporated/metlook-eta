@@ -70,6 +70,7 @@ import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
+import dev.dkong.metlook.eta.composables.SettingsInfoFootnote
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
@@ -485,6 +486,11 @@ class StopActivity : ComponentActivity() {
                                 }
 
                             }
+                    }
+                    if (departures.isNotEmpty()) {
+                        item(key = "footnote") {
+                            SettingsInfoFootnote(info = "Departure times marked with an asterisk (*) indicate that they are based on the scheduled time, not the live estimated time.")
+                        }
                     }
                     item {
                         NavBarPadding()

@@ -122,8 +122,8 @@ fun DepartureCard(
                 text = serviceTitle,
                 style = MaterialTheme.typography.titleLarge,
                 color =
-                    if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
-                    else MaterialTheme.colorScheme.onSurface
+                if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+                else MaterialTheme.colorScheme.onSurface
             )
         },
         supportingContent = {
@@ -156,7 +156,11 @@ fun DepartureCard(
             }
         },
         trailingContent = {
-            if (departure.isCancelled) return@ListItem
+            if (
+                departure.isCancelled
+                || (departure.timeToEstimatedDeparture() == null && departureList.size == 1)
+            )
+                return@ListItem
 
             val timeTexts = departureList.map { departure ->
                 if (departure.isAtPlatform) "Now"
