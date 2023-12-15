@@ -100,8 +100,13 @@ fun UpdatesHomeScreen(navHostController: NavHostController) {
     LaunchedEffect(Unit) {
         // Fetch disruptions
 
-        val request = PtvApi.getApiUrl(
-            "/v3/disruptions?route_types=0&route_types=1&route_types=2&disruption_status=current&"
+        val request = PtvApi.getApiUrl(Uri.Builder()
+            .appendPath("v3")
+            .appendPath("disruptions")
+            .appendQueryParameter("route_types", 0.toString())
+            .appendQueryParameter("route_types", 1.toString())
+            .appendQueryParameter("route_types", 2.toString())
+//            .appendQueryParameter("disruption_status", "current")
         )
 
         request?.let {

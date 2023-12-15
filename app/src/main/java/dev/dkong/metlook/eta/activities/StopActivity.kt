@@ -2,6 +2,7 @@ package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -218,9 +219,15 @@ class StopActivity : ComponentActivity() {
             // Get departures from web API
             // A max-result value must be provided or it will return departures from the start
             // of the day.
-            val request = PtvApi.getApiUrl(
-                "/v3/departures/route_type/${stop.routeType.id}/stop/${stop.stopId}" +
-                        "?expand=all&max_results=100&"
+            val request = PtvApi.getApiUrl(Uri.Builder()
+                .appendPath("v3")
+                .appendPath("departures")
+                .appendPath("route_type")
+                .appendPath(stop.routeType.id.toString())
+                .appendPath("stop")
+                .appendPath(stop.stopId.toString())
+                .appendQueryParameter("expand", "all")
+                .appendQueryParameter("max_results", 100.toString())
             )
 
             Log.d("DEPARTURES", "Request: $request")

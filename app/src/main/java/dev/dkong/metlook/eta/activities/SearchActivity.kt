@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -113,8 +114,12 @@ class SearchActivity : ComponentActivity() {
             if (searchQuery.length < 3) return
 
             scope.launch {
-                val request = PtvApi.getApiUrl(
-                    "/v3/search/${searchQuery.trim().replace(" ", "%20")}?"
+                val request = PtvApi.getApiUrl(Uri.Builder()
+                    .appendPath("v3")
+                    .appendPath("search")
+                    .appendPath(searchQuery.trim())
+                    // Search query must not have whitespaces before or after,
+                    // else the API will crash.
                 )
 
                 request?.let {

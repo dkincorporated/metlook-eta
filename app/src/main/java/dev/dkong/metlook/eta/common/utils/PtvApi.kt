@@ -44,25 +44,11 @@ object PtvApi {
         return toHexString(mac.doFinal(data.toByteArray()))
     }
 
-    @Deprecated("Use a URI builder for the query.")
-    fun getApiUrl(
-        strQuery: String
-    ): String? { // TODO: Store the credentials somewhere more secure
-        // Automatically concatenates the DEV_ID
-        val method = strQuery + "devid=$DEV_ID"
-        try {
-            val hmac = calculateRFC2104HMAC(method, API_KEY)
-            val finalReqUrl = "https://$BASE_URL$method&Signature=$hmac"
-            return finalReqUrl
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
     /**
      * Get the full API URL from a base method
-     * @param query the API query method
+     *
+     * Protocol and base domain are **not** required.
+     * @param query the API query method in a [Uri.Builder]
      */
     fun getApiUrl(
         query: Uri.Builder
