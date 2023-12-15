@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,11 +32,14 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -219,15 +224,16 @@ class StopActivity : ComponentActivity() {
             // Get departures from web API
             // A max-result value must be provided or it will return departures from the start
             // of the day.
-            val request = PtvApi.getApiUrl(Uri.Builder()
-                .appendPath("v3")
-                .appendPath("departures")
-                .appendPath("route_type")
-                .appendPath(stop.routeType.id.toString())
-                .appendPath("stop")
-                .appendPath(stop.stopId.toString())
-                .appendQueryParameter("expand", "all")
-                .appendQueryParameter("max_results", 100.toString())
+            val request = PtvApi.getApiUrl(
+                Uri.Builder()
+                    .appendPath("v3")
+                    .appendPath("departures")
+                    .appendPath("route_type")
+                    .appendPath(stop.routeType.id.toString())
+                    .appendPath("stop")
+                    .appendPath(stop.stopId.toString())
+                    .appendQueryParameter("expand", "all")
+                    .appendQueryParameter("max_results", 100.toString())
             )
 
             Log.d("DEPARTURES", "Request: $request")
@@ -389,6 +395,17 @@ class StopActivity : ComponentActivity() {
                             (context as? Activity)?.finish()
                         })
                     },
+                    actions = {
+                        // Progress indicator
+                        if (loadingState)
+                            IconButton(onClick = { /* Dummy container */ }) {
+                                CircularProgressIndicator(
+                                    strokeCap = StrokeCap.Round,
+                                    modifier = Modifier
+                                        .requiredSize(24.dp) // from icon button
+                                )
+                            }
+                    },
                     modifier = Modifier
                         .onGloballyPositioned { coordinates ->
                             with(density) {
@@ -432,17 +449,6 @@ class StopActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    // Progress bar (temporary)
-                    if (loadingState)
-                        item(key = "progress") {
-                            LinearProgressIndicator(
-                                strokeCap = StrokeCap.Round,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .height(8.dp),
-                            )
-                        }
                     // Filter chip(s)
                     item {
                         FlowRow(

@@ -142,8 +142,8 @@ data class DepartureService(
         else -> {
             // Group based on individual route
 
-            // For buses and trams, edit the route name
-            if (arrayOf(RouteType.Tram, RouteType.Bus).contains(routeType)) {
+            // For buses, trams and regional services, edit the route name
+            if (arrayOf(RouteType.Tram, RouteType.Bus, RouteType.Regional).contains(routeType)) {
                 // Alter name
                 var correctedName = route.routeName
                     // Remove Smartbus name

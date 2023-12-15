@@ -16,9 +16,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
@@ -315,6 +318,17 @@ class DirectionStopActivity : ComponentActivity() {
                             (context as? Activity)?.finish()
                         })
                     },
+                    actions = {
+                        // Progress indicator
+                        if (loadingState)
+                            IconButton(onClick = { /* Dummy container */ }) {
+                                CircularProgressIndicator(
+                                    strokeCap = StrokeCap.Round,
+                                    modifier = Modifier
+                                        .requiredSize(24.dp) // from icon button
+                                )
+                            }
+                    },
                     modifier = Modifier
                         .onGloballyPositioned { coordinates ->
                             with(density) {
@@ -340,17 +354,6 @@ class DirectionStopActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    // Progress bar (temporary)
-                    if (loadingState)
-                        item(key = "progress") {
-                            LinearProgressIndicator(
-                                strokeCap = StrokeCap.Round,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                                    .height(8.dp),
-                            )
-                        }
                     // Filter chip(s)
                     item {
                         FlowRow(
