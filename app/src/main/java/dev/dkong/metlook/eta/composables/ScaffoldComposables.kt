@@ -5,6 +5,8 @@ package dev.dkong.metlook.eta.composables
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
@@ -34,6 +37,7 @@ import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -396,4 +400,29 @@ fun TwoLineCenterTopAppBarText(
             )
         }
     }
+}
+
+/**
+ * Chip with a checked indicator
+ * @param selected whether the chip is selected
+ * @param onClick the on-click action
+ */
+@Composable
+fun CheckableChip(
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text("Next 60 min") },
+        leadingIcon = {
+            AnimatedVisibility(
+                visible = selected,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {
+                Icon(Icons.Default.Check, "Checked")
+            }
+        })
 }

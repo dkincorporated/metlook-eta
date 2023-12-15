@@ -65,7 +65,7 @@ data class DepartureService(
             // Frankston services to Southern Cross get displayed as Flinders St
             else if (routeId == 6 && finalStopId == 1181) "Flinders St"
             else destinationName
-        } else direction.directionName
+        } else direction.directionName ?: ""
 
     /**
      * Get the time to the scheduled departure

@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.common.utils
 
+import android.net.Uri
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.SignatureException
@@ -13,7 +14,9 @@ import javax.crypto.spec.SecretKeySpec
 object PtvApi {
     // Encryption methods
     private const val HMAC_SHA1_ALGORITHM = "HmacSHA1"
-    private const val BASE_URL = "https://timetableapi.ptv.vic.gov.au"
+    private const val BASE_URL = "timetableapi.ptv.vic.gov.au"
+    private const val DEV_ID: String = "3000917"
+    private const val API_KEY: String = "1062d893-8f26-4642-bfa5-2dfdd3338504"
 
     /**
      * Convert bytes to hex in string
@@ -41,17 +44,38 @@ object PtvApi {
         return toHexString(mac.doFinal(data.toByteArray()))
     }
 
+    @Deprecated("Use a URI builder for the query.")
     fun getApiUrl(
-        strQuery: String,
-        DEV_ID: String = "3000917",
-        API_KEY: String = "1062d893-8f26-4642-bfa5-2dfdd3338504"
+        strQuery: String
     ): String? { // TODO: Store the credentials somewhere more secure
         // Automatically concatenates the DEV_ID
         val method = strQuery + "devid=$DEV_ID"
         try {
             val hmac = calculateRFC2104HMAC(method, API_KEY)
-            val finalReqUrl = "$BASE_URL$method&Signature=$hmac"
+            val finalReqUrl = "https://$BASE_URL$method&Signature=$hmac"
             return finalReqUrl
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    /**
+     * Get the full API URL from a base method
+     * @param query the API query method
+     */
+    fun getApiUrl(
+        query: Uri.Builder
+    ): String? {
+        val method = query
+            .appendQueryParameter("devid", DEV_ID)
+        try {
+            val hmac = calculateRFC2104HMAC(method.build().toString(), API_KEY)
+            return method
+                .scheme("https")
+                .authority(BASE_URL)
+                .appendQueryParameter("Signature", hmac)
+                .build().toString()
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -63,6 +63,7 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -412,23 +413,11 @@ class StopActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                         ) {
-                            FilterChip(
-                                selected = filters["next-sixty"] == true,
-                                onClick = {
-                                    filters["next-sixty"] =
-                                        filters["next-sixty"] != true
-                                    updateFilters()
-                                },
-                                label = { Text("Next 60 min") },
-                                leadingIcon = {
-                                    AnimatedVisibility(
-                                        visible = filters["next-sixty"] == true,
-                                        enter = scaleIn(),
-                                        exit = scaleOut()
-                                    ) {
-                                        Icon(Icons.Default.Check, "Checked")
-                                    }
-                                })
+                            CheckableChip(selected = filters["next-sixty"] == true) {
+                                filters["next-sixty"] =
+                                    filters["next-sixty"] != true
+                                updateFilters()
+                            }
                         }
                     }
                     departures.forEach { group ->
@@ -467,7 +456,6 @@ class StopActivity : ComponentActivity() {
                                                 group.second.size
                                             ) // TODO
                                         ).roundedShape,
-                                        context = context,
                                         onClick = { departures ->
                                             val firstDeparture = departures.first()
                                             if (departures.size == 1) {

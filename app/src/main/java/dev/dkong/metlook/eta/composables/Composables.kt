@@ -105,7 +105,6 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
 fun DepartureCard(
     departureList: List<DepartureService>,
     shape: Shape,
-    context: Context,
     onClick: (List<DepartureService>) -> Unit,
     modifier: Modifier = Modifier
 ) {

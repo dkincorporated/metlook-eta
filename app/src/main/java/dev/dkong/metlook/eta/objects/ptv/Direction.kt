@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Direction(
     @SerialName("direction_id") val directionId: Int,
-    @SerialName("direction_name") val directionName: String,
+    @SerialName("direction_name") val directionName: String?,
     @SerialName("route_id") val routeId: Int,
     @SerialName("route_type") private val routeTypeId: Int
 ) {
