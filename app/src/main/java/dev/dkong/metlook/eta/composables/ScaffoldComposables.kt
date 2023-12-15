@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
@@ -412,6 +413,7 @@ fun CheckableChip(
     selected: Boolean,
     name: String,
     showIcon: Boolean = true,
+    showRemoveIcon: Boolean = false,
     onClick: () -> Unit
 ) {
     FilterChip(
@@ -427,5 +429,16 @@ fun CheckableChip(
                 ) {
                     Icon(Icons.Default.Check, "Checked")
                 }
-        })
+        },
+        trailingIcon = {
+            if (showRemoveIcon)
+                AnimatedVisibility(
+                    visible = selected,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
+                    Icon(Icons.Default.Close, "Remove")
+                }
+        }
+    )
 }

@@ -55,6 +55,7 @@ import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
+import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
@@ -354,7 +355,8 @@ class DirectionStopActivity : ComponentActivity() {
                                     CheckableChip(
                                         selected = filters[patternClass.toString()] == true,
                                         name = stringResource(id = patternClass.displayName),
-                                        showIcon = false
+                                        showIcon = false,
+                                        showRemoveIcon = true
                                     ) {
                                         // Toggle the status
                                         filters[patternClass.toString()] =
@@ -364,6 +366,9 @@ class DirectionStopActivity : ComponentActivity() {
                                 }
                             }
                         }
+                    }
+                    item {
+                        SectionHeading(heading = "Departures")
                     }
                     // Display the services
                     departures.forEachIndexed { index, departure ->
