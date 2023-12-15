@@ -411,6 +411,7 @@ fun TwoLineCenterTopAppBarText(
 fun CheckableChip(
     selected: Boolean,
     name: String,
+    showIcon: Boolean = true,
     onClick: () -> Unit
 ) {
     FilterChip(
@@ -418,12 +419,13 @@ fun CheckableChip(
         onClick = onClick,
         label = { Text(name) },
         leadingIcon = {
-            AnimatedVisibility(
-                visible = selected,
-                enter = scaleIn(),
-                exit = scaleOut()
-            ) {
-                Icon(Icons.Default.Check, "Checked")
-            }
+            if (showIcon)
+                AnimatedVisibility(
+                    visible = selected,
+                    enter = scaleIn(),
+                    exit = scaleOut()
+                ) {
+                    Icon(Icons.Default.Check, "Checked")
+                }
         })
 }

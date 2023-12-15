@@ -103,7 +103,8 @@ class DirectionStopActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    @OptIn(
+        ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
         ExperimentalFoundationApi::class
     )
     @Composable
@@ -124,15 +125,18 @@ class DirectionStopActivity : ComponentActivity() {
         // Observed list of departures (for filters)
         val departures =
             remember { mutableStateListOf<DepartureService>() }
-        val filters = remember {
+
+        // Filters
+        val filters: MutableMap<String, Boolean?> = remember {
             mutableStateMapOf(
                 // Initialise filters with default values
-                *PatternType.values()
+                *PatternType.PatternClass.values()
                     .map { it.toString() }
-                    .associateWith { true }
+                    .associateWith { null }
                     .toList().toTypedArray()
             )
         }
+
 
         var loadingState by remember { mutableStateOf(true) }
 
@@ -143,11 +147,14 @@ class DirectionStopActivity : ComponentActivity() {
 
         fun updateFilters() {
             var result = allDepartures.toList()
-            // Filter by stopping pattern (train only)
-            if (direction.routeType == RouteType.Train) {
+            // Filter by stopping pattern (train only), and only if at least one filter is applied
+            if (
+                direction.routeType == RouteType.Train
+                && PatternType.PatternClass.values().any { filters[it.toString()] != null }
+            ) {
                 result = result
                     .filter { departure ->
-                        filters[departure.patternType().toString()] ?: true
+                        filters[departure.patternType().patternClass.toString()] == true
                     }
             }
             // Update departures
@@ -342,15 +349,16 @@ class DirectionStopActivity : ComponentActivity() {
                                 .padding(horizontal = 16.dp)
                         ) {
                             if (direction.routeType == RouteType.Train) {
-                                PatternType.values().forEach { patternType ->
+                                PatternType.PatternClass.values().forEach { patternClass ->
                                     // Display all stopping pattern types
                                     CheckableChip(
-                                        selected = filters[patternType.toString()] ?: true,
-                                        name = stringResource(id = patternType.displayName)
+                                        selected = filters[patternClass.toString()] == true,
+                                        name = stringResource(id = patternClass.displayName),
+                                        showIcon = false
                                     ) {
                                         // Toggle the status
-                                        filters[patternType.toString()] =
-                                            !(filters[patternType.toString()] ?: true)
+                                        filters[patternClass.toString()] =
+                                            if (filters[patternClass.toString()] == null) true else null
                                         updateFilters()
                                     }
                                 }
