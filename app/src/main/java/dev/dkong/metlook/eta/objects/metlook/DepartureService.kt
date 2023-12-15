@@ -88,6 +88,14 @@ data class DepartureService(
     fun delay(): Duration? = estimatedDeparture?.minus(scheduledDeparture)
 
     /**
+     * Whether the service is arriving
+     *
+     * Only for trains; other modes will always return false.
+     */
+    fun isArriving(): Boolean = routeType == RouteType.Train &&
+            (delay()?.inWholeSeconds?.rem(60L) ?: 0) != 0L
+
+    /**
      * Get the display time of the scheduled departure
      */
     fun scheduledDepartureTime() =

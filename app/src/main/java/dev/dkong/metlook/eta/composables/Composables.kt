@@ -108,6 +108,9 @@ fun DepartureCard(
     onClick: (List<DepartureService>) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    /**
+     * The first departure of the group
+     */
     val departure = departureList.first()
 
     ListItem(
@@ -159,13 +162,8 @@ fun DepartureCard(
             if (departure.isCancelled) return@ListItem
 
             val timeTexts = departureList.map { departure ->
-                if (departure.isAtPlatform) "Now"
-                else if (
-                    departure.routeType == RouteType.Train
-                    && with(departure.delay()) {
-                        (this?.inWholeSeconds?.rem(60L) ?: 0) != 0L
-                    }
-                ) "Now*" // train is arriving if est. time is not in whole minutes
+                if (departure.isAtPlatform) "Now" // now arrived
+                else if (departure.isArriving()) "Now*" // now arriving
                 else if (departure.estimatedDeparture != null
                     && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
                 ) "<1"
@@ -183,8 +181,8 @@ fun DepartureCard(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                // Display the 'min' indicator if at least one departure is not at platform
-                if (departureList.any { d -> !d.isAtPlatform }) {
+                // Display the 'min' indicator if at least one departure is not at platform or arriving
+                if (departureList.any { d -> !d.isAtPlatform && !d.isArriving() }) {
                     Text(
                         text = "min",
                         style = MaterialTheme.typography.bodySmall
