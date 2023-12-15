@@ -249,7 +249,8 @@ fun PlaceholderMessage(
             subtitle?.let {
                 Text(
                     text = it,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
                 )
             }
         }

@@ -328,7 +328,7 @@ class DirectionStopActivity : ComponentActivity() {
                 // TODO: Map
                 PlaceholderMessage(
                     title = "The map is coming soon",
-                    subtitle = "Please excuse us as we work behind the scenes."
+                    subtitle = "Please excuse us while we work behind the scenes."
                 )
             },
             mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
