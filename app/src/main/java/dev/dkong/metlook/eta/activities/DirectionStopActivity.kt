@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -39,14 +40,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -54,6 +58,7 @@ import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.ptv.Direction
 import dev.dkong.metlook.eta.objects.ptv.Stop
@@ -98,7 +103,9 @@ class DirectionStopActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+        ExperimentalFoundationApi::class
+    )
     @Composable
     fun DirectionStopScreen(
         navHostController: NavHostController,
@@ -117,13 +124,16 @@ class DirectionStopActivity : ComponentActivity() {
         // Observed list of departures (for filters)
         val departures =
             remember { mutableStateListOf<DepartureService>() }
-        val stopName = stop.stopName()
         val filters = remember {
             mutableStateMapOf(
                 // Initialise filters with default values
-                "next-sixty" to true
+                *PatternType.values()
+                    .map { it.toString() }
+                    .associateWith { true }
+                    .toList().toTypedArray()
             )
         }
+
         var loadingState by remember { mutableStateOf(true) }
 
         // Lifecycle states
@@ -132,10 +142,17 @@ class DirectionStopActivity : ComponentActivity() {
         var isScreenActive by remember { mutableStateOf(true) }
 
         fun updateFilters() {
-            // TODO
-
+            var result = allDepartures.toList()
+            // Filter by stopping pattern (train only)
+            if (direction.routeType == RouteType.Train) {
+                result = result
+                    .filter { departure ->
+                        filters[departure.patternType().toString()] ?: true
+                    }
+            }
+            // Update departures
             departures.clear()
-            departures.addAll(allDepartures)
+            departures.addAll(result)
         }
 
         suspend fun updateDepartures(
@@ -206,6 +223,7 @@ class DirectionStopActivity : ComponentActivity() {
 
                     loadingState = false
                     hasFirstLoaded = true
+
                     return
                 } catch (e: SerializationException) {
                     // TODO: Show error for failed request
@@ -216,6 +234,7 @@ class DirectionStopActivity : ComponentActivity() {
             // TODO: Show error for failed request
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
+
         val refreshInterval = 15000L
 
         // This block runs while the screen is not yet destroyed
@@ -317,11 +336,25 @@ class DirectionStopActivity : ComponentActivity() {
                     // Filter chip(s)
                     item {
                         FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                         ) {
-                            // TODO: Filters
+                            if (direction.routeType == RouteType.Train) {
+                                PatternType.values().forEach { patternType ->
+                                    // Display all stopping pattern types
+                                    CheckableChip(
+                                        selected = filters[patternType.toString()] ?: true,
+                                        name = stringResource(id = patternType.displayName)
+                                    ) {
+                                        // Toggle the status
+                                        filters[patternType.toString()] =
+                                            !(filters[patternType.toString()] ?: true)
+                                        updateFilters()
+                                    }
+                                }
+                            }
                         }
                     }
                     // Display the services
@@ -335,7 +368,8 @@ class DirectionStopActivity : ComponentActivity() {
                                 ).roundedShape,
                                 onClick = {
                                     // TODO: Launch Service screen
-                                }
+                                },
+                                modifier = Modifier.animateItemPlacement()
                             )
                         }
                     }

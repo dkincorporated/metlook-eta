@@ -413,7 +413,7 @@ class StopActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp)
                         ) {
-                            CheckableChip(selected = filters["next-sixty"] == true) {
+                            CheckableChip(selected = filters["next-sixty"] == true, "Next 60 min") {
                                 filters["next-sixty"] =
                                     filters["next-sixty"] != true
                                 updateFilters()

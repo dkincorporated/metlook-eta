@@ -410,12 +410,13 @@ fun TwoLineCenterTopAppBarText(
 @Composable
 fun CheckableChip(
     selected: Boolean,
+    name: String,
     onClick: () -> Unit
 ) {
     FilterChip(
         selected = selected,
         onClick = onClick,
-        label = { Text("Next 60 min") },
+        label = { Text(name) },
         leadingIcon = {
             AnimatedVisibility(
                 visible = selected,
