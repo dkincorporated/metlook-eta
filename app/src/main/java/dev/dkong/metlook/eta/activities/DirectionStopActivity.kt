@@ -67,6 +67,7 @@ import dev.dkong.metlook.eta.objects.metlook.DepartureService
 import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.ptv.Direction
+import dev.dkong.metlook.eta.objects.ptv.Route
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
@@ -129,19 +130,29 @@ class DirectionStopActivity : ComponentActivity() {
         )
         var topBarHeight by remember { mutableStateOf(0.dp) }
 
-        // "Clean" list of all departures (no filters)
+        /**
+         * "Clean" list of all departures (no filters)
+         */
         val allDepartures =
             remember { mutableStateListOf<DepartureService>() }
-        // Observed list of departures (for filters)
+
+        /**
+         * Observed list of departures (for filters)
+         */
         val departures =
             remember { mutableStateListOf<DepartureService>() }
 
+        /**
+         * List of distinct routes in the departure list (Tram and Bus only)
+         */
+        val departuresRouteList = remember { mutableStateListOf<Route>() }
+
         // Filters
-        val filters: MutableMap<String, Boolean?> = remember {
+        val filters: MutableMap<Int, Boolean?> = remember {
             mutableStateMapOf(
                 // Initialise filters with default values
                 *PatternType.PatternClass.values()
-                    .map { it.toString() }
+                    .map { it.ordinal }
                     .associateWith { null }
                     .toList().toTypedArray()
             )
@@ -160,11 +171,20 @@ class DirectionStopActivity : ComponentActivity() {
             // Filter by stopping pattern (train only), and only if at least one filter is applied
             if (
                 direction.routeType == RouteType.Train
-                && PatternType.PatternClass.values().any { filters[it.toString()] != null }
+                && PatternType.PatternClass.values().any { filters[it.ordinal] != null }
             ) {
                 result = result
                     .filter { departure ->
-                        filters[departure.patternType().patternClass.toString()] == true
+                        filters[departure.patternType().patternClass.ordinal] == true
+                    }
+            }
+            if (
+                listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)
+                && departuresRouteList.any { filters[it.routeId] != null }
+            ) {
+                result = result
+                    .filter { departure ->
+                        filters[departure.routeId] == true
                     }
             }
             // Update departures
@@ -236,6 +256,19 @@ class DirectionStopActivity : ComponentActivity() {
                     // Add all departures
                     allDepartures.clear()
                     allDepartures.addAll(processedDepartures)
+
+                    // Record distinct routes (Tram and Bus only)
+                    if (listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)) {
+                        departuresRouteList.clear()
+
+                        val distinctRoutes =
+                            allDepartures.map { departure -> departure.route }.distinct()
+                                .sortedBy { route -> route.routeNumber }
+
+                        // Don't add the routes for the filters if there is only one route
+                        if (distinctRoutes.size > 1)
+                            departuresRouteList.addAll(distinctRoutes)
+                    }
 
                     // Run any filters
                     updateFilters()
@@ -357,6 +390,11 @@ class DirectionStopActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     // Filter chip(s)
+                    if (departuresRouteList.isNotEmpty()) {
+                        item {
+                            SectionHeading(heading = "Line")
+                        }
+                    }
                     item {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -368,17 +406,37 @@ class DirectionStopActivity : ComponentActivity() {
                                 PatternType.PatternClass.values().forEach { patternClass ->
                                     // Display all stopping pattern types
                                     CheckableChip(
-                                        selected = filters[patternClass.toString()] == true,
+                                        selected = filters[patternClass.ordinal] == true,
                                         name = stringResource(id = patternClass.displayName),
                                         showIcon = false,
                                         showRemoveIcon = true
                                     ) {
                                         // Toggle the status
-                                        filters[patternClass.toString()] =
-                                            if (filters[patternClass.toString()] == null) true else null
+                                        filters[patternClass.ordinal] =
+                                            if (filters[patternClass.ordinal] == null) true else null
                                         updateFilters()
                                     }
                                 }
+                            } else if (listOf(RouteType.Tram, RouteType.Bus)
+                                    .contains(stop.routeType)
+                            ) {
+                                // For tram and bus, filter by route
+                                departuresRouteList
+                                    .forEach { route ->
+                                        if (route.routeNumber == null) return@forEach
+                                        // Display all routes
+                                        CheckableChip(
+                                            selected = filters[route.routeId] == true,
+                                            name = route.routeNumber,
+                                            showIcon = false,
+                                            showRemoveIcon = true
+                                        ) {
+                                            // Toggle the status
+                                            filters[route.routeId] =
+                                                if (filters[route.routeId] == null) true else null
+                                            updateFilters()
+                                        }
+                                    }
                             }
                         }
                     }
