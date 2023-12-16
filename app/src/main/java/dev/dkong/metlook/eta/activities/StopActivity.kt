@@ -208,8 +208,6 @@ class StopActivity : ComponentActivity() {
             // Final step
             departures.clear()
             departures.addAll(result)
-
-            Log.d("DEPARTURES", "Filters complete")
         }
 
         /**
@@ -238,55 +236,45 @@ class StopActivity : ComponentActivity() {
                 }
             )
 
-            Log.d("DEPARTURES", "Request: $request")
-
             request?.let {
                 val response: String = Constants.httpClient.get(request).body()
-
-                Log.d("DEPARTURES", "Received web response")
-
                 try {
                     // Parse departure result
                     val decodedDepartures =
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
 
-                    Log.d("DEPARTURES", "JSON decoded")
+                    // Store the processed departures
+                    val groupedDepartures = decodedDepartures.departures
+                        .asSequence()
+                        .map { departure ->
+                            // Entries with data errors will be ignored
 
-                    // Temporarily store the processed departure objects
-                    val processedDepartures = mutableListOf<DepartureService>()
+                            val route = decodedDepartures.routes[departure.routeId]
+                                ?: return@map null
+                            val run = decodedDepartures.runs[departure.runRef]
+                                ?: return@map null
+                            val direction =
+                                decodedDepartures.directions[departure.directionId]
+                                    ?: return@map null
 
-                    // Process the received departures
-                    decodedDepartures.departures.forEach { departure ->
-                        val route = decodedDepartures.routes[departure.routeId]
-                            ?: return@forEach
-                        val run = decodedDepartures.runs[departure.runRef]
-                            ?: return@forEach
-                        val direction =
-                            decodedDepartures.directions[departure.directionId]
-                                ?: return@forEach
+                            // Initiate the all-in-one departure object
+                            val processedDeparture = DepartureService(
+                                departure,
+                                route,
+                                run,
+                                direction,
+                                decodedDepartures.disruptions.filter { entry ->
+                                    departure.disruptionIds.contains(entry.value.disruptionId)
+                                }.values.toList()
+                            )
 
-                        // Initiate the all-in-one departure object
-                        val processedDeparture = DepartureService(
-                            departure,
-                            route,
-                            run,
-                            direction,
-                            decodedDepartures.disruptions.filter { entry ->
-                                departure.disruptionIds.contains(entry.value.disruptionId)
-                            }.values.toList()
-                        )
+                            // Filter out unwanted departures
+                            if (!processedDeparture.isValid()) return@map null
 
-                        // Filter out unwanted departures
-                        if (!processedDeparture.isValid()) return@forEach
-
-                        // Add new departure to list
-                        processedDepartures.add(processedDeparture)
-                    }
-
-                    Log.d("DEPARTURES", "Departures processed")
-
-                    // Group the departures
-                    val groupedDepartures = processedDepartures
+                            return@map processedDeparture
+                        }
+                        .filterNotNull() // remove invalid entries
+                        // Group departures
                         .groupBy { d -> d.directionGroupingValue }
                         .toList()
                         .sortedBy { pair -> pair.first }
@@ -307,8 +295,7 @@ class StopActivity : ComponentActivity() {
                                     }
                             )
                         }
-
-                    Log.d("DEPARTURES", "Departures grouped")
+                        .toList()
 
                     // Add all departures
                     allDepartures.clear()

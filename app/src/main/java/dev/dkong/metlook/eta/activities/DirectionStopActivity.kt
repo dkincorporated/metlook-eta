@@ -204,6 +204,7 @@ class DirectionStopActivity : ComponentActivity() {
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
 
                     val processedDepartures = decodedDepartures.departures
+                        .asSequence()
                         .map { departure ->
                             val route = decodedDepartures.routes[departure.routeId]
                                 ?: return@map null
