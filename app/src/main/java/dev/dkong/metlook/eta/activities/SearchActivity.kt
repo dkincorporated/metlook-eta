@@ -115,7 +115,8 @@ class SearchActivity : ComponentActivity() {
         /**
          * Original stop search results
          */
-        val searchResultsStop = mutableListOf<Pair<RouteType, List<Stop>>>()
+        val searchResultsStop =
+            remember { mutableStateListOf<Pair<RouteType, List<Stop>>>() }
 
         /**
          * Filtered (if any) and observed stop search results
@@ -127,15 +128,7 @@ class SearchActivity : ComponentActivity() {
         /**
          * Filter options
          */
-        val filters = remember {
-            mutableStateMapOf<String, Boolean?>(
-                // Initialise filters with default values
-                *RouteType.values()
-                    .map { it.toString() }
-                    .associateWith { null }
-                    .toList().toTypedArray()
-            )
-        }
+        val filters = remember { mutableStateMapOf<String, Boolean?>() }
 
         val placeholderTitle = stringArrayResource(id = R.array.fun_msg_search).random()
 
@@ -308,7 +301,7 @@ class SearchActivity : ComponentActivity() {
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    RouteType.values().forEach { routeType ->
+                    searchResultsStop.map { it.first }.forEach { routeType ->
                         if (routeType == RouteType.Other) return@forEach
                         // Display all route types
                         CheckableChip(
