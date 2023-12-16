@@ -143,6 +143,11 @@ class DirectionStopActivity : ComponentActivity() {
             remember { mutableStateListOf<DepartureService>() }
 
         /**
+         * List of distinct stopping patterns in the departure list (Train only)
+         */
+        val departuresPatternList = remember { mutableStateListOf<PatternType.PatternClass>() }
+
+        /**
          * List of distinct routes in the departure list (Tram and Bus only)
          */
         val departuresRouteList = remember { mutableStateListOf<Route>() }
@@ -257,8 +262,21 @@ class DirectionStopActivity : ComponentActivity() {
                     allDepartures.clear()
                     allDepartures.addAll(processedDepartures)
 
+                    // Record distinct stopping patterns (Train only)
+                    if (stop.routeType == RouteType.Train) {
+                        departuresPatternList.clear()
+
+                        val distinctPatterns =
+                            allDepartures.map { departure -> departure.patternType().patternClass }
+                                .distinct()
+                                .sortedBy { patternType -> patternType.ordinal }
+
+                        // Don't add patterns if only one distinct exists
+                        if (distinctPatterns.size > 1)
+                            departuresPatternList.addAll(distinctPatterns)
+                    }
                     // Record distinct routes (Tram and Bus only)
-                    if (listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)) {
+                    else if (listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)) {
                         departuresRouteList.clear()
 
                         val distinctRoutes =
@@ -390,7 +408,14 @@ class DirectionStopActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     // Filter chip(s)
-                    if (departuresRouteList.isNotEmpty()) {
+                    // Stopping pattern filters
+                    if (departuresPatternList.isNotEmpty()) {
+                        item {
+                            SectionHeading(heading = "Stopping pattern")
+                        }
+                    }
+                    // Route filters
+                    else if (departuresRouteList.isNotEmpty()) {
                         item {
                             SectionHeading(heading = "Line")
                         }
@@ -403,7 +428,7 @@ class DirectionStopActivity : ComponentActivity() {
                                 .padding(horizontal = 16.dp)
                         ) {
                             if (direction.routeType == RouteType.Train) {
-                                PatternType.PatternClass.values().forEach { patternClass ->
+                                departuresPatternList.forEach { patternClass ->
                                     // Display all stopping pattern types
                                     CheckableChip(
                                         selected = filters[patternClass.ordinal] == true,
