@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -252,7 +253,7 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                             leadingIcon = {
                                 Image(
                                     painterResource(id = route.routeType.icon),
-                                    route.routeType.displayName,
+                                    stringResource(id = route.routeType.displayName),
                                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                                 )
                             }

@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.common
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import dev.dkong.metlook.eta.R
 
 /**
@@ -9,14 +10,14 @@ import dev.dkong.metlook.eta.R
  */
 enum class RouteType(
     val id: Int,
-    val displayName: String,
+    @StringRes val displayName: Int,
     @DrawableRes val icon: Int
 ) {
-    Train(0, "Train", R.drawable.outline_train_24),
-    Tram(1, "Tram", R.drawable.outline_tram_24),
-    Bus(2, "Bus", R.drawable.outline_directions_bus_24),
-    Regional(3, "Regional", R.drawable.outline_commute_24),
-    Other(99, "Other", R.drawable.outline_navigation_24);
+    Train(0, R.string.route_type_train, R.drawable.outline_train_24),
+    Tram(1, R.string.route_type_tram, R.drawable.outline_tram_24),
+    Bus(2, R.string.route_type_bus, R.drawable.outline_directions_bus_24),
+    Regional(3, R.string.route_type_regional, R.drawable.outline_commute_24),
+    Other(99, R.string.not_applicable, R.drawable.outline_navigation_24);
 
     companion object {
         /**

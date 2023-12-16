@@ -3,6 +3,7 @@ package dev.dkong.metlook.eta.activities
 import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -12,7 +13,10 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,6 +50,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -54,10 +60,12 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
+import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.Route
 import dev.dkong.metlook.eta.objects.ptv.SearchResult
 import dev.dkong.metlook.eta.objects.ptv.Stop
@@ -90,7 +98,10 @@ class SearchActivity : ComponentActivity() {
     /**
      * Main Search interface
      */
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+    @OptIn(
+        ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+        ExperimentalLayoutApi::class
+    )
     @Composable
     fun SearchScreen(navHostController: NavHostController) {
         val context = LocalContext.current
@@ -101,10 +112,50 @@ class SearchActivity : ComponentActivity() {
         var isSearchActive by rememberSaveable { mutableStateOf(true) }
 
         // Search results: for Stops and Routes
-        val searchResultsStop = remember { mutableStateListOf<Pair<RouteType, List<Stop>>>() }
-        val searchResultsRoute = remember { mutableStateListOf<Route>() }
+        /**
+         * Original stop search results
+         */
+        val searchResultsStop = mutableListOf<Pair<RouteType, List<Stop>>>()
+
+        /**
+         * Filtered (if any) and observed stop search results
+         */
+        val searchResultsStopFiltered =
+            remember { mutableStateListOf<Pair<RouteType, List<Stop>>>() }
+//        val searchResultsRoute = remember { mutableStateListOf<Route>() }
+
+        /**
+         * Filter options
+         */
+        val filters = remember {
+            mutableStateMapOf<String, Boolean?>(
+                // Initialise filters with default values
+                *RouteType.values()
+                    .map { it.toString() }
+                    .associateWith { null }
+                    .toList().toTypedArray()
+            )
+        }
 
         val placeholderTitle = stringArrayResource(id = R.array.fun_msg_search).random()
+
+        /**
+         * Run the filters on the search results (if any)
+         */
+        fun updateFilters() {
+            searchResultsStopFiltered.clear()
+            if (RouteType.values().any { routeType -> filters[routeType.toString()] != null }) {
+                val result = searchResultsStop.toList()
+                    // Only run the filter if at least one filter is selected
+                    .filter { routeTypeGroup ->
+                        filters[routeTypeGroup.first.toString()] == true
+                    }
+                // Update the observed list with the filtered results
+                searchResultsStopFiltered.addAll(result)
+            } else {
+                searchResultsStopFiltered.addAll(searchResultsStop)
+            }
+        }
 
         /**
          * Run the search, and update the results lists
@@ -138,6 +189,7 @@ class SearchActivity : ComponentActivity() {
 
                         groupedStops.let { l ->
                             searchResultsStop.addAll(l)
+                            updateFilters()
                         }
                     } catch (e: SerializationException) {
                         // TODO: Handle error
@@ -248,13 +300,34 @@ class SearchActivity : ComponentActivity() {
                     }
                 }
             }
-            // Search results
+            // Filter options
             item {
-                AnimatedVisibility(
-                    visible = searchResultsStop.isEmpty() && searchResultsRoute.isEmpty(),
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 ) {
+                    RouteType.values().forEach { routeType ->
+                        if (routeType == RouteType.Other) return@forEach
+                        // Display all route types
+                        CheckableChip(
+                            selected = filters[routeType.toString()] == true,
+                            name = stringResource(id = routeType.displayName),
+                            showIcon = false,
+                            showRemoveIcon = true
+                        ) {
+                            // Toggle the status
+                            filters[routeType.toString()] =
+                                if (filters[routeType.toString()] == null) true else null
+                            updateFilters()
+                        }
+                    }
+                }
+            }
+            // Search results
+            if (searchResultsStopFiltered.isEmpty() /* && searchResultsRoute.isEmpty() */) {
+                item {
                     PlaceholderMessage(
                         largeIcon = R.drawable.baseline_travel_explore_24,
                         title = placeholderTitle,
@@ -262,10 +335,10 @@ class SearchActivity : ComponentActivity() {
                     )
                 }
             }
-            searchResultsStop.forEach { routeType ->
+            searchResultsStopFiltered.forEach { routeType ->
                 item(key = routeType.first.id) {
                     SectionHeading(
-                        heading = routeType.first.displayName,
+                        heading = stringResource(id = routeType.first.displayName),
                         modifier = Modifier.animateItemPlacement()
                     )
                 }

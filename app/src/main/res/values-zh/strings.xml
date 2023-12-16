@@ -4,6 +4,12 @@
 
     <string name="not_applicable">Not applicable</string>
 
+    <!-- Route types -->
+    <string name="route_type_train">火车</string>
+    <string name="route_type_tram">轻轨</string>
+    <string name="route_type_bus">巴士</string>
+    <string name="route_type_regional">郊外</string>
+
     <!-- Stopping patterns -->
     <string name="pattern_all_stops">All stops</string>
     <string name="pattern_skips_one_stop">Skips one stop</string>
