@@ -19,7 +19,7 @@ data class Route(
     @SerialName("route_id")
     val routeId: Int,
     @SerialName("route_gtfs_id")
-    val routeGtfsId: String,
+    val routeGtfsId: String?,
     @SerialName("route_service_status")
     val routeServiceStatus: RouteServiceStatus? = null
 ) {
