@@ -405,11 +405,19 @@ object StoppingPatternComposables {
                                 text =
                                 if (patternStop.isAtPlatform && !isPassed) "Now"
                                 else if (patternStop.isArriving() && !isPassed) "Now*"
-                                else (patternStop.timeToEstimatedDeparture()?.inWholeMinutes
-                                    ?: patternStop.timeToScheduledDeparture().inWholeMinutes)
-                                    .let { if (it < 0) "<−1" else if (it < 1) "<1" else it.toString() }
-                                    .toString() + if (patternStop.timeToEstimatedDeparture() == null) "*" else ""
-                                    .replace("-", "−"),
+                                else ((patternStop.timeToEstimatedDeparture()
+                                    ?: patternStop.timeToScheduledDeparture())
+                                    .let {
+                                        when (it.inWholeSeconds) {
+                                            in 0 until 60 -> "<1"
+                                            in -59 until 0 -> "<−1"
+                                            else -> it.inWholeMinutes.toString()
+                                        }
+                                    }
+                                    .toString().replace(
+                                        "-",
+                                        "−"
+                                    ) + if (patternStop.timeToEstimatedDeparture() == null) "*" else ""),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
