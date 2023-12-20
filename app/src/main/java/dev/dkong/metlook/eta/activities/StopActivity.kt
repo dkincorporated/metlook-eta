@@ -254,7 +254,7 @@ class StopActivity : ComponentActivity() {
                             val run = decodedDepartures.runs[departure.runRef]
                                 ?: return@map null
                             val direction =
-                                decodedDepartures.directions[departure.directionId]
+                                decodedDepartures.directions[departure.directionId.toString()]
                                     ?: return@map null
 
                             // Initiate the all-in-one departure object

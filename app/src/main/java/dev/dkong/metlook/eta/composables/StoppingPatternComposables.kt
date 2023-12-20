@@ -11,19 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
@@ -31,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 
 /**
  * Composables for the stopping pattern
@@ -39,7 +38,7 @@ object StoppingPatternComposables {
     /**
      * Thickness of the pattern indicator
      */
-    private val indicatorWidth = 6.dp
+    private val indicatorWidth = 8.dp
 
     /**
      * Type of stop within the service pattern
@@ -59,6 +58,11 @@ object StoppingPatternComposables {
          * Last stop of the service
          */
         Last,
+
+        /**
+         * The next stop on the pattern
+         */
+        Next,
 
         /**
          * Stop that the service runs express past
@@ -183,7 +187,7 @@ object StoppingPatternComposables {
                 } else {
                     SpacerComponent(
                         colour = when (stopType) {
-                            StopType.Stop, StopType.Last, StopType.Skipped, StopType.ArrowSkipped,
+                            StopType.Stop, StopType.Next, StopType.Last, StopType.Skipped, StopType.ArrowSkipped,
                             StopType.ContinuesAfter -> activeColour
 
                             else -> inactiveColour
@@ -210,8 +214,8 @@ object StoppingPatternComposables {
                     // Right part
                     SquareComponent(
                         colour = when (stopType) {
-                            StopType.Stop, StopType.First, StopType.Last, StopType.ContinuesBefore,
-                            StopType.ContinuesAfter -> activeColour
+                            StopType.Stop, StopType.Next, StopType.First, StopType.Last,
+                            StopType.ContinuesBefore, StopType.ContinuesAfter -> activeColour
 
                             else -> inactiveColour
                         }
@@ -232,7 +236,9 @@ object StoppingPatternComposables {
                 } else {
                     SpacerComponent(
                         colour = when (stopType) {
-                            StopType.Stop, StopType.First, StopType.Skipped, StopType.ArrowSkipped, StopType.ContinuesBefore -> activeColour
+                            StopType.Stop, StopType.Next, StopType.First, StopType.Skipped,
+                            StopType.ArrowSkipped, StopType.ContinuesBefore -> activeColour
+
                             else -> inactiveColour
                         },
                         modifier = Modifier.weight(1f)
@@ -268,31 +274,47 @@ object StoppingPatternComposables {
      */
     @Composable
     fun PatternListItem(
+        heading: (@Composable () -> Unit)? = null,
         patternIndicator: (@Composable () -> Unit)? = null,
         leadingContent: (@Composable () -> Unit)? = null,
         headlineContent: @Composable () -> Unit,
         supportingContent: (@Composable () -> Unit)? = null,
-        trailingContent: (@Composable () -> Unit)? = null
+        trailingContent: (@Composable () -> Unit)? = null,
+        modifier: Modifier = Modifier
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp)
                 .height(IntrinsicSize.Min)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+            patternIndicator?.let { it() }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                patternIndicator?.let { it() }
-                leadingContent?.let { it() }
-                Column {
-                    headlineContent()
-                    supportingContent?.let { it() }
+                heading?.let { it() }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        leadingContent?.let { it() }
+                        Column {
+                            headlineContent()
+                            supportingContent?.let { it() }
+                        }
+                    }
+                    trailingContent?.let { it() }
                 }
             }
-            trailingContent?.let { it() }
         }
     }
 
@@ -303,6 +325,7 @@ object StoppingPatternComposables {
      */
     @Composable
     fun StoppingPatternCard(
+        patternStop: PatternDeparture,
         stopType: StopType
     ) {
         // Stop card
@@ -312,24 +335,32 @@ object StoppingPatternComposables {
             },
             headlineContent = {
                 Text(
-                    text = "Richmond",
+                    text = patternStop.stop.stopName().first,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             },
             supportingContent = {
-//                    Text(
-//                        text = "Belgrave, Lilydale",
-//                        style = MaterialTheme.typography.bodyMedium,
-//                        color = MaterialTheme.colorScheme.onSurfaceVariant
-//                    )
+                patternStop.stop.stopName().second?.let { s ->
+                    Text(
+                        text = "on $s",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             },
             leadingContent = {
-//                    TextMetLabel(
-//                        text = "9", modifier = metLabelModifier.clip(
-//                            CircleShape
-//                        )
-//                    )
+                if (patternStop.platform != null) {
+                    TextMetLabel(
+                        text = patternStop.platform, modifier = metLabelModifier.clip(
+                            CircleShape
+                        )
+                    )
+                } else {
+                    patternStop.stop.stopName().third?.let { stopNumber ->
+                        TextMetLabel(text = stopNumber)
+                    }
+                }
             },
             trailingContent = {
                 Row(
@@ -338,16 +369,21 @@ object StoppingPatternComposables {
                     modifier = Modifier.wrapContentHeight()
                 ) {
                     Text(
-                        text = "3",
+                        text =
+                        if (patternStop.isAtPlatform) "Now"
+                        else if (patternStop.isArriving()) "Now*"
+                        else (patternStop.timeToEstimatedDeparture()?.inWholeMinutes
+                            ?: "${patternStop.timeToScheduledDeparture().inWholeMinutes}*")
+                            .toString(),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    // Display the 'min' indicator if at least one departure is not at platform or arriving
-                    Text(
-                        text = "min",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (!patternStop.isAtPlatform && !patternStop.isArriving())
+                        Text(
+                            text = "min",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                 }
             }
         )
@@ -363,14 +399,57 @@ fun PreviewStoppingPattern() {
     Column(
         Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .padding(start = 8.dp, end = 16.dp)
     ) {
-        StoppingPatternComposables.StoppingPatternCard(StoppingPatternComposables.StopType.ContinuesBefore)
-//        repeat(3) {
-        StoppingPatternComposables.StoppingPatternCard(StoppingPatternComposables.StopType.Skipped)
-        StoppingPatternComposables.StoppingPatternCard(StoppingPatternComposables.StopType.ArrowSkipped)
-        StoppingPatternComposables.StoppingPatternCard(StoppingPatternComposables.StopType.Skipped)
-//        }
-        StoppingPatternComposables.StoppingPatternCard(StoppingPatternComposables.StopType.ContinuesAfter)
+        StoppingPatternComposables.PatternListItem(
+//            heading = {
+//                Text(
+//                    text = "Next station is",
+//                    style = MaterialTheme.typography.titleMedium,
+//                    color = MaterialTheme.colorScheme.onPrimaryContainer
+//                )
+//            },
+            patternIndicator = {
+                StoppingPatternComposables.StopIndicator(stopType = StoppingPatternComposables.StopType.Stop)
+            },
+            headlineContent = {
+                Text(
+                    text = "Richmond",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            supportingContent = {
+            },
+            leadingContent = {
+                TextMetLabel(
+                    text = "9", modifier = metLabelModifier.clip(
+                        CircleShape
+                    )
+                )
+            },
+            trailingContent = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    modifier = Modifier.wrapContentHeight()
+                ) {
+                    Text(
+                        text = "1",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "min",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            modifier = Modifier
+                .clip(
+                    RoundedCornerShape(16.dp)
+                )
+                .background(MaterialTheme.colorScheme.primaryContainer)
+        )
     }
 }

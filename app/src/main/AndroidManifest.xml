@@ -31,6 +31,7 @@
         <activity android:name="dev.dkong.metlook.eta.activities.SearchActivity" />
         <activity android:name="dev.dkong.metlook.eta.activities.StopActivity" />
         <activity android:name="dev.dkong.metlook.eta.activities.DirectionStopActivity" />
+        <activity android:name="dev.dkong.metlook.eta.activities.ServiceActivity" />
     </application>
 
 </manifest>

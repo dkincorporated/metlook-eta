@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -75,6 +76,7 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 
 /**
  * Activity for departures of a direction for a stop
@@ -236,7 +238,7 @@ class DirectionStopActivity : ComponentActivity() {
                             val run = decodedDepartures.runs[departure.runRef]
                                 ?: return@map null
                             val direction =
-                                decodedDepartures.directions[departure.directionId]
+                                decodedDepartures.directions[departure.directionId.toString()]
                                     ?: return@map null
 
                             // Initiate the all-in-one departure object
@@ -478,7 +480,12 @@ class DirectionStopActivity : ComponentActivity() {
                                     departures.size
                                 ).roundedShape,
                                 onClick = {
-                                    // TODO: Launch Service screen
+                                    val serviceIntent = Intent(context, ServiceActivity::class.java)
+                                    serviceIntent.putExtra(
+                                        "service",
+                                        Constants.jsonFormat.encodeToString(departure)
+                                    )
+                                    context.startActivity(serviceIntent)
                                 },
                                 modifier = Modifier.animateItemPlacement()
                             )

@@ -11,6 +11,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
 /**
@@ -18,6 +20,7 @@ import kotlin.time.Duration
  *
  * This combines all data objects into one that provides all the useful data.
  */
+@Serializable
 data class DepartureService(
     private val departure: Departure,
     val route: Route,
@@ -53,11 +56,13 @@ data class DepartureService(
     /**
      * Whether the service is cancelled
      */
+    @Contextual
     val isCancelled = status == "cancelled"
 
     /**
      * Get the title of the service
      */
+    @Contextual
     val serviceTitle =
         if (routeType == RouteType.Train) {
             // Flinders Street, Flagstaff, Parliament services get displayed as Flinders St
@@ -108,6 +113,7 @@ data class DepartureService(
     /**
      * Value to be used as the grouping identifier for the direction group stage
      */
+    @Contextual
     val directionGroupingValue = when (routeType) {
         RouteType.Train -> {
             // Group based on sets of routes
