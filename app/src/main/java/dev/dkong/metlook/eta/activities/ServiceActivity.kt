@@ -104,6 +104,7 @@ class ServiceActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         val density = LocalDensity.current
 
+        val scaffoldState = rememberBottomSheetScaffoldState()
         val patternListState = rememberLazyListState()
         var topBarHeight by remember { mutableStateOf(0.dp) }
         var collapsedPatternHeight by remember { mutableStateOf(512.dp) }
@@ -112,31 +113,6 @@ class ServiceActivity : ComponentActivity() {
         val pattern = remember { mutableStateListOf<PatternDeparture>() }
         var nextStopId by remember { mutableStateOf<Int?>(null) }
         var nextStopIndex by remember { mutableStateOf<Int?>(null) }
-
-        suspend fun scrollToNextStop() {
-            patternListState.animateScrollToItem(index =
-            pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
-            )
-        }
-
-        val scaffoldState = rememberBottomSheetScaffoldState(
-            bottomSheetState = rememberStandardBottomSheetState(
-                initialValue = SheetValue.Expanded,
-                confirmValueChange = { value ->
-                    when (value) {
-                        SheetValue.Expanded -> {
-                            // Scroll to the next stop on expand
-                            scope.launch {
-                                scrollToNextStop()
-                            }
-                        }
-
-                        else -> {}
-                    }
-                    true
-                }
-            )
-        )
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -233,12 +209,6 @@ class ServiceActivity : ComponentActivity() {
                 nextStopIndex =
                     pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
                         .takeIf { it != -1 }
-
-                if (isFirstLoad)
-                // Scroll only on first load
-                    scope.launch {
-                        scrollToNextStop()
-                    }
 
                 hasFirstLoaded = true
                 loadingState = false
