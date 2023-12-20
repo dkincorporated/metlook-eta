@@ -93,4 +93,9 @@ object Constants {
      * Size for the small rounded corner radius
      */
     val smallListCornerRadius = 4.dp
+
+    /**
+     * Refresh interval for all automatically refresh screens, in milliseconds
+     */
+    val refreshInterval = 15000L
 }

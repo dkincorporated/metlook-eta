@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -37,10 +38,12 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -56,6 +59,8 @@ import dev.dkong.metlook.eta.objects.ptv.PatternResult
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 
 /**
@@ -91,6 +96,7 @@ class ServiceActivity : ComponentActivity() {
     @Composable
     fun ServiceScreen(navHostController: NavHostController, originalDeparture: ParcelableService) {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
         val density = LocalDensity.current
 
         val scaffoldState = rememberBottomSheetScaffoldState(
@@ -104,8 +110,14 @@ class ServiceActivity : ComponentActivity() {
         var loadingState by remember { mutableStateOf(true) }
         val pattern = remember { mutableStateListOf<PatternDeparture>() }
 
-        suspend fun update() {
-            loadingState = true
+        // Lifecycle states
+        // TODO: Try to find a more elegant way to handle these
+        var hasFirstLoaded by remember { mutableStateOf(false) }
+        var isScreenActive by remember { mutableStateOf(true) }
+
+        suspend fun update(isFirstLoad: Boolean) {
+            if (isFirstLoad)
+                loadingState = true
 
             val request = PtvApi.getApiUrl(
                 Uri.Builder()
@@ -189,7 +201,28 @@ class ServiceActivity : ComponentActivity() {
         }
 
         LaunchedEffect(Unit) {
-            update()
+            update(isFirstLoad = true)
+            delay(Constants.refreshInterval)
+            while (true) {
+                if (isScreenActive) update(isFirstLoad = false)
+                delay(Constants.refreshInterval)
+            }
+        }
+
+        // Listen for Composable lifecycle
+        Utils.ComposableEventListener { event ->
+            when (event) {
+                // On pause, disable refresh
+                Lifecycle.Event.ON_PAUSE -> isScreenActive = false
+                // On resume, update departures, and enable refresh
+                Lifecycle.Event.ON_RESUME -> scope.launch {
+                    if (hasFirstLoaded)
+                        update(isFirstLoad = true)
+                    isScreenActive = true
+                }
+
+                else -> {}
+            }
         }
 
         PersistentBottomSheetScaffold(

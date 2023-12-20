@@ -51,6 +51,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.Constants.refreshInterval
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
@@ -307,8 +308,6 @@ class DirectionStopActivity : ComponentActivity() {
             // TODO: Show error for failed request
             Log.e("DEPARTURES", "Failed to generate API URL: $request")
         }
-
-        val refreshInterval = 15000L
 
         // This block runs while the screen is not yet destroyed
         LaunchedEffect(Unit) {

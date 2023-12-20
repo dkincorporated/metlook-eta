@@ -491,45 +491,26 @@ class StopActivity : ComponentActivity() {
                                         ).roundedShape,
                                         onClick = { departures ->
                                             val firstDeparture = departures.first()
-                                            // TODO: Temporary development only for Service screen
-                                            val serviceIntent =
-                                                Intent(context, ServiceActivity::class.java)
-                                            serviceIntent.putExtra(
-                                                "service",
-                                                Constants.jsonFormat.encodeToString(
-                                                    with(
-                                                        firstDeparture
-                                                    ) {
-                                                        ParcelableService(
-                                                            runRef,
-                                                            routeType,
-                                                            route,
-                                                            serviceTitle,
-                                                            destinationName
-                                                        )
-                                                    })
-                                            )
-                                            context.startActivity(serviceIntent)
 //                                            if (departures.size == 1) {
 //                                                // Launch Service directly
 //                                                // TODO
 //                                            } else {
                                             // Launch Direction Departures
-//                                            val directionDeparturesIntent = Intent(
-//                                                context,
-//                                                DirectionStopActivity::class.java
-//                                            )
-//                                            directionDeparturesIntent.putExtra(
-//                                                "stop",
-//                                                Constants.jsonFormat.encodeToString(stop)
-//                                            )
-//                                            directionDeparturesIntent.putExtra(
-//                                                "direction",
-//                                                Constants.jsonFormat.encodeToString(
-//                                                    firstDeparture.direction
-//                                                )
-//                                            )
-//                                            context.startActivity(directionDeparturesIntent)
+                                            val directionDeparturesIntent = Intent(
+                                                context,
+                                                DirectionStopActivity::class.java
+                                            )
+                                            directionDeparturesIntent.putExtra(
+                                                "stop",
+                                                Constants.jsonFormat.encodeToString(stop)
+                                            )
+                                            directionDeparturesIntent.putExtra(
+                                                "direction",
+                                                Constants.jsonFormat.encodeToString(
+                                                    firstDeparture.direction
+                                                )
+                                            )
+                                            context.startActivity(directionDeparturesIntent)
 //                                            }
                                         },
                                         modifier = Modifier.animateItemPlacement()
