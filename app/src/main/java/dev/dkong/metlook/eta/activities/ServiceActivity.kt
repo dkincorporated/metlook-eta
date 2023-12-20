@@ -50,6 +50,7 @@ import dev.dkong.metlook.eta.composables.StoppingPatternComposables
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 import dev.dkong.metlook.eta.objects.ptv.PatternResult
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
@@ -68,7 +69,7 @@ class ServiceActivity : ComponentActivity() {
         val bundleService = intent?.extras?.getString("service")
         bundleService?.let { serviceString ->
             // Parse the service
-            val service = Constants.jsonFormat.decodeFromString<DepartureService>(serviceString)
+            val service = Constants.jsonFormat.decodeFromString<ParcelableService>(serviceString)
 
             // Render the UI
             setContent {
@@ -88,7 +89,7 @@ class ServiceActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun ServiceScreen(navHostController: NavHostController, originalDeparture: DepartureService) {
+    fun ServiceScreen(navHostController: NavHostController, originalDeparture: ParcelableService) {
         val context = LocalContext.current
         val density = LocalDensity.current
 
@@ -130,23 +131,47 @@ class ServiceActivity : ComponentActivity() {
                 val decodedPattern =
                     Constants.jsonFormat.decodeFromString<PatternResult>(response)
 
+                val run = decodedPattern.runs[originalDeparture.runRef]
+                    ?: return
+
                 val processedPattern = decodedPattern.departures
-                    .asSequence()
-                    .map { departure ->
-                        val run = decodedPattern.runs[departure.runRef]
-                            ?: return@map null
+//                    .asSequence()
+                    .mapIndexed { index, departure ->
                         val stop = decodedPattern.stops[departure.stopId]
-                            ?: return@map null
+                            ?: return@mapIndexed null
 
                         // Initiate the all-in-one departure object
-                        PatternDeparture(
-                            departure,
-                            run,
-                            stop
-                        )
+                        val processedDeparture =
+                            PatternDeparture(
+                                departure,
+                                run,
+                                stop,
+                                when (index) {
+                                    0 -> StoppingPatternComposables.StopType.First
+                                    decodedPattern.departures.lastIndex -> StoppingPatternComposables.StopType.Last
+                                    else -> StoppingPatternComposables.StopType.Stop
+                                }
+                            )
+
+                        val skippedStops =
+                            departure.skippedStops?.mapIndexed { skippedIndex, skippedStop ->
+                                PatternDeparture(
+                                    departure,
+                                    run,
+                                    skippedStop,
+                                    if (skippedIndex == departure.skippedStops.size / 2) StoppingPatternComposables.StopType.ArrowSkipped
+                                    else StoppingPatternComposables.StopType.Skipped
+                                )
+                            }
+
+                        return@mapIndexed if (skippedStops != null)
+                            listOf(processedDeparture) + skippedStops
+                        else listOf(processedDeparture)
                     }
                     // Remove any failed parse results
                     .filterNotNull()
+                    // Flatten stops and skipped stops
+                    .flatten()
 
                 pattern.clear()
                 pattern.addAll(processedPattern)
@@ -175,12 +200,12 @@ class ServiceActivity : ComponentActivity() {
                                 TextMetLabel(text = it)
                             }
                             TwoLineCenterTopAppBarText(
-                                title = originalDeparture.serviceTitle,
+                                title = originalDeparture.name,
                                 subtitle = if (arrayOf(RouteType.Tram, RouteType.Bus).contains(
                                         originalDeparture.routeType
                                     )
                                 ) {
-                                    "To ${originalDeparture.destinationName}"
+                                    "To ${originalDeparture.destination}"
                                 } else {
                                     "${originalDeparture.route.routeName} line"
                                 }
@@ -241,15 +266,11 @@ class ServiceActivity : ComponentActivity() {
 //                        }
 //                    }
                     // Full pattern
-                    pattern.forEachIndexed { index, stop ->
+                    pattern.forEach { stop ->
                         item(key = stop.stop.stopId.toString() + stop.stop.stopSequence.toString()) {
                             StoppingPatternComposables.StoppingPatternCard(
                                 patternStop = stop,
-                                stopType = when (index) {
-                                    0 -> StoppingPatternComposables.StopType.First
-                                    pattern.lastIndex -> StoppingPatternComposables.StopType.Last
-                                    else -> StoppingPatternComposables.StopType.Stop
-                                }
+                                stopType = stop.stopType
                             )
                         }
                     }

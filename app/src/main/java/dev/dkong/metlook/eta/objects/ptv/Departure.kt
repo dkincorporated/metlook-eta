@@ -48,7 +48,9 @@ data class Departure(
     @SerialName("flags")
     val flags: String,
     @SerialName("departure_sequence")
-    val departureSequence: Int
+    val departureSequence: Int,
+    @SerialName("skipped_stops")
+    val skippedStops: List<Stop>? = null
 ) {
     val platform = platformNumber.let { if (it == "") null else it }
 
