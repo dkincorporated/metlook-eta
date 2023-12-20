@@ -159,7 +159,10 @@ class ServiceActivity : ComponentActivity() {
                                     departure,
                                     run,
                                     skippedStop,
-                                    if (skippedIndex == departure.skippedStops.size / 2) StoppingPatternComposables.StopType.ArrowSkipped
+                                    if (
+                                        skippedIndex == departure.skippedStops.size.floorDiv(2)
+                                        && departure.skippedStops.size > 1
+                                    ) StoppingPatternComposables.StopType.ArrowSkipped
                                     else StoppingPatternComposables.StopType.Skipped
                                 )
                             }
