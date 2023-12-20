@@ -66,4 +66,16 @@ data class PatternDeparture(
                 .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
                 .toJavaLocalDateTime()
         ).lowercase() // the lowercase() turns the am/pm indicator to lowercase
+
+    /**
+     * Get the display time of the estimated departure
+     */
+    fun estimatedDepartureTime() =
+        estimatedDeparture?.let {
+            Constants.displayTimeFormatter.format(
+                estimatedDeparture
+                    .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
+                    .toJavaLocalDateTime()
+            ).lowercase() // the lowercase() turns the am/pm indicator to lowercase
+        }
 }

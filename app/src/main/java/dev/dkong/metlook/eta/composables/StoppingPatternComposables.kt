@@ -15,11 +15,17 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,9 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
-import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
-import kotlin.time.DurationUnit
 
 /**
  * Composables for the stopping pattern
@@ -336,6 +340,9 @@ object StoppingPatternComposables {
             StopType.Skipped,
             StopType.ArrowSkipped
         ).contains(stopType)
+
+        var isMenuExpanded by remember { mutableStateOf(false) }
+
         // Stop card
         PatternListItem(
             patternIndicator = {
@@ -376,33 +383,87 @@ object StoppingPatternComposables {
                 val isPassed = (patternStop.timeToEstimatedDeparture()
                     ?: patternStop.timeToScheduledDeparture()).inWholeSeconds < 0
 
-                if (!isSkipped)
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.Bottom,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .clickable {
-                                // TODO: Pop up info about the time
-                            }
+                if (!isSkipped) {
+                    Box(
+                        modifier = Modifier.wrapContentSize(Alignment.TopEnd)
                     ) {
-                        Text(
-                            text =
-                            if (patternStop.isAtPlatform && !isPassed) "Now"
-                            else if (patternStop.isArriving() && !isPassed) "Now*"
-                            else (patternStop.timeToEstimatedDeparture()?.inWholeMinutes
-                                ?: "${patternStop.timeToScheduledDeparture().inWholeMinutes}*")
-                                .toString().replace("-", "−"),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        if ((!patternStop.isAtPlatform && !patternStop.isArriving()) || isPassed)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.Bottom,
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable {
+                                    // Pop up info about the time
+                                    isMenuExpanded = true
+                                }
+                        ) {
                             Text(
-                                text = "min",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text =
+                                if (patternStop.isAtPlatform && !isPassed) "Now"
+                                else if (patternStop.isArriving() && !isPassed) "Now*"
+                                else (patternStop.timeToEstimatedDeparture()?.inWholeMinutes
+                                    ?: "${patternStop.timeToScheduledDeparture().inWholeMinutes}*")
+                                    .toString().replace("-", "−"),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
+                            if ((!patternStop.isAtPlatform && !patternStop.isArriving()) || isPassed)
+                                Text(
+                                    text = "min",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                        }
+                        // Menu showing more info about the departure time
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false }
+                        ) {
+                            /**
+                             * Item in the dropdown menu
+                             */
+                            @Composable
+                            fun InfoItem(
+                                title: String,
+                                value: String
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    SectionHeading(
+                                        heading = title,
+                                        includePadding = false,
+                                        modifier = Modifier
+                                    )
+                                    Text(
+                                        text = value,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+
+                            InfoItem(
+                                title = "Scheduled",
+                                value = patternStop.scheduledDepartureTime()
+                            )
+
+                            patternStop.estimatedDepartureTime()?.let {
+                                InfoItem(title = "Estimated", value = it)
+                            }
+                            patternStop.delay()?.let {
+                                InfoItem(
+                                    title = "Delay",
+                                    value =
+                                    if (it.inWholeMinutes < 1) "On-time"
+                                    else "${it.inWholeMinutes} min"
+                                )
+                            }
+                        }
                     }
+                }
             }
         )
     }

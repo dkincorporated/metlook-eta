@@ -186,15 +186,16 @@ fun LargeTopAppbarScaffoldBox(
 /**
  * Heading for a section
  * @param heading the text to be displayed
+ * @param includePadding whether standard padding should be applied
  * @param modifier any modifier for the heading
  */
 @Composable
-fun SectionHeading(heading: String, modifier: Modifier = Modifier) {
+fun SectionHeading(heading: String, includePadding: Boolean = true, modifier: Modifier = Modifier) {
     Text(
         text = heading,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+        modifier = if (includePadding) modifier.padding(vertical = 8.dp, horizontal = 16.dp) else modifier
     )
 }
 

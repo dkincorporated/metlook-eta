@@ -135,7 +135,7 @@ class ServiceActivity : ComponentActivity() {
                     ?: return
 
                 val processedPattern = decodedPattern.departures
-//                    .asSequence()
+                    .asSequence()
                     .mapIndexed { index, departure ->
                         val stop = decodedPattern.stops[departure.stopId]
                             ?: return@mapIndexed null
@@ -154,18 +154,20 @@ class ServiceActivity : ComponentActivity() {
                             )
 
                         val skippedStops =
-                            departure.skippedStops?.mapIndexed { skippedIndex, skippedStop ->
-                                PatternDeparture(
-                                    departure,
-                                    run,
-                                    skippedStop,
-                                    if (
-                                        skippedIndex == departure.skippedStops.size.floorDiv(2)
-                                        && departure.skippedStops.size > 1
-                                    ) StoppingPatternComposables.StopType.ArrowSkipped
-                                    else StoppingPatternComposables.StopType.Skipped
-                                )
-                            }
+                            // Skipped stops after Flinders Street are usually due to API error
+                            if (departure.stopId == 1071) null else
+                                departure.skippedStops?.mapIndexed { skippedIndex, skippedStop ->
+                                    PatternDeparture(
+                                        departure,
+                                        run,
+                                        skippedStop,
+                                        if (
+                                            skippedIndex == departure.skippedStops.size.floorDiv(2)
+                                            && departure.skippedStops.size > 1
+                                        ) StoppingPatternComposables.StopType.ArrowSkipped
+                                        else StoppingPatternComposables.StopType.Skipped
+                                    )
+                                }
 
                         return@mapIndexed if (skippedStops != null)
                             listOf(processedDeparture) + skippedStops
