@@ -65,6 +65,7 @@ import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
 import dev.dkong.metlook.eta.objects.ptv.Direction
@@ -483,7 +484,15 @@ class DirectionStopActivity : ComponentActivity() {
                                     val serviceIntent = Intent(context, ServiceActivity::class.java)
                                     serviceIntent.putExtra(
                                         "service",
-                                        Constants.jsonFormat.encodeToString(departure)
+                                        Constants.jsonFormat.encodeToString(with(departure) {
+                                            ParcelableService(
+                                                runRef,
+                                                routeType,
+                                                route,
+                                                serviceTitle,
+                                                destinationName
+                                            )
+                                        })
                                     )
                                     context.startActivity(serviceIntent)
                                 },
