@@ -393,6 +393,7 @@ object StoppingPatternComposables {
                             modifier = Modifier
                                 .wrapContentHeight()
                                 .clip(RoundedCornerShape(4.dp))
+                                .background(if (isMenuExpanded) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
                                 .clickable {
                                     // Pop up info about the time
                                     isMenuExpanded = true
