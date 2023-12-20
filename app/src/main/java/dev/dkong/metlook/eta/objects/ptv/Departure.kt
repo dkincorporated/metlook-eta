@@ -44,12 +44,14 @@ data class Departure(
     @SerialName("at_platform")
     val atPlatform: Boolean,
     @SerialName("platform_number")
-    val platformNumber: String?,
+    private val platformNumber: String?,
     @SerialName("flags")
     val flags: String,
     @SerialName("departure_sequence")
     val departureSequence: Int
 ) {
+    val platform = platformNumber.let { if (it == "") null else it }
+
     @Contextual
     val scheduledDeparture = Instant.parse(scheduledDepartureUtcString)
 

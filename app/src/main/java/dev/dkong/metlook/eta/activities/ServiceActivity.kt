@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -20,6 +22,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +30,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -36,12 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StoppingPatternComposables
+import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureService
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
@@ -86,7 +92,11 @@ class ServiceActivity : ComponentActivity() {
         val context = LocalContext.current
         val density = LocalDensity.current
 
-        val scaffoldState = rememberBottomSheetScaffoldState()
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            bottomSheetState = rememberStandardBottomSheetState(
+                initialValue = SheetValue.Expanded
+            )
+        )
         var topBarHeight by remember { mutableStateOf(0.dp) }
         var collapsedPatternHeight by remember { mutableStateOf(512.dp) }
 
@@ -157,10 +167,25 @@ class ServiceActivity : ComponentActivity() {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        TwoLineCenterTopAppBarText(
-                            title = originalDeparture.serviceTitle,
-                            subtitle = ""
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            originalDeparture.route.routeNumber?.let {
+                                TextMetLabel(text = it)
+                            }
+                            TwoLineCenterTopAppBarText(
+                                title = originalDeparture.serviceTitle,
+                                subtitle = if (arrayOf(RouteType.Tram, RouteType.Bus).contains(
+                                        originalDeparture.routeType
+                                    )
+                                ) {
+                                    "To ${originalDeparture.destinationName}"
+                                } else {
+                                    "${originalDeparture.route.routeName} line"
+                                }
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
                         containerColor =

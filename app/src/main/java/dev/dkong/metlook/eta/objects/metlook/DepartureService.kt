@@ -35,7 +35,7 @@ data class DepartureService(
     val routeId = departure.routeId
     val scheduledDeparture = departure.scheduledDeparture
     val estimatedDeparture = departure.estimatedDeparture
-    val platformNumber = departure.platformNumber
+    val platformNumber = departure.platform
     val isAtPlatform = departure.atPlatform
     val flags = if (departure.flags == "") null else departure.flags
 
