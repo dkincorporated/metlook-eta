@@ -406,8 +406,10 @@ object StoppingPatternComposables {
                                 if (patternStop.isAtPlatform && !isPassed) "Now"
                                 else if (patternStop.isArriving() && !isPassed) "Now*"
                                 else (patternStop.timeToEstimatedDeparture()?.inWholeMinutes
-                                    ?: "${patternStop.timeToScheduledDeparture().inWholeMinutes}*")
-                                    .toString().replace("-", "−"),
+                                    ?: patternStop.timeToScheduledDeparture().inWholeMinutes)
+                                    .let { if (it < 0) "<−1" else if (it < 1) "<1" else it.toString() }
+                                    .toString() + if (patternStop.timeToEstimatedDeparture() == null) "*" else ""
+                                    .replace("-", "−"),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )

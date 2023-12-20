@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -95,18 +97,13 @@ class ServiceActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
     fun ServiceScreen(navHostController: NavHostController, originalDeparture: ParcelableService) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val density = LocalDensity.current
 
-        val scaffoldState = rememberBottomSheetScaffoldState(
-            bottomSheetState = rememberStandardBottomSheetState(
-                initialValue = SheetValue.Expanded
-            )
-        )
         val patternListState = rememberLazyListState()
         var topBarHeight by remember { mutableStateOf(0.dp) }
         var collapsedPatternHeight by remember { mutableStateOf(512.dp) }
@@ -114,6 +111,32 @@ class ServiceActivity : ComponentActivity() {
         var loadingState by remember { mutableStateOf(true) }
         val pattern = remember { mutableStateListOf<PatternDeparture>() }
         var nextStopId by remember { mutableStateOf<Int?>(null) }
+        var nextStopIndex by remember { mutableStateOf<Int?>(null) }
+
+        suspend fun scrollToNextStop() {
+            patternListState.animateScrollToItem(index =
+            pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
+            )
+        }
+
+        val scaffoldState = rememberBottomSheetScaffoldState(
+            bottomSheetState = rememberStandardBottomSheetState(
+                initialValue = SheetValue.Expanded,
+                confirmValueChange = { value ->
+                    when (value) {
+                        SheetValue.Expanded -> {
+                            // Scroll to the next stop on expand
+                            scope.launch {
+                                scrollToNextStop()
+                            }
+                        }
+
+                        else -> {}
+                    }
+                    true
+                }
+            )
+        )
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -179,7 +202,9 @@ class ServiceActivity : ComponentActivity() {
                                         run,
                                         skippedStop,
                                         if (
-                                            skippedIndex == departure.skippedStops.size.floorDiv(2)
+                                            skippedIndex == departure.skippedStops.lastIndex.floorDiv(
+                                                2
+                                            )
                                             && departure.skippedStops.size > 1
                                         ) StoppingPatternComposables.StopType.ArrowSkipped
                                         else StoppingPatternComposables.StopType.Skipped
@@ -205,12 +230,17 @@ class ServiceActivity : ComponentActivity() {
                     ?.stop
                     ?.stopId
 
-                if (isFirstLoad)
-                    // Scroll only on first load
-                    patternListState.animateScrollToItem(index =
+                nextStopIndex =
                     pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
-                    )
+                        .takeIf { it != -1 }
 
+                if (isFirstLoad)
+                // Scroll only on first load
+                    scope.launch {
+                        scrollToNextStop()
+                    }
+
+                hasFirstLoaded = true
                 loadingState = false
             } catch (e: SerializationException) {
                 // TODO: Error message
@@ -323,26 +353,47 @@ class ServiceActivity : ComponentActivity() {
 //                        }
 //                    }
                     // Full pattern
-                    pattern.forEach { stop ->
-                        item(key = stop.stop.stopId.toString() + stop.stop.stopSequence.toString()) {
-                            StoppingPatternComposables.StoppingPatternCard(
-                                patternStop = stop,
-                                stopType = stop.stopType,
-                                modifier = if (stop.stop.stopId == nextStopId) Modifier
-                                    .clip(
-                                        RoundedCornerShape(16.dp)
-                                    )
-                                    .background(MaterialTheme.colorScheme.primaryContainer)
-                                else Modifier
-                            )
-                        }
+                    val isSheetExpanded =
+                        scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+
+                    pattern.forEachIndexed { index, stop ->
+                        val isStopBeforeNext = index == nextStopIndex?.minus(1)
+                        val isNextStop = index == nextStopIndex
+                        val isStopAfterNext = index == nextStopIndex?.plus(1)
+                        val isLastStop = index == pattern.lastIndex
+
+                        if (
+                            isStopBeforeNext
+                            || isNextStop
+                            || isStopAfterNext
+                            || isLastStop
+                            || isSheetExpanded
+                        )
+                            item(key = stop.stop.stopId.toString() + stop.stop.stopSequence.toString()) {
+                                StoppingPatternComposables.StoppingPatternCard(
+                                    patternStop = stop,
+                                    stopType =
+                                    if (!isSheetExpanded && stop.stopType == StoppingPatternComposables.StopType.Stop) {
+                                        if (isStopBeforeNext) StoppingPatternComposables.StopType.ContinuesBefore
+                                        else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
+                                        else stop.stopType
+                                    } else stop.stopType,
+                                    modifier = if (isNextStop) Modifier
+                                        .clip(
+                                            RoundedCornerShape(16.dp)
+                                        )
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .animateItemPlacement()
+                                    else Modifier.animateItemPlacement()
+                                )
+                            }
                     }
                     item {
                         NavBarPadding()
                     }
                 }
             },
-            sheetPeekHeight = collapsedPatternHeight
+            sheetPeekHeight = 384.dp
         )
     }
 }
