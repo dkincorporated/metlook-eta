@@ -334,7 +334,8 @@ object StoppingPatternComposables {
     @Composable
     fun StoppingPatternCard(
         patternStop: PatternDeparture,
-        stopType: StopType
+        stopType: StopType,
+        modifier: Modifier = Modifier
     ) {
         val isSkipped = arrayOf(
             StopType.Skipped,
@@ -345,6 +346,7 @@ object StoppingPatternComposables {
 
         // Stop card
         PatternListItem(
+            modifier = modifier,
             patternIndicator = {
                 StopIndicator(stopType = stopType)
             },

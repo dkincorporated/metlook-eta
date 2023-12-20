@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -104,11 +107,13 @@ class ServiceActivity : ComponentActivity() {
                 initialValue = SheetValue.Expanded
             )
         )
+        val patternListState = rememberLazyListState()
         var topBarHeight by remember { mutableStateOf(0.dp) }
         var collapsedPatternHeight by remember { mutableStateOf(512.dp) }
 
         var loadingState by remember { mutableStateOf(true) }
         val pattern = remember { mutableStateListOf<PatternDeparture>() }
+        var nextStopId by remember { mutableStateOf<Int?>(null) }
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -192,6 +197,19 @@ class ServiceActivity : ComponentActivity() {
 
                 pattern.clear()
                 pattern.addAll(processedPattern)
+
+                // Get the next stop
+                nextStopId = processedPattern.find { departure ->
+                    (departure.timeToEstimatedDeparture()?.inWholeSeconds ?: -1) > 0
+                }
+                    ?.stop
+                    ?.stopId
+
+                if (isFirstLoad)
+                    // Scroll only on first load
+                    patternListState.animateScrollToItem(index =
+                    pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
+                    )
 
                 loadingState = false
             } catch (e: SerializationException) {
@@ -288,6 +306,7 @@ class ServiceActivity : ComponentActivity() {
             },
             sheetContent = {
                 LazyColumn(
+                    state = patternListState,
                     modifier = Modifier
                         .fillMaxSize()
 //                        .padding(horizontal = 16.dp)
@@ -308,7 +327,13 @@ class ServiceActivity : ComponentActivity() {
                         item(key = stop.stop.stopId.toString() + stop.stop.stopSequence.toString()) {
                             StoppingPatternComposables.StoppingPatternCard(
                                 patternStop = stop,
-                                stopType = stop.stopType
+                                stopType = stop.stopType,
+                                modifier = if (stop.stop.stopId == nextStopId) Modifier
+                                    .clip(
+                                        RoundedCornerShape(16.dp)
+                                    )
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                else Modifier
                             )
                         }
                     }
