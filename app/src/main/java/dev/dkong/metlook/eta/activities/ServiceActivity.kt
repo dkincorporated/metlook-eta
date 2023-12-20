@@ -325,6 +325,7 @@ class ServiceActivity : ComponentActivity() {
                     // Full pattern
                     val isSheetExpanded =
                         scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                                && scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
 
                     pattern.forEachIndexed { index, stop ->
                         val isStopBeforeNext = index == nextStopIndex?.minus(1)

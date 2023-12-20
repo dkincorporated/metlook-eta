@@ -464,7 +464,13 @@ object StoppingPatternComposables {
                             )
 
                             patternStop.estimatedDepartureTime()?.let {
-                                InfoItem(title = "Estimated", value = it)
+                                InfoItem(
+                                    title =
+                                    if ((patternStop.timeToEstimatedDeparture()?.inWholeSeconds
+                                            ?: 1) < 0
+                                    ) "Actual" else "Estimated",
+                                    value = it
+                                )
                             }
                             patternStop.delay()?.let {
                                 InfoItem(
