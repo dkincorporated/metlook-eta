@@ -410,7 +410,7 @@ object StoppingPatternComposables {
                                     .let {
                                         when (it.inWholeSeconds) {
                                             in 0 until 60 -> "<1"
-                                            in -59 until 0 -> "<−1"
+                                            in -59 until 0 -> "−1"
                                             else -> it.inWholeMinutes.toString()
                                         }
                                     }

@@ -24,6 +24,7 @@ data class PatternDeparture(
     val routeType = run.routeType
     val isAtPlatform = departure.atPlatform
     val platform = departure.platform
+    val departureSequence = departure.departureSequence
 
     val scheduledDeparture = departure.scheduledDeparture
     val estimatedDeparture = departure.estimatedDeparture

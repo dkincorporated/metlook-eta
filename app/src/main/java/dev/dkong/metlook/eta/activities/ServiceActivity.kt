@@ -124,15 +124,18 @@ class ServiceActivity : ComponentActivity() {
                 loadingState = true
 
             val request = PtvApi.getApiUrl(
-                Uri.Builder()
-                    .appendPath("v3")
-                    .appendPath("pattern")
-                    .appendPath("run")
-                    .appendPath(originalDeparture.runRef)
-                    .appendPath("route_type")
-                    .appendPath(originalDeparture.routeType.id.toString())
-                    .appendQueryParameter("expand", "All")
-                    .appendQueryParameter("include_skipped_stops", "true")
+                Uri.Builder().apply {
+                    appendPath("v3")
+                    appendPath("pattern")
+                    appendPath("run")
+                    appendPath(originalDeparture.runRef)
+                    appendPath("route_type")
+                    appendPath(originalDeparture.routeType.id.toString())
+                    appendQueryParameter("expand", "All")
+                    // Only get skipped stops for Train
+                    if (originalDeparture.routeType == RouteType.Train)
+                        appendQueryParameter("include_skipped_stops", "true")
+                }
             )
 
             Log.d("SERVICE", request.toString())
@@ -309,23 +312,11 @@ class ServiceActivity : ComponentActivity() {
                     state = patternListState,
                     modifier = Modifier
                         .fillMaxSize()
-//                        .padding(horizontal = 16.dp)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    // Collapsed pattern (mini pattern)
-//                    item {
-//                        Column(modifier = Modifier.onGloballyPositioned { coordinates ->
-//                            with(density) {
-//                                collapsedPatternHeight = coordinates.size.height.toDp()
-//                            }
-//                        }) {
-//
-//                        }
-//                    }
-                    // Full pattern
                     val isSheetExpanded =
                         scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
-                                && scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
+                                || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
 
                     pattern.forEachIndexed { index, stop ->
                         val isStopBeforeNext = index == nextStopIndex?.minus(1)
@@ -340,7 +331,7 @@ class ServiceActivity : ComponentActivity() {
                             || isLastStop
                             || isSheetExpanded
                         )
-                            item(key = stop.stop.stopId.toString() + stop.stop.stopSequence.toString()) {
+                            item(key = stop.departureSequence) {
                                 StoppingPatternComposables.StoppingPatternCard(
                                     patternStop = stop,
                                     stopType =
