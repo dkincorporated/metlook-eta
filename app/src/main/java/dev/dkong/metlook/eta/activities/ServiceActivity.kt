@@ -331,7 +331,7 @@ class ServiceActivity : ComponentActivity() {
                             || isLastStop
                             || isSheetExpanded
                         )
-                            item(key = stop.departureSequence) {
+                            item(key = stop.stop.stopId.toString() + stop.departureSequence) {
                                 StoppingPatternComposables.StoppingPatternCard(
                                     patternStop = stop,
                                     stopType =
