@@ -131,7 +131,10 @@ class ServiceActivity : ComponentActivity() {
                     appendPath(originalDeparture.runRef)
                     appendPath("route_type")
                     appendPath(originalDeparture.routeType.id.toString())
-                    appendQueryParameter("expand", "All")
+                    appendQueryParameter("expand", "all")
+                    // Pass a stop for Tram to get estimated times, because the API is weird
+                    if (originalDeparture.routeType == RouteType.Tram)
+                        appendQueryParameter("stop_id", originalDeparture.stopId.toString())
                     // Only get skipped stops for Train
                     if (originalDeparture.routeType == RouteType.Train)
                         appendQueryParameter("include_skipped_stops", "true")

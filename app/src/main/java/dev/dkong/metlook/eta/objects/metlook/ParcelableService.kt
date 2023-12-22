@@ -13,5 +13,6 @@ data class ParcelableService(
     val routeType: RouteType,
     val route: Route,
     val name: String,
-    val destination: String
+    val destination: String,
+    val stopId: Int
 )

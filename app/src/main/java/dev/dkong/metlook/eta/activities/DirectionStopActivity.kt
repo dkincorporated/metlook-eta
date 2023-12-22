@@ -489,7 +489,8 @@ class DirectionStopActivity : ComponentActivity() {
                                                 routeType,
                                                 route,
                                                 serviceTitle,
-                                                destinationName
+                                                destinationName,
+                                                stop.stopId
                                             )
                                         })
                                     )
