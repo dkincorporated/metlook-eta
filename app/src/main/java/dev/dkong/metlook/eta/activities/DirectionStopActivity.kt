@@ -95,7 +95,8 @@ class DirectionStopActivity : ComponentActivity() {
             bundleDirection?.let { directionString ->
                 // Parse the Stop and Direction
                 val stop = Constants.jsonFormat.decodeFromString<Stop>(stopString)
-                val direction = Constants.jsonFormat.decodeFromString<Direction>(directionString)
+                val direction =
+                    Constants.jsonFormat.decodeFromString<Direction>(directionString)
 
                 // Render the UI
                 setContent {
@@ -149,7 +150,8 @@ class DirectionStopActivity : ComponentActivity() {
         /**
          * List of distinct stopping patterns in the departure list (Train only)
          */
-        val departuresPatternList = remember { mutableStateListOf<PatternType.PatternClass>() }
+        val departuresPatternList =
+            remember { mutableStateListOf<PatternType.PatternClass>() }
 
         /**
          * List of distinct routes in the departure list (Tram and Bus only)
