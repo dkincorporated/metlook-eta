@@ -5,7 +5,7 @@ import dev.dkong.metlook.eta.objects.ptv.Route
 import kotlinx.serialization.Serializable
 
 /**
- * Carrier object for a [DepartureService], with only the essential data
+ * Carrier object for a [ServiceDeparture], with only the essential data
  */
 @Serializable
 data class ParcelableService(

@@ -7,43 +7,27 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -66,7 +50,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -89,8 +72,7 @@ import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
-import dev.dkong.metlook.eta.objects.metlook.DepartureService
-import dev.dkong.metlook.eta.objects.metlook.ParcelableService
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
@@ -144,10 +126,10 @@ class StopActivity : ComponentActivity() {
 
         // "Clean" list of all departures (no filters)
         val allDepartures =
-            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
+            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<ServiceDeparture>>>>>() }
         // Observed list of departures (for filters)
         val departures =
-            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<DepartureService>>>>>() }
+            remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<ServiceDeparture>>>>>() }
         val stopName = stop.stopName()
         val filters = remember {
             mutableStateMapOf(
@@ -259,7 +241,7 @@ class StopActivity : ComponentActivity() {
                                     ?: return@map null
 
                             // Initiate the all-in-one departure object
-                            val processedDeparture = DepartureService(
+                            val processedDeparture = ServiceDeparture(
                                 departure,
                                 route,
                                 run,

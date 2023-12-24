@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,7 +22,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
@@ -64,8 +62,7 @@ import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
-import dev.dkong.metlook.eta.objects.metlook.DepartureDirectionGroup
-import dev.dkong.metlook.eta.objects.metlook.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.DepartureResult
@@ -139,13 +136,13 @@ class DirectionStopActivity : ComponentActivity() {
          * "Clean" list of all departures (no filters)
          */
         val allDepartures =
-            remember { mutableStateListOf<DepartureService>() }
+            remember { mutableStateListOf<ServiceDeparture>() }
 
         /**
          * Observed list of departures (for filters)
          */
         val departures =
-            remember { mutableStateListOf<DepartureService>() }
+            remember { mutableStateListOf<ServiceDeparture>() }
 
         /**
          * List of distinct stopping patterns in the departure list (Train only)
@@ -246,7 +243,7 @@ class DirectionStopActivity : ComponentActivity() {
                                     ?: return@map null
 
                             // Initiate the all-in-one departure object
-                            val processedDeparture = DepartureService(
+                            val processedDeparture = ServiceDeparture(
                                 departure,
                                 route,
                                 run,

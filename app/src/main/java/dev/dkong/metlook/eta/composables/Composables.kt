@@ -35,7 +35,7 @@ import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
-import dev.dkong.metlook.eta.objects.metlook.DepartureService
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.serialization.encodeToString
 
@@ -99,13 +99,13 @@ fun StopCard(stop: Stop, shape: Shape, context: Context, modifier: Modifier = Mo
 
 /**
  * Card for a Departure service
- * @see DepartureService
+ * @see ServiceDeparture
  */
 @Composable
 fun DepartureCard(
-    departureList: List<DepartureService>,
+    departureList: List<ServiceDeparture>,
     shape: Shape,
-    onClick: (List<DepartureService>) -> Unit,
+    onClick: (List<ServiceDeparture>) -> Unit,
     modifier: Modifier = Modifier
 ) {
     /**
@@ -148,9 +148,9 @@ fun DepartureCard(
             )
         },
         leadingContent = {
-            if (departure.routeType == RouteType.Train && departure.platformNumber != null) {
+            if (departure.routeType == RouteType.Train && departure.platform != null) {
                 TextMetLabel(
-                    text = departure.platformNumber, modifier = metLabelModifier.clip(
+                    text = departure.platform, modifier = metLabelModifier.clip(
                         CircleShape
                     )
                 )
