@@ -107,7 +107,9 @@ class ServiceActivity : ComponentActivity() {
         var loadingState by remember { mutableStateOf(true) }
         val pattern = remember { mutableStateListOf<PatternDeparture>() }
         var nextStopId by remember { mutableStateOf<Int?>(null) }
+        var previousStopIndex by remember { mutableStateOf<Int?>(null) }
         var nextStopIndex by remember { mutableStateOf<Int?>(null) }
+        var followingStopIndex by remember { mutableStateOf<Int?>(null) }
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -210,6 +212,26 @@ class ServiceActivity : ComponentActivity() {
                 nextStopIndex =
                     pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
                         .takeIf { it != -1 }
+
+                // Find the actual next stop (not skipped stop)
+                nextStopIndex?.let { nextIndex ->
+                    // Find the latest stop that is actually a Stop before the next stop
+                    previousStopIndex =
+                        pattern.slice(0 until nextIndex)
+                            .indexOfLast { departure ->
+                                departure.stopType == StoppingPatternComposables.StopType.Stop
+                                        || departure.stopType == StoppingPatternComposables.StopType.First
+                            }
+                            .takeIf { it != -1 }
+                    // Find the earliest stop that is actually a Stop after the next stop
+                    followingStopIndex =
+                        pattern.slice((nextIndex + 1) until pattern.size)
+                            .indexOfFirst { departure ->
+                                departure.stopType == StoppingPatternComposables.StopType.Stop
+                                        || departure.stopType == StoppingPatternComposables.StopType.Last
+                            }
+                            .let { if (it == -1) null else it + nextIndex + 1 }
+                }
 
                 hasFirstLoaded = true
                 loadingState = false
@@ -317,9 +339,9 @@ class ServiceActivity : ComponentActivity() {
                                 || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
 
                     pattern.forEachIndexed { index, stop ->
-                        val isStopBeforeNext = index == nextStopIndex?.minus(1)
+                        val isStopBeforeNext = index == previousStopIndex
                         val isNextStop = index == nextStopIndex
-                        val isStopAfterNext = index == nextStopIndex?.plus(1)
+                        val isStopAfterNext = index == followingStopIndex
                         val isLastStop = index == pattern.lastIndex
 
                         if (
@@ -328,7 +350,7 @@ class ServiceActivity : ComponentActivity() {
                             || isStopAfterNext
                             || isLastStop
                             || isSheetExpanded
-                        )
+                        ) {
                             item(key = stop.stop.stopId.toString() + stop.departureSequence) {
                                 StoppingPatternComposables.StoppingPatternCard(
                                     patternStop = stop,
@@ -347,6 +369,28 @@ class ServiceActivity : ComponentActivity() {
                                     else Modifier.animateItemPlacement()
                                 )
                             }
+                            // Check whether skipped-stop card needs to be shown
+                            nextStopIndex?.let { nextIndex ->
+                                if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
+                                    item(key = "E" + stop.stop.stopId.toString()) {
+                                        StoppingPatternComposables.SkippedStopPatternCard(
+                                            skippedStops = pattern.slice((index + 1) until nextIndex),
+                                            isBefore = true
+                                        )
+                                    }
+                                }
+                                followingStopIndex?.let { followingIndex ->
+                                    if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
+                                        item(key = "E" + stop.stop.stopId.toString()) {
+                                            StoppingPatternComposables.SkippedStopPatternCard(
+                                                skippedStops = pattern.slice((nextIndex + 1) until followingIndex),
+                                                isBefore = false
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     item {
                         NavBarPadding()

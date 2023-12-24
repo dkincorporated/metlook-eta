@@ -32,6 +32,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -327,9 +329,35 @@ object StoppingPatternComposables {
     }
 
     /**
+     * Card for displaying a skipped stop for the collapsed pattern
+     */
+    @Composable
+    fun SkippedStopPatternCard(
+        skippedStops: List<PatternDeparture>,
+        isBefore: Boolean,
+        modifier: Modifier = Modifier
+    ) {
+        PatternListItem(
+            patternIndicator = {
+                StopIndicator(stopType = StopType.ArrowSkipped)
+            },
+            headlineContent = {
+                Text(
+                    text =
+                    if (skippedStops.size == 1)
+                        "Skips ${skippedStops.first().stop.stopName().first}"
+                    else if (isBefore) "Skips ${skippedStops.size} stops"
+                    else "Runs express to",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        )
+    }
+
+    /**
      * Card for displaying a stop as part of the stopping pattern
-     *
-     * Work in progress!
      */
     @Composable
     fun StoppingPatternCard(
