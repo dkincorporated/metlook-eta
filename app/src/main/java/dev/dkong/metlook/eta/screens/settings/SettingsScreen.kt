@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.tracker.TrackerManager
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import dev.dkong.metlook.eta.composables.MaterialColumn
@@ -26,7 +27,7 @@ fun SettingsScreen(navHostController: NavHostController) {
         title = "Settings",
         onNavigationIconClick = {
             // Exit the activity
-            (context as? Activity)?.finish()
+            context.finishActivity()
         }
     ) {
         item {

@@ -59,6 +59,7 @@ import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -217,7 +218,7 @@ class SearchActivity : ComponentActivity() {
                     leadingIcon = {
                         IconButton(onClick = {
                             // Finish the Search activity
-                            (context as? Activity)?.finish()
+                            context.finishActivity()
                         }) {
                             Icon(
                                 Icons.AutoMirrored.Default.ArrowBack,

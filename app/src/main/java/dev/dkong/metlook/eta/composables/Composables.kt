@@ -35,6 +35,7 @@ import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.common.Utils.allSame
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.serialization.encodeToString
@@ -141,7 +142,7 @@ fun DepartureCard(
             Text(
                 text =
                 // If all the subtitles are the same, just show the first one
-                if (serviceSubtitles.all { it == serviceSubtitles.first() }) serviceSubtitles.first()
+                if (serviceSubtitles.allSame()) serviceSubtitles.first()
                 else serviceSubtitles.joinToString(" • "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant

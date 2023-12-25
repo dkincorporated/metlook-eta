@@ -59,6 +59,7 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
+import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.DepartureCard
@@ -364,7 +365,7 @@ class StopActivity : ComponentActivity() {
                     navigationIcon = {
                         ElevatedAppBarNavigationIcon(onClick = {
                             // Finish the Activity
-                            (context as? Activity)?.finish()
+                            context.finishActivity()
                         })
                     },
                     actions = {

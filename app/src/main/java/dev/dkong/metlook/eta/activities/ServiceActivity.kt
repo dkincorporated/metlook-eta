@@ -1,6 +1,5 @@
 package dev.dkong.metlook.eta.activities
 
-import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -46,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
+import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -303,7 +303,7 @@ class ServiceActivity : ComponentActivity() {
                     navigationIcon = {
                         ElevatedAppBarNavigationIcon(onClick = {
                             // Finish the Activity
-                            (context as? Activity)?.finish()
+                            context.finishActivity()
                         })
                     },
                     actions = {

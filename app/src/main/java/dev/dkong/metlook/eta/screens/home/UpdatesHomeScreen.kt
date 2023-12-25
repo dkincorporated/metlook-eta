@@ -200,7 +200,7 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
         },
         supportingContent = {
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 disruption.routes.forEach { route ->
                     AssistChip(
