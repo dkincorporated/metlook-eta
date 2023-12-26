@@ -54,6 +54,7 @@ import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
+import dev.dkong.metlook.eta.common.datastore.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.DepartureCard
@@ -480,6 +481,7 @@ class DirectionStopActivity : ComponentActivity() {
                                     departures.size
                                 ).roundedShape,
                                 onClick = {
+                                    // Launch the Service screen
                                     val serviceIntent = Intent(context, ServiceActivity::class.java)
                                     serviceIntent.putExtra(
                                         "service",
@@ -495,6 +497,10 @@ class DirectionStopActivity : ComponentActivity() {
                                         })
                                     )
                                     context.startActivity(serviceIntent)
+                                    // Save the recent service
+                                    scope.launch {
+                                        RecentServicesCoordinator.add(context, departure)
+                                    }
                                 },
                                 modifier = Modifier.animateItemPlacement()
                             )

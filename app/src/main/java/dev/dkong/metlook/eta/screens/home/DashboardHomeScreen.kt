@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.screens.home
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,9 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -31,14 +35,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.activities.SearchActivity
+import dev.dkong.metlook.eta.activities.ServiceActivity
 import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.datastore.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
+import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
+import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 
@@ -52,11 +61,21 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
     val recentServices = remember { mutableStateListOf<ServiceDeparture>() }
 
     LaunchedEffect(Unit) {
-        RecentStopsCoordinator
-            .listen(context) {
-                recentStops.clear()
-                recentStops.addAll(it)
-            }
+        // Set listeners for the recent items
+        scope.launch {
+            RecentStopsCoordinator
+                .listen(context) {
+                    recentStops.clear()
+                    recentStops.addAll(it)
+                }
+        }
+        scope.launch {
+            RecentServicesCoordinator
+                .listen(context) {
+                    recentServices.clear()
+                    recentServices.addAll(it)
+                }
+        }
     }
 
     LazyColumn {
@@ -115,9 +134,40 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                 )
             }
         }
-//        item {
-//            SectionHeading(heading = "Recent services")
-//        }
+        item {
+            SectionHeading(heading = "Recent services")
+        }
+        recentServices.forEachIndexed { index, service ->
+            item(key = service.runRef) {
+                DepartureCard(
+                    departureList = listOf(service),
+                    shape = ListPosition.fromPosition(index, recentServices.size).roundedShape,
+                    onClick = {
+                        // Launch the Service screen
+                        val serviceIntent = Intent(context, ServiceActivity::class.java)
+                        serviceIntent.putExtra(
+                            "service",
+                            Constants.jsonFormat.encodeToString(with(service) {
+                                ParcelableService(
+                                    runRef,
+                                    routeType,
+                                    route,
+                                    serviceTitle,
+                                    destinationName,
+                                    service.departureStopId
+                                )
+                            })
+                        )
+                        context.startActivity(serviceIntent)
+                        // Save the recent service
+                        scope.launch {
+                            RecentServicesCoordinator.add(context, service)
+                        }
+                    },
+                    modifier = Modifier.animateItemPlacement()
+                )
+            }
+        }
     }
 }
 

@@ -7,6 +7,7 @@ import dev.dkong.metlook.eta.objects.ptv.Direction
 import dev.dkong.metlook.eta.objects.ptv.Disruption
 import dev.dkong.metlook.eta.objects.ptv.Route
 import dev.dkong.metlook.eta.objects.ptv.Run
+import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -185,5 +186,16 @@ data class ServiceDeparture(
             }
         }
         return PatternType.SuperLimitedStops
+    }
+
+    /**
+     * Whether one Service is the same as another Service or object
+     * @return true if both are [ServiceDeparture]s and have matching route type and run ref, else false
+     */
+    override fun equals(other: Any?): Boolean {
+        return (other as? ServiceDeparture)?.let {
+            it.routeType.id == routeType.id
+                    && it.runRef == runRef
+        } ?: false
     }
 }

@@ -88,7 +88,6 @@ abstract class RecentsDataStore<T>(
                 preferences[recentsKey]
             }
             .collect { value ->
-                Log.d("RECENT STOPS", value.toString())
                 value?.let {
                     try {
                         listener(
