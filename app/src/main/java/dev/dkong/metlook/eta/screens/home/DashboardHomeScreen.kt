@@ -129,8 +129,7 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                             RecentStopsCoordinator.add(context, it)
                         }
                     },
-                    modifier = Modifier
-                        .animateItemPlacement()
+//                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }
@@ -164,7 +163,7 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                             RecentServicesCoordinator.add(context, service)
                         }
                     },
-                    modifier = Modifier.animateItemPlacement()
+//                    modifier = Modifier.animateItemPlacement()
                 )
             }
         }
