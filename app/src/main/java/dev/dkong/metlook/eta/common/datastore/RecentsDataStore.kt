@@ -50,7 +50,6 @@ abstract class RecentsDataStore<T>(
             (getOnce(context) ?: emptyList())
                 // Remove existing instance (if any); relies on an overriden `equals` function
                 .filter { it != newItem }
-                .filter { filter(it) }
 
         // TODO: Integrate limit settings
         val limit = 5
@@ -80,6 +79,7 @@ abstract class RecentsDataStore<T>(
                 ?: return null
         return try {
             deserialise(retrieved)
+                .filter { filter(it) }
         } catch (e: SerializationException) {
             Log.d("RECENT STOPS", e.toString())
             null
@@ -100,6 +100,7 @@ abstract class RecentsDataStore<T>(
                     try {
                         listener(
                             deserialise(it)
+                                .filter { item -> filter(item) }
                         )
                     } catch (e: SerializationException) {
                         Log.d("RECENT STOPS", e.toString())
