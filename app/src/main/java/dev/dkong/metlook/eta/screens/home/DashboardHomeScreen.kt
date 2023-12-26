@@ -45,6 +45,7 @@ import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.RecentServiceCard
 import dev.dkong.metlook.eta.composables.SectionHeading
+import dev.dkong.metlook.eta.composables.SettingsInfoFootnote
 import dev.dkong.metlook.eta.composables.StopCard
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
@@ -168,6 +169,9 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
 //                    modifier = Modifier.animateItemPlacement()
                 )
             }
+        }
+        item {
+            SettingsInfoFootnote(info = "Recent services show the time until their scheduled departure. Make sure to check the actual estimated departure time by opening the service.")
         }
         item {
             NavBarPadding()

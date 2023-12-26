@@ -292,8 +292,19 @@ class ServiceActivity : ComponentActivity() {
                                     )
                                 ) {
                                     "To ${originalDeparture.destination}"
+                                } else if (originalDeparture.routeType == RouteType.Train) {
+                                    nextStopIndex?.let {
+                                        val nextStopName = pattern[it].stop.stopName().first
+                                        "${
+                                            with(pattern[it]) {
+                                                if (this.isAtPlatform) "Arrived at"
+                                                else if (this.isArriving()) "Arriving at"
+                                                else "Next station is"
+                                            }
+                                        }: $nextStopName"
+                                    }
                                 } else {
-                                    "${originalDeparture.route.routeName} line"
+                                    null
                                 }
                             )
                         }

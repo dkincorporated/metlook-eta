@@ -393,7 +393,6 @@ fun TwoLineCenterTopAppBarText(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-
         subtitle?.let { s ->
             Text(
                 text = s,
