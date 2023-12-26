@@ -326,7 +326,7 @@ object StoppingPatternComposables {
                     ) {
                         leadingContent?.let { it() }
                         Column {
-                            headlineContent(Modifier.weight(1f).wrapContentWidth())
+                            headlineContent(Modifier.weight(1f).wrapContentSize())
                             supportingContent?.let { it() }
                         }
                     }
