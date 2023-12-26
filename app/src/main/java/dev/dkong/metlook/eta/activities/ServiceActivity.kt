@@ -8,9 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,6 +56,7 @@ import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
+import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StoppingPatternComposables
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
@@ -351,6 +358,39 @@ class ServiceActivity : ComponentActivity() {
                             || isLastStop
                             || isSheetExpanded
                         ) {
+                            if (isNextStop && !isSheetExpanded) {
+                                // Display next-stop heading
+                                item {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp)
+                                            .height(IntrinsicSize.Min)
+                                    ) {
+                                        Box(modifier = Modifier.requiredWidth(24.dp)) {
+                                            if (index > 0) {
+                                                // Do not show pattern indicator for first stop
+                                                StoppingPatternComposables.StopIndicator(
+                                                    stopType = StoppingPatternComposables.StopType.Blank
+                                                )
+                                            }
+                                        }
+                                        SectionHeading(
+                                            heading = when (index) {
+                                                0 -> "Originates from"
+                                                pattern.lastIndex -> "Terminates at"
+                                                else -> when (stop.routeType) {
+                                                    RouteType.Train -> "Next station is"
+                                                    else -> "Next stop is"
+                                                }
+                                            },
+                                            includePadding = false,
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
                             item(key = stop.stop.stopId.toString() + stop.departureSequence) {
                                 StoppingPatternComposables.StoppingPatternCard(
                                     patternStop = stop,
@@ -364,7 +404,7 @@ class ServiceActivity : ComponentActivity() {
                                         .clip(
                                             RoundedCornerShape(16.dp)
                                         )
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .background(if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
                                         .animateItemPlacement()
                                     else Modifier.animateItemPlacement()
                                 )

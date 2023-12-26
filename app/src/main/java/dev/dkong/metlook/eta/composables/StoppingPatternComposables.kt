@@ -97,7 +97,12 @@ object StoppingPatternComposables {
         /**
          * Last displayed stop, with hidden stops **after**
          */
-        ContinuesAfter
+        ContinuesAfter,
+
+        /**
+         * Special: Show the continuation of the line
+         */
+        Blank
     }
 
     /**
@@ -198,7 +203,7 @@ object StoppingPatternComposables {
                     SpacerComponent(
                         colour = when (stopType) {
                             StopType.Stop, StopType.Next, StopType.Last, StopType.Skipped, StopType.ArrowSkipped,
-                            StopType.ContinuesAfter -> activeColour
+                            StopType.ContinuesAfter, StopType.Blank -> activeColour
 
                             else -> inactiveColour
                         },
@@ -247,7 +252,8 @@ object StoppingPatternComposables {
                     SpacerComponent(
                         colour = when (stopType) {
                             StopType.Stop, StopType.Next, StopType.First, StopType.Skipped,
-                            StopType.ArrowSkipped, StopType.ContinuesBefore -> activeColour
+                            StopType.ArrowSkipped, StopType.ContinuesBefore,
+                            StopType.Blank -> activeColour
 
                             else -> inactiveColour
                         },
@@ -344,10 +350,10 @@ object StoppingPatternComposables {
             headlineContent = {
                 Text(
                     text =
-                    if (skippedStops.size == 1)
-                        "Skips ${skippedStops.first().stop.stopName().first}"
-                    else if (isBefore) "Skips ${skippedStops.size} stops"
-                    else "Runs express to",
+                        if (isBefore) ""
+                        else if (skippedStops.size == 1)
+                            "Skips ${skippedStops.first().stop.stopName().first}"
+                        else "Runs express to",
                     style = MaterialTheme.typography.bodyLarge,
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
