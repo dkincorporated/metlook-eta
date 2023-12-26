@@ -252,7 +252,8 @@ class DirectionStopActivity : ComponentActivity() {
                                 direction,
                                 decodedDepartures.disruptions.filter { entry ->
                                     departure.disruptionIds.contains(entry.value.disruptionId)
-                                }.values.toList()
+                                }.values.toList(),
+                                stop
                             )
 
                             // Filter out unwanted departures

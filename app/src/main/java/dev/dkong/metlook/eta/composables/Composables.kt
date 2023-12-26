@@ -201,7 +201,84 @@ fun DepartureCard(
             .clickable {
                 onClick(departureList)
             }
+    )
+}
 
+/**
+ * Card to display a recent service, similar to [DepartureCard]
+ * @param service the service to be displayed
+ */
+@Composable
+fun RecentServiceCard(
+    service: ServiceDeparture,
+    shape: Shape,
+    onClick: (ServiceDeparture) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    ListItem(
+        headlineContent = {
+            Text(
+                text = "${service.scheduledDepartureTime()} ${service.serviceTitle}",
+                style = MaterialTheme.typography.titleLarge,
+                color =
+                if (service.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+                else MaterialTheme.colorScheme.onSurface
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "From " + service.departureStop.stopName()
+                    .let { if (it.second != null) "${it.first} / ${it.second}" else it.first },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        leadingContent = {
+            if (service.routeType == RouteType.Train && service.platform != null) {
+                TextMetLabel(
+                    text = service.platform, modifier = metLabelModifier.clip(
+                        CircleShape
+                    )
+                )
+            } else if (service.route.routeNumber != null) {
+                TextMetLabel(text = service.route.routeNumber)
+            }
+        },
+        trailingContent = {
+            if (service.isCancelled) return@ListItem
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    // Display min to scheduled departure for now
+                    text = "${
+                        service.timeToScheduledDeparture()
+                            .inWholeMinutes.toString()
+                            .replace("-", "−")
+                    }*",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = "min",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = if (service.isCancelled) MaterialTheme.colorScheme.errorContainer
+            else MaterialTheme.colorScheme.surface,
+            headlineColor = if (service.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+            else MaterialTheme.colorScheme.onSurface
+        ),
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 1.dp)
+            .clip(shape)
+            .clickable {
+                onClick(service)
+            }
     )
 }
 

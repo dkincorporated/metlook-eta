@@ -42,6 +42,8 @@ import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.datastore.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
 import dev.dkong.metlook.eta.composables.DepartureCard
+import dev.dkong.metlook.eta.composables.NavBarPadding
+import dev.dkong.metlook.eta.composables.RecentServiceCard
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
@@ -138,8 +140,8 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
         }
         recentServices.forEachIndexed { index, service ->
             item(key = service.runRef) {
-                DepartureCard(
-                    departureList = listOf(service),
+                RecentServiceCard(
+                    service = service,
                     shape = ListPosition.fromPosition(index, recentServices.size).roundedShape,
                     onClick = {
                         // Launch the Service screen
@@ -153,7 +155,7 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                                     route,
                                     serviceTitle,
                                     destinationName,
-                                    service.departureStopId
+                                    service.departureStop.stopId
                                 )
                             })
                         )
@@ -166,6 +168,9 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
 //                    modifier = Modifier.animateItemPlacement()
                 )
             }
+        }
+        item {
+            NavBarPadding()
         }
     }
 }
