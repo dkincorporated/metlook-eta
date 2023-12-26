@@ -34,6 +34,13 @@ abstract class RecentsDataStore<T>(
     abstract fun deserialise(data: String): List<T>
 
     /**
+     * Add options to filter for valid items in the collection
+     * @param item the item to check
+     * @return true or false depending on whether it is considered valid
+     */
+    open fun filter(item: T): Boolean = true
+
+    /**
      * Add a new recent item
      * @param newItem the new [T] to add
      * @return whether the addition was successful
@@ -43,6 +50,7 @@ abstract class RecentsDataStore<T>(
             (getOnce(context) ?: emptyList())
                 // Remove existing instance (if any); relies on an overriden `equals` function
                 .filter { it != newItem }
+                .filter { filter(it) }
 
         // TODO: Integrate limit settings
         val limit = 5

@@ -20,4 +20,9 @@ object RecentServicesCoordinator : RecentsDataStore<ServiceDeparture>(
 
     override fun deserialise(data: String): List<ServiceDeparture> =
         Constants.jsonFormat.decodeFromString(data)
+
+    override fun filter(item: ServiceDeparture): Boolean = with(item) {
+        // Filter out departures that departed more than a day ago
+        timeToScheduledDeparture().inWholeHours >= -24
+    }
 }
