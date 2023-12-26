@@ -3,6 +3,7 @@ package dev.dkong.metlook.eta.objects.ptv
 import dev.dkong.metlook.eta.common.RouteType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.reflect.typeOf
 
 /**
  * Stop object from PTV API
@@ -67,4 +68,14 @@ data class Stop(
             Triple(splitItems[0].trim(), splitItems[1].trim(), null)
         }
     }
+
+    /**
+     * Whether one Stop is the same as another Stop or object
+     * @return true if both are [Stop]s and have matching route type and stop IDs, else false
+     */
+    override fun equals(other: Any?): Boolean =
+        (other as? Stop)?.let {
+            it.routeTypeId == routeTypeId
+                    && it.stopId == stopId
+        } ?: false
 }

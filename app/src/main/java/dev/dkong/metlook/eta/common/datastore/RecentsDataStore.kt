@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
+import kotlin.reflect.typeOf
 
 /**
  * Blueprint for any Recent-type data store
@@ -19,19 +20,39 @@ abstract class RecentsDataStore<T>(
     val limitKey: Preferences.Key<Int>
 ) {
     /**
+     * Serialise the data
+     *
+     * This is needed as generic (de)serialisation does not work.
+     */
+    abstract fun serialise(data: List<T>): String
+
+    /**
+     * De-serialise the data
+     *
+     * This is needed as generic (de)serialisation does not work.
+     */
+    abstract fun deserialise(data: String): List<T>
+
+    /**
      * Add a new recent item
      * @param newItem the new [T] to add
      * @return whether the addition was successful
      */
     suspend fun add(context: Context, newItem: T): Boolean {
-        val current = getOnce(context) ?: return false
+        val current =
+            (getOnce(context) ?: emptyList())
+                // Remove existing instance (if any); relies on an overriden `equals` function
+                .filter { it != newItem }
+
         // TODO: Integrate limit settings
         val limit = 5
         val combined =
-            (listOf(newItem) + current).slice(0..(minOf(limit, current.size + 1)))
+            (listOf(newItem) + current)
+                .slice(0 until (minOf(limit, current.size + 1)))
         return try {
             context.dataStoreRecents.edit { preferences ->
-                preferences[recentsKey] = Constants.jsonFormat.encodeToString<List<T>>(combined)
+                val encoded = serialise(combined)
+                preferences[recentsKey] = encoded
             }
             true
         } catch (e: SerializationException) {
@@ -50,7 +71,7 @@ abstract class RecentsDataStore<T>(
                 .first()[recentsKey]
                 ?: return null
         return try {
-            Constants.jsonFormat.decodeFromString<List<T>>(retrieved)
+            deserialise(retrieved)
         } catch (e: SerializationException) {
             Log.d("RECENT STOPS", e.toString())
             null
@@ -67,10 +88,11 @@ abstract class RecentsDataStore<T>(
                 preferences[recentsKey]
             }
             .collect { value ->
+                Log.d("RECENT STOPS", value.toString())
                 value?.let {
                     try {
                         listener(
-                            Constants.jsonFormat.decodeFromString<List<T>>(it)
+                            deserialise(it)
                         )
                     } catch (e: SerializationException) {
                         Log.d("RECENT STOPS", e.toString())

@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.activities
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -60,6 +61,7 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils.finishActivity
+import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -75,6 +77,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 
 /**
  * Activity for Search
@@ -344,7 +347,19 @@ class SearchActivity : ComponentActivity() {
                                 index,
                                 routeType.second.size
                             ).roundedShape,
-                            context,
+                            onClick = {
+                                // Open the Stop
+                                val stopIntent = Intent(context, StopActivity::class.java)
+                                stopIntent.putExtra(
+                                    "stop",
+                                    Constants.jsonFormat.encodeToString(it)
+                                )
+                                context.startActivity(stopIntent)
+                                // Record the recent stop
+                                scope.launch {
+                                    RecentStopsCoordinator.add(context, it)
+                                }
+                            },
                             modifier = Modifier.animateItemPlacement()
                         )
                     }

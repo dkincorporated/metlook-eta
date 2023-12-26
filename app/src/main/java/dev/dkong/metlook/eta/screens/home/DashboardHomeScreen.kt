@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.screens.home
 
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,10 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -26,15 +31,33 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.activities.SearchActivity
+import dev.dkong.metlook.eta.activities.StopActivity
+import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
+import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DashboardHomeScreen(navHostController: NavHostController) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val recentStops = remember { mutableStateListOf<Stop>() }
+    val recentServices = remember { mutableStateListOf<ServiceDeparture>() }
+
+    LaunchedEffect(Unit) {
+        RecentStopsCoordinator
+            .listen(context) {
+                recentStops.clear()
+                recentStops.addAll(it)
+            }
+    }
 
     LazyColumn {
         item {
@@ -68,58 +91,33 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
         }
         item {
             SectionHeading(heading = "Recent stops and stations")
-            StopCard(
-                stop = Stop(
-                    0.0,
-                    "Melbourne city",
-                    0,
-                    emptyList(),
-                    0.0,
-                    0.0,
-                    0,
-                    1181,
-                    "Southern Cross Station",
-                    "Southern Cross station"
-                ),
-                shape = ListPosition.First.roundedShape,
-                context = context
-            )
-            StopCard(
-                stop = Stop(
-                    0.0,
-                    "Box Hill",
-                    1,
-                    emptyList(),
-                    0.0,
-                    0.0,
-                    0,
-                    2409,
-                    "Box Hill Central/Whitehorse Road #59",
-                    "Box Hill Central"
-                ),
-                shape = ListPosition.InBetween.roundedShape,
-                context = context
-            )
-            StopCard(
-                stop = Stop(
-                    0.0,
-                    "Clayton",
-                    2,
-                    emptyList(),
-                    0.0,
-                    0.0,
-                    0,
-                    33430,
-                    "Monash University",
-                    "Monash University"
-                ),
-                shape = ListPosition.Last.roundedShape,
-                context = context
-            )
         }
-        item {
-            SectionHeading(heading = "Recent services")
+        recentStops.forEachIndexed { index, stop ->
+            item(key = stop.routeType.id.toString() + stop.stopId.toString()) {
+                StopCard(
+                    stop = stop,
+                    shape = ListPosition.fromPosition(index, recentStops.size).roundedShape,
+                    onClick = {
+                        // Open the Stop
+                        val stopIntent = Intent(context, StopActivity::class.java)
+                        stopIntent.putExtra(
+                            "stop",
+                            Constants.jsonFormat.encodeToString(it)
+                        )
+                        context.startActivity(stopIntent)
+                        // Record the recent stop
+                        scope.launch {
+                            RecentStopsCoordinator.add(context, it)
+                        }
+                    },
+                    modifier = Modifier
+                        .animateItemPlacement()
+                )
+            }
         }
+//        item {
+//            SectionHeading(heading = "Recent services")
+//        }
     }
 }
 
