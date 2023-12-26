@@ -8,6 +8,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import dev.dkong.metlook.eta.objects.metlook.PatternType
 
 /**
  * Universal utilities
@@ -46,4 +47,54 @@ object Utils {
      * Does nothing if failed to find the [Activity], or there is no [Activity] to finish.
      */
     fun Context.finishActivity() = (this as? Activity)?.finish()
+
+    // PT data
+    /**
+     * Get the discrete stopping pattern description/type (only for Train)
+     */
+    fun patternType(routeType: RouteType, routeId: Int, expressStopCount: Int): PatternType {
+        if (routeType != RouteType.Train) return PatternType.NotApplicable
+        if (expressStopCount == 0) {
+            return PatternType.AllStops
+        }
+        if (expressStopCount == 1) {
+            return PatternType.SkipsOneStop
+        }
+        when (routeId) {
+            2, 9 -> {
+                if (expressStopCount <= 5) {
+                    return PatternType.LimitedStops
+                }
+            }
+
+            1, 4, 11, 3, 6, 8 -> {
+                if (expressStopCount <= 4) {
+                    return PatternType.LimitedStops
+                }
+            }
+
+            5, 14, 16 -> {
+                if (expressStopCount <= 3) {
+                    return PatternType.LimitedStops
+                }
+            }
+
+            7 -> {
+                if (expressStopCount <= 7) {
+                    return PatternType.LimitedStops
+                }
+            }
+
+            12, 13, 15, 17 -> {
+                return PatternType.LimitedStops
+            }
+
+            1482 -> {
+                if (expressStopCount <= 2) {
+                    return PatternType.LimitedStops
+                }
+            }
+        }
+        return PatternType.SuperLimitedStops
+    }
 }

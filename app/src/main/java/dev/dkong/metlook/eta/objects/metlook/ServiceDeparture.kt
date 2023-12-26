@@ -2,6 +2,7 @@ package dev.dkong.metlook.eta.objects.metlook
 
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
+import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.objects.ptv.Departure
 import dev.dkong.metlook.eta.objects.ptv.Direction
 import dev.dkong.metlook.eta.objects.ptv.Disruption
@@ -142,51 +143,7 @@ data class ServiceDeparture(
     /**
      * Get the discrete stopping pattern description/type (only for Train)
      */
-    fun patternType(): PatternType {
-        if (routeType != RouteType.Train) return PatternType.NotApplicable
-        if (expressStopCount == 0) {
-            return PatternType.AllStops
-        }
-        if (expressStopCount == 1) {
-            return PatternType.SkipsOneStop
-        }
-        when (routeId) {
-            2, 9 -> {
-                if (expressStopCount <= 5) {
-                    return PatternType.LimitedStops
-                }
-            }
-
-            1, 4, 11, 3, 6, 8 -> {
-                if (expressStopCount <= 4) {
-                    return PatternType.LimitedStops
-                }
-            }
-
-            5, 14, 16 -> {
-                if (expressStopCount <= 3) {
-                    return PatternType.LimitedStops
-                }
-            }
-
-            7 -> {
-                if (expressStopCount <= 7) {
-                    return PatternType.LimitedStops
-                }
-            }
-
-            12, 13, 15, 17 -> {
-                return PatternType.LimitedStops
-            }
-
-            1482 -> {
-                if (expressStopCount <= 2) {
-                    return PatternType.LimitedStops
-                }
-            }
-        }
-        return PatternType.SuperLimitedStops
-    }
+    fun patternType(): PatternType = Utils.patternType(routeType, routeId, expressStopCount)
 
     /**
      * Whether one Service is the same as another Service or object

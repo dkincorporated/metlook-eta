@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -62,6 +63,7 @@ import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
+import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.ptv.PatternResult
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
@@ -117,6 +119,7 @@ class ServiceActivity : ComponentActivity() {
         var previousStopIndex by remember { mutableStateOf<Int?>(null) }
         var nextStopIndex by remember { mutableStateOf<Int?>(null) }
         var followingStopIndex by remember { mutableStateOf<Int?>(null) }
+        var patternType by remember { mutableStateOf<PatternType?>(null) }
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -238,6 +241,18 @@ class ServiceActivity : ComponentActivity() {
                                         || departure.stopType == StoppingPatternComposables.StopType.Last
                             }
                             .let { if (it == -1) null else it + nextIndex + 1 }
+                    // Update the pattern type
+                    followingStopIndex?.let { followingIndex ->
+                        patternType = Utils.patternType(
+                            originalDeparture.routeType,
+                            originalDeparture.route.routeId,
+                            pattern.slice((followingIndex + 1) until pattern.size)
+                                .count { departure ->
+                                    departure.stopType.stopClass ==
+                                            StoppingPatternComposables.StopType.StopClass.Skipped
+                                }
+                        )
+                    }
                 }
 
                 hasFirstLoaded = true
@@ -372,32 +387,48 @@ class ServiceActivity : ComponentActivity() {
                             if (isNextStop && !isSheetExpanded) {
                                 // Display next-stop heading
                                 item {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 16.dp)
-                                            .height(IntrinsicSize.Min)
-                                    ) {
-                                        Box(modifier = Modifier.requiredWidth(24.dp)) {
-                                            if (index > 0) {
-                                                // Do not show pattern indicator for first stop
-                                                StoppingPatternComposables.StopIndicator(
-                                                    stopType = StoppingPatternComposables.StopType.Blank
-                                                )
+                                    StoppingPatternComposables.PatternHeadingCard(
+                                        heading = when (index) {
+                                            0 -> "Originates from"
+                                            pattern.lastIndex -> "Terminates at"
+                                            else -> when (stop.routeType) {
+                                                RouteType.Train -> "Next station is"
+                                                else -> "Next stop is"
                                             }
-                                        }
-                                        SectionHeading(
-                                            heading = when (index) {
-                                                0 -> "Originates from"
-                                                pattern.lastIndex -> "Terminates at"
-                                                else -> when (stop.routeType) {
-                                                    RouteType.Train -> "Next station is"
-                                                    else -> "Next stop is"
-                                                }
+                                        },
+                                        showIndicator = index > 0,
+                                        modifier = Modifier.padding(bottom = 8.dp)
+                                    )
+                                }
+                            }
+                            if (
+                                isLastStop
+                                && originalDeparture.routeType == RouteType.Train
+                                && (nextStopIndex ?: pattern.lastIndex) < pattern.lastIndex - 1
+                                && !isSheetExpanded
+                            ) {
+                                // Display pattern type heading (only if next stop is not the last or second-last stop)
+                                patternType?.let { patternType ->
+                                    item {
+                                        StoppingPatternComposables.PatternHeadingCard(
+                                            heading = when (patternType) {
+                                                // Conditionally format the message
+                                                PatternType.LimitedStops -> "Express to"
+                                                PatternType.SuperLimitedStops -> "Ltd Express to"
+                                                PatternType.AllStops -> "Stopping all stations to"
+                                                PatternType.SkipsOneStop -> // Find the skipped stop
+                                                    "Stopping all stations except ${
+                                                        followingStopIndex?.let { followingStopIndex ->
+                                                            pattern.slice((followingStopIndex + 1) until pattern.size)
+                                                                .find { departure -> departure.stopType == StoppingPatternComposables.StopType.Skipped }
+                                                                ?.stop?.stopName()?.first
+                                                        }
+                                                    } to"
+
+                                                else -> "Service to"
                                             },
-                                            includePadding = false,
-                                            modifier = Modifier.padding(bottom = 8.dp)
+                                            showIndicator = index > 0,
+                                            modifier = Modifier.padding(top = 8.dp)
                                         )
                                     }
                                 }

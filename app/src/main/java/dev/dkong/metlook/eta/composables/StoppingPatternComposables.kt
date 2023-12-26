@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 
 /**
@@ -54,56 +55,65 @@ object StoppingPatternComposables {
     /**
      * Type of stop within the service pattern
      */
-    enum class StopType {
+    enum class StopType(val stopClass: StopClass) {
         /**
          * Stop that the service calls at
          */
-        Stop,
+        Stop(StopClass.Stop),
 
         /**
          * First stop of the service
          */
-        First,
+        First(StopClass.Stop),
 
         /**
          * Last stop of the service
          */
-        Last,
+        Last(StopClass.Stop),
 
         /**
          * The next stop on the pattern
          */
-        Next,
+        Next(StopClass.Stop),
 
         /**
          * Stop that the service runs express past
          */
-        Skipped,
+        Skipped(StopClass.Skipped),
 
         /**
          * Same as [Skipped], but an arrow is to be displayed
          */
-        ArrowSkipped,
+        ArrowSkipped(StopClass.Skipped),
 
         /**
          * Stop is not within the service range
          */
-        OutOfRange,
+        OutOfRange(StopClass.Other),
 
         /**
          * First displayed stop, with hidden stops **before**
          */
-        ContinuesBefore,
+        ContinuesBefore(StopClass.Stop),
 
         /**
          * Last displayed stop, with hidden stops **after**
          */
-        ContinuesAfter,
+        ContinuesAfter(StopClass.Stop),
 
         /**
          * Special: Show the continuation of the line
          */
-        Blank
+        Blank(StopClass.Other);
+
+        /**
+         * Overarching classification of the stop type
+         */
+        enum class StopClass {
+            Stop,
+            Skipped,
+            Other
+        }
     }
 
     /**
@@ -333,6 +343,38 @@ object StoppingPatternComposables {
                     trailingContent?.let { it() }
                 }
             }
+        }
+    }
+
+    /**
+     * Card to display heading text within a stopping pattern
+     */
+    @Composable
+    fun PatternHeadingCard(
+        heading: String,
+        showIndicator: Boolean = true,
+        modifier: Modifier = Modifier
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .height(IntrinsicSize.Min)
+        ) {
+            Box(modifier = Modifier.requiredWidth(24.dp)) {
+                if (showIndicator) {
+                    // Do not show pattern indicator for first stop
+                    StoppingPatternComposables.StopIndicator(
+                        stopType = StoppingPatternComposables.StopType.Blank
+                    )
+                }
+            }
+            SectionHeading(
+                heading = heading,
+                includePadding = false,
+                modifier = modifier
+            )
         }
     }
 
