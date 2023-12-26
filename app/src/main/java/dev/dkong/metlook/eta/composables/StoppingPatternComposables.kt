@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -293,7 +294,7 @@ object StoppingPatternComposables {
         heading: (@Composable () -> Unit)? = null,
         patternIndicator: (@Composable () -> Unit)? = null,
         leadingContent: (@Composable () -> Unit)? = null,
-        headlineContent: @Composable () -> Unit,
+        headlineContent: @Composable (Modifier) -> Unit,
         supportingContent: (@Composable () -> Unit)? = null,
         trailingContent: (@Composable () -> Unit)? = null,
         modifier: Modifier = Modifier
@@ -320,11 +321,12 @@ object StoppingPatternComposables {
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
                     ) {
                         leadingContent?.let { it() }
                         Column {
-                            headlineContent()
+                            headlineContent(Modifier.weight(1f).wrapContentWidth())
                             supportingContent?.let { it() }
                         }
                     }
@@ -350,10 +352,10 @@ object StoppingPatternComposables {
             headlineContent = {
                 Text(
                     text =
-                        if (isBefore) ""
-                        else if (skippedStops.size == 1)
-                            "Skips ${skippedStops.first().stop.stopName().first}"
-                        else "Runs express to",
+                    if (isBefore) ""
+                    else if (skippedStops.size == 1)
+                        "Skips ${skippedStops.first().stop.stopName().first}"
+                    else "Runs express to",
                     style = MaterialTheme.typography.bodyLarge,
                     fontStyle = FontStyle.Italic,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -384,13 +386,14 @@ object StoppingPatternComposables {
             patternIndicator = {
                 StopIndicator(stopType = stopType)
             },
-            headlineContent = {
+            headlineContent = { m ->
                 Text(
                     text = patternStop.stop.stopName().first,
                     style = MaterialTheme.typography.titleLarge,
                     color =
                     if (!isSkipped) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = m
                 )
             },
             supportingContent = {
