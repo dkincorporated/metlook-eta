@@ -1,6 +1,5 @@
 package dev.dkong.metlook.eta.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -54,7 +53,7 @@ import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
-import dev.dkong.metlook.eta.common.datastore.RecentServicesCoordinator
+import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.DepartureCard

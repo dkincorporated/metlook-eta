@@ -1,7 +1,6 @@
 package dev.dkong.metlook.eta.screens.home
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,12 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -39,9 +35,8 @@ import dev.dkong.metlook.eta.activities.ServiceActivity
 import dev.dkong.metlook.eta.activities.StopActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
-import dev.dkong.metlook.eta.common.datastore.RecentServicesCoordinator
-import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
-import dev.dkong.metlook.eta.composables.DepartureCard
+import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
+import dev.dkong.metlook.eta.common.datastore.recents.RecentStopsCoordinator
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.RecentServiceCard
 import dev.dkong.metlook.eta.composables.SectionHeading
@@ -50,7 +45,6 @@ import dev.dkong.metlook.eta.composables.StopCard
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 

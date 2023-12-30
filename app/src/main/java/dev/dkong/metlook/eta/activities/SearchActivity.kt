@@ -1,15 +1,11 @@
 package dev.dkong.metlook.eta.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -61,15 +57,13 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils.finishActivity
-import dev.dkong.metlook.eta.common.datastore.RecentStopsCoordinator
+import dev.dkong.metlook.eta.common.datastore.recents.RecentStopsCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StopCard
-import dev.dkong.metlook.eta.objects.metlook.PatternType
-import dev.dkong.metlook.eta.objects.ptv.Route
 import dev.dkong.metlook.eta.objects.ptv.SearchResult
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme

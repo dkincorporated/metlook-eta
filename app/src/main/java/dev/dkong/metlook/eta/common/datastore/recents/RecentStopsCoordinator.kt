@@ -1,4 +1,4 @@
-package dev.dkong.metlook.eta.common.datastore
+package dev.dkong.metlook.eta.common.datastore.recents
 
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey

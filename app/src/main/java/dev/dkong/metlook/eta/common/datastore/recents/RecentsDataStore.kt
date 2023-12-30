@@ -1,16 +1,13 @@
-package dev.dkong.metlook.eta.common.datastore
+package dev.dkong.metlook.eta.common.datastore.recents
 
 import android.content.Context
 import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.Constants.dataStoreRecents
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
-import kotlin.reflect.typeOf
 
 /**
  * Blueprint for any Recent-type data store
