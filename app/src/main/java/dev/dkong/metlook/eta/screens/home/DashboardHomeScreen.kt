@@ -105,8 +105,10 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                 }
             }
         }
-        item {
-            SectionHeading(heading = "Recent stops and stations")
+        if (recentStops.isNotEmpty()) {
+            item {
+                SectionHeading(heading = "Recent stops and stations")
+            }
         }
         recentStops.forEachIndexed { index, stop ->
             item(key = stop.routeType.id.toString() + stop.stopId.toString()) {
@@ -130,8 +132,10 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                 )
             }
         }
-        item {
-            SectionHeading(heading = "Recent services")
+        if (recentServices.isNotEmpty()) {
+            item {
+                SectionHeading(heading = "Recent services")
+            }
         }
         recentServices.forEachIndexed { index, service ->
             item(key = service.runRef) {
@@ -164,8 +168,10 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                 )
             }
         }
-        item {
-            SettingsInfoFootnote(info = "Recent services show the time until their scheduled departure. Make sure to check the actual estimated departure time by opening the service.")
+        if (recentServices.isNotEmpty()) {
+            item {
+                SettingsInfoFootnote(info = "Recent services show the time until their scheduled departure. Make sure to check the actual estimated departure time by opening the service.")
+            }
         }
         item {
             NavBarPadding()
