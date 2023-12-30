@@ -120,6 +120,9 @@ fun LargeTopAppbarScaffold(
                 .padding(horizontal = horizontalPadding)
                 .fillMaxWidth()
         ) {
+            item {
+                Box(modifier = Modifier.padding(top = 16.dp))
+            }
             content()
             item {
                 Box(modifier = Modifier.navigationBarsPadding())

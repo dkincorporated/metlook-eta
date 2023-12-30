@@ -52,11 +52,11 @@ fun SettingsInfoText(info: String, horizontalPadding: Dp = 16.dp) {
 }
 
 @Composable
-fun SettingsInfoFootnote(info: String) {
+fun SettingsInfoFootnote(info: String, horizontalPadding: Dp = 16.dp) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
         Icon(
             Icons.Outlined.Info,

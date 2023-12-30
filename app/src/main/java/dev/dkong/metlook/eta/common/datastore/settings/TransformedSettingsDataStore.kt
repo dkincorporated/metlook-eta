@@ -27,20 +27,20 @@ abstract class TransformedSettingsDataStore<T, U>(
      * Overwrite the current value (if any)
      * @param data the new data to be stored
      */
-    suspend fun update(context: Context, data: T) =
+    suspend fun updateTransformed(context: Context, data: T) =
         super.update(context, serialise(data))
 
     /**
      * Get the current value
      */
-    suspend fun get(context: Context): T? =
+    suspend fun getOnceTransformed(context: Context): T? =
         deserialise(super.getOnce(context))
 
     /**
      * Register a listener to listen for new changes
      * @param listener the function to receive new values
      */
-    suspend fun listen(context: Context, listener: (T) -> Unit) {
+    suspend fun listenTransformed(context: Context, listener: (T) -> Unit) {
         super.listen(context) { t -> listener(deserialise(t)) }
     }
 }

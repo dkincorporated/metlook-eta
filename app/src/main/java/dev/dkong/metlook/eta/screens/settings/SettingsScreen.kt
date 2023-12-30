@@ -31,9 +31,7 @@ fun SettingsScreen(navHostController: NavHostController) {
         }
     ) {
         item {
-            MaterialColumn(
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
+            MaterialColumn {
                 SettingsItem(
                     name = "Location-based features",
                     description = "Decide whether/how your location is used",

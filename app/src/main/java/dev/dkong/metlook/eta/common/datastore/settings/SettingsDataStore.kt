@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
  * @param K type of data being stored
  */
 abstract class SettingsDataStore<K>(
-    val key: Preferences.Key<K>,
+    val key: Preferences.Key<K>
 ) {
     /**
      * Overwrite the current value
