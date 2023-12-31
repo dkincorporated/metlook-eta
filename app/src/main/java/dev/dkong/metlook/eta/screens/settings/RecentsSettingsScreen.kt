@@ -1,15 +1,12 @@
 package dev.dkong.metlook.eta.screens.settings
 
-import android.util.Log
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +18,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.datastore.settings.RecentsSettingsDataStore
+import dev.dkong.metlook.eta.common.datastore.settings.SettingsDataStore
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
-import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.SettingsInfoFootnote
 import dev.dkong.metlook.eta.composables.SettingsInfoText
@@ -57,11 +53,11 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val stopsScope = rememberCoroutineScope()
-    var stopsLimit by remember { mutableStateOf(0) }
+    var stopsLimit by remember { mutableIntStateOf(0) }
     val servicesScope = rememberCoroutineScope()
-    var servicesLimit by remember { mutableStateOf(0) }
+    var servicesLimit by remember { mutableIntStateOf(0) }
     val timeScope = rememberCoroutineScope()
-    var timeLimit by remember { mutableStateOf(0) }
+    var timeLimit by remember { mutableIntStateOf(24) }
 
     LaunchedEffect(Unit) {
         stopsScope.launch {
@@ -76,8 +72,13 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
     }
 
     @Composable
-    fun LimitItem(title: String, limit: Int, onChange: (Int) -> Unit) {
-        val sliderPosition = limit.toFloat()
+    fun LimitItem(
+        title: String,
+        current: Int,
+        range: ClosedFloatingPointRange<Float>,
+        onChange: (Int) -> Unit
+    ) {
+        val sliderPosition = current.toFloat()
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -99,8 +100,8 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
                 // Update the value as it is selected
                 onChange(v.roundToInt())
             },
-            valueRange = 0f..10f,
-            steps = 9,
+            valueRange = range,
+            steps = (range.endInclusive / maxOf(1f, range.start)).roundToInt(),
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -114,29 +115,72 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
         item {
             SettingsInfoText(
                 info = """
-                The number of recent items and their ratio can be adjusted to best fit the screen dimensions.
+                The number of recent items can be adjusted to suit your taste. More stops? No problem. More services? You got it.
             """.trimIndent(),
                 horizontalPadding = 0.dp
             )
         }
         item {
-            LimitItem(title = "Stops and stations", stopsLimit) { limit ->
+            LimitItem(
+                title = "Stops and stations",
+                current = stopsLimit,
+                range = 0f..10f
+            ) { limit ->
                 scope.launch {
                     RecentsSettingsDataStore.stopsLimit.update(context, limit)
                 }
             }
         }
         item {
-            LimitItem(title = "Services", servicesLimit) { limit ->
+            LimitItem(title = "Services", current = servicesLimit, range = 0f..10f) { limit ->
                 scope.launch {
                     RecentsSettingsDataStore.servicesLimit.update(context, limit)
                 }
             }
         }
         item {
+            SettingsInfoText(
+                info = """
+                To help reduce clutter, services that departed past a certain length of time can be automatically removed.
+            """.trimIndent(),
+                horizontalPadding = 0.dp
+            )
+        }
+        item {
+            val sliderPosition = timeLimit.toFloat()
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                SectionHeading(heading = "Retention time", includePadding = false)
+                Text(
+                    text = "${sliderPosition.roundToInt()} hr",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            Slider(
+                value = sliderPosition,
+                onValueChange = { v ->
+                    // Update the value as it is selected
+                    scope.launch {
+                        RecentsSettingsDataStore.timeLimit.update(context, v.roundToInt())
+                    }
+                },
+                valueRange = 1f..24f,
+                steps = 25,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        item {
             SettingsInfoFootnote(
                 info = """
-                If a lower limit is selected, the existing items that exceed the limit are not deleted right away, and are instead updated when a new entry is next added.
+                Changes to limits are reflected the next time a new recent item entry is added.
+                
+                Pinned items will not be removed by any limits, but are still counted in the limits.
             """.trimIndent(),
                 horizontalPadding = 0.dp
             )
