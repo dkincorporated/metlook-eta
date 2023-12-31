@@ -1,6 +1,5 @@
 package dev.dkong.metlook.eta.screens.settings
 
-import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,9 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.datastore.settings.RecentsSettingsDataStore
-import dev.dkong.metlook.eta.common.datastore.settings.SettingsDataStore
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.SettingsInfoFootnote
@@ -53,11 +49,11 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val stopsScope = rememberCoroutineScope()
-    var stopsLimit by remember { mutableIntStateOf(0) }
+    var stopsLimit by remember { mutableIntStateOf(RecentsSettingsDataStore.recentsCountLimit) }
     val servicesScope = rememberCoroutineScope()
-    var servicesLimit by remember { mutableIntStateOf(0) }
+    var servicesLimit by remember { mutableIntStateOf(RecentsSettingsDataStore.recentsCountLimit) }
     val timeScope = rememberCoroutineScope()
-    var timeLimit by remember { mutableIntStateOf(24) }
+    var timeLimit by remember { mutableIntStateOf(RecentsSettingsDataStore.defaultTimeLimit) }
 
     LaunchedEffect(Unit) {
         stopsScope.launch {
@@ -141,7 +137,7 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
         item {
             SettingsInfoText(
                 info = """
-                To help reduce clutter, services that departed past a certain length of time can be automatically removed.
+                To help reduce clutter, services that departed a certain length of time ago can be automatically removed.
             """.trimIndent(),
                 horizontalPadding = 0.dp
             )
@@ -178,7 +174,7 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
         item {
             SettingsInfoFootnote(
                 info = """
-                Changes to limits are reflected the next time a new recent item entry is added.
+                Changes to limits are reflected the next time they are loaded.
                 
                 Pinned items will not be removed by any limits, but are still counted in the limits.
             """.trimIndent(),

@@ -3,6 +3,7 @@ package dev.dkong.metlook.eta.common.datastore.recents
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.datastore.settings.RecentsSettingsDataStore
 import dev.dkong.metlook.eta.objects.ptv.Stop
 import kotlinx.serialization.encodeToString
 
@@ -11,7 +12,7 @@ import kotlinx.serialization.encodeToString
  */
 object RecentStopsCoordinator : RecentsDataStore<Stop>(
     stringPreferencesKey("recent_stops"),
-    intPreferencesKey("recent_stops")
+    RecentsSettingsDataStore.stopsLimit
 ) {
     override fun serialise(data: List<Stop>): String =
         Constants.jsonFormat.encodeToString(data)

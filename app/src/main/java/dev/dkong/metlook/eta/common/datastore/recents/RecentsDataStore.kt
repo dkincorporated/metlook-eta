@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import dev.dkong.metlook.eta.common.Constants.dataStoreRecents
+import dev.dkong.metlook.eta.common.datastore.settings.RecentsSettingsDataStore
+import dev.dkong.metlook.eta.common.datastore.settings.SettingsDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
@@ -14,7 +16,7 @@ import kotlinx.serialization.SerializationException
  */
 abstract class RecentsDataStore<T>(
     val recentsKey: Preferences.Key<String>,
-    val limitKey: Preferences.Key<Int>
+    val limitCoordinator: SettingsDataStore<Int>
 ) {
     /**
      * Serialise the data
@@ -33,9 +35,10 @@ abstract class RecentsDataStore<T>(
     /**
      * Add options to filter for valid items in the collection
      * @param item the item to check
+     * @param timeLimitHr the time limit in hours to retain the item
      * @return true or false depending on whether it is considered valid
      */
-    open fun filter(item: T): Boolean = true
+    open fun filter(item: T, timeLimitHr: Int): Boolean = true
 
     /**
      * Add a new recent item
@@ -48,8 +51,7 @@ abstract class RecentsDataStore<T>(
                 // Remove existing instance (if any); relies on an overriden `equals` function
                 .filter { it != newItem }
 
-        // TODO: Integrate limit settings
-        val limit = 5
+        val limit = limitCoordinator.getOnce(context) ?: RecentsSettingsDataStore.recentsCountLimit
         val combined =
             (listOf(newItem) + current)
                 .slice(0 until (minOf(limit, current.size + 1)))
@@ -76,7 +78,13 @@ abstract class RecentsDataStore<T>(
                 ?: return null
         return try {
             deserialise(retrieved)
-                .filter { filter(it) }
+                .filter {
+                    filter(
+                        it,
+                        RecentsSettingsDataStore.timeLimit.getOnce(context)
+                            ?: RecentsSettingsDataStore.defaultTimeLimit
+                    )
+                }
         } catch (e: SerializationException) {
             Log.d("RECENT STOPS", e.toString())
             null
@@ -97,7 +105,13 @@ abstract class RecentsDataStore<T>(
                     try {
                         listener(
                             deserialise(it)
-                                .filter { item -> filter(item) }
+                                .filter { item ->
+                                    filter(
+                                        item,
+                                        RecentsSettingsDataStore.timeLimit.getOnce(context)
+                                            ?: RecentsSettingsDataStore.defaultTimeLimit
+                                    )
+                                }
                         )
                     } catch (e: SerializationException) {
                         Log.d("RECENT STOPS", e.toString())
