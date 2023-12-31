@@ -56,11 +56,22 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var currentLimits by remember { mutableStateOf(Pair(0, 0)) }
+    val stopsScope = rememberCoroutineScope()
+    var stopsLimit by remember { mutableStateOf(0) }
+    val servicesScope = rememberCoroutineScope()
+    var servicesLimit by remember { mutableStateOf(0) }
+    val timeScope = rememberCoroutineScope()
+    var timeLimit by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
-        RecentsSettingsDataStore.listenTransformed(context) { data: Pair<Int, Int> ->
-            currentLimits = data
+        stopsScope.launch {
+            RecentsSettingsDataStore.stopsLimit.listen(context) { stopsLimit = it }
+        }
+        servicesScope.launch {
+            RecentsSettingsDataStore.servicesLimit.listen(context) { servicesLimit = it }
+        }
+        timeScope.launch {
+            RecentsSettingsDataStore.timeLimit.listen(context) { timeLimit = it }
         }
     }
 
@@ -109,22 +120,16 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
             )
         }
         item {
-            LimitItem(title = "Stops and stations", currentLimits.first) { limit ->
+            LimitItem(title = "Stops and stations", stopsLimit) { limit ->
                 scope.launch {
-                    RecentsSettingsDataStore.updateTransformed(
-                        context,
-                        Pair(limit, currentLimits.second)
-                    )
+                    RecentsSettingsDataStore.stopsLimit.update(context, limit)
                 }
             }
         }
         item {
-            LimitItem(title = "Services", currentLimits.second) { limit ->
+            LimitItem(title = "Services", servicesLimit) { limit ->
                 scope.launch {
-                    RecentsSettingsDataStore.updateTransformed(
-                        context,
-                        Pair(currentLimits.first, limit)
-                    )
+                    RecentsSettingsDataStore.servicesLimit.update(context, limit)
                 }
             }
         }

@@ -1,19 +1,26 @@
 package dev.dkong.metlook.eta.common.datastore.settings
 
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 
-object RecentsSettingsDataStore : TransformedSettingsDataStore<Pair<Int, Int>, String>(
-    stringPreferencesKey("recents_limits")) {
+/**
+ * Coordinator for recents-related settings
+ */
+object RecentsSettingsDataStore {
     /**
-     * Convert the two values into a string-based value
-     * @param data [Pair] of stops and services limit
+     * Coordinator for number of stops to be stored
      */
-    override fun serialise(data: Pair<Int, Int>): String = "${data.first},${data.second}"
+    val stopsLimit =
+        object : SettingsDataStore<Int>(intPreferencesKey("recent_stops_limit")) {}
 
     /**
-     * Convert the comma-delimited string into a [Pair]
+     * Coordinator for number of services to be stored
      */
-    override fun deserialise(data: String?): Pair<Int, Int> = data?.split(",").let {
-        Pair(it?.get(0)?.toInt() ?: 0, it?.get(1)?.toInt() ?: 0)
-    }
+    val servicesLimit =
+        object : SettingsDataStore<Int>(intPreferencesKey("recent_services_limit")) {}
+
+    /**
+     * Coordinator for the time to retain services
+     */
+    val timeLimit =
+        object : SettingsDataStore<Int>(intPreferencesKey("recent_services_time")) {}
 }
