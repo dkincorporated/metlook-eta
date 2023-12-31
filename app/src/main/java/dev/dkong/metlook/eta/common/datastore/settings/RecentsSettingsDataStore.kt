@@ -9,12 +9,12 @@ object RecentsSettingsDataStore {
     /**
      * Default limit for recents items is 3
      */
-    val recentsCountLimit = 3
+    const val recentsCountLimit = 3
 
     /**
      * Default time limit is 24 hours
      */
-    val defaultTimeLimit = 24
+    const val defaultTimeLimit = 24
 
     /**
      * Coordinator for number of stops to be stored

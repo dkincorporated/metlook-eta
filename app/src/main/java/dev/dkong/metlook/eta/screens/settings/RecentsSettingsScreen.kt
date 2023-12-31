@@ -174,7 +174,7 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
         item {
             SettingsInfoFootnote(
                 info = """
-                Changes to limits are reflected the next time they are loaded.
+                Changes to limits are reflected the next time they are loaded, and any items that exceed the new limits will be removed when a new entry is next added.
                 
                 Pinned items will not be removed by any limits, but are still counted in the limits.
             """.trimIndent(),
