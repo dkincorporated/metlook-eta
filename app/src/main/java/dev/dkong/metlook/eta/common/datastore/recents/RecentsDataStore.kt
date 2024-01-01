@@ -41,6 +41,35 @@ abstract class RecentsDataStore<T>(
     open fun filter(item: T, timeLimitHr: Int): Boolean = true
 
     /**
+     * Get the current count limit
+     */
+    private suspend fun getCountLimit(context: Context) =
+        limitCoordinator.getOnce(context) ?: RecentsSettingsDataStore.recentsCountLimit
+
+    /**
+     * Process the result of the data store
+     * @param result the raw result from the data store
+     *
+     * This includes deserialisation and any other processing before returning the data.
+     */
+    private suspend fun processResult(context: Context, result: String): List<T> {
+        val deserialised = deserialise(result)
+        return deserialised
+            .filter {
+                filter(
+                    it,
+                    RecentsSettingsDataStore.timeLimit.getOnce(context)
+                        ?: RecentsSettingsDataStore.defaultTimeLimit
+                )
+            }
+            .slice(
+                0 until
+                        (minOf(getCountLimit(context), deserialised.size))
+            )
+    }
+
+
+    /**
      * Add a new recent item
      * @param newItem the new [T] to add
      * @return whether the addition was successful
@@ -51,10 +80,9 @@ abstract class RecentsDataStore<T>(
                 // Remove existing instance (if any); relies on an overriden `equals` function
                 .filter { it != newItem }
 
-        val limit = limitCoordinator.getOnce(context) ?: RecentsSettingsDataStore.recentsCountLimit
         val combined =
             (listOf(newItem) + current)
-                .slice(0 until (minOf(limit, current.size + 1)))
+                .slice(0 until (minOf(getCountLimit(context), current.size + 1)))
         return try {
             context.dataStoreRecents.edit { preferences ->
                 val encoded = serialise(combined)
@@ -77,14 +105,7 @@ abstract class RecentsDataStore<T>(
                 .first()[recentsKey]
                 ?: return null
         return try {
-            deserialise(retrieved)
-                .filter {
-                    filter(
-                        it,
-                        RecentsSettingsDataStore.timeLimit.getOnce(context)
-                            ?: RecentsSettingsDataStore.defaultTimeLimit
-                    )
-                }
+            processResult(context, retrieved)
         } catch (e: SerializationException) {
             Log.d("RECENT STOPS", e.toString())
             null
@@ -103,16 +124,7 @@ abstract class RecentsDataStore<T>(
             .collect { value ->
                 value?.let {
                     try {
-                        listener(
-                            deserialise(it)
-                                .filter { item ->
-                                    filter(
-                                        item,
-                                        RecentsSettingsDataStore.timeLimit.getOnce(context)
-                                            ?: RecentsSettingsDataStore.defaultTimeLimit
-                                    )
-                                }
-                        )
+                        listener(processResult(context, it))
                     } catch (e: SerializationException) {
                         Log.d("RECENT STOPS", e.toString())
                     }
