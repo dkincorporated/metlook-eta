@@ -58,6 +58,7 @@ import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.VehicleData
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.common.vehicle.Tram
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
@@ -509,6 +510,24 @@ class ServiceActivity : ComponentActivity() {
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
+                                    },
+                                    trailingContent = {
+                                        (v as? Tram)?.let { tram ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                                                    .requiredSize(48.dp)
+                                            ) {
+                                                Text(
+                                                    text = tram.classId,
+                                                    style = MaterialTheme.typography.headlineSmall,
+                                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    modifier = Modifier
+                                                        .align(Alignment.Center)
+                                                )
+                                            }
+                                        }
                                     }
                                 )
                             }

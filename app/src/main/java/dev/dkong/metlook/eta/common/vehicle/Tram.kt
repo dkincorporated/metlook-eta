@@ -6,7 +6,7 @@ package dev.dkong.metlook.eta.common.vehicle
  * @param classId the class of the vehicle
  * @param id the fleet number of the vehicle
  */
-sealed class Tram(name: String, classId: String, id: String) : VehicleType(name, id) {
+sealed class Tram(name: String, val classId: String, id: String) : VehicleType(name, id) {
     class Z3(id: String) : Tram("Comeng", "Z3", id)
     class A1(id: String) : Tram("Comeng", "A1", id)
     class A2(id: String) : Tram("Comeng", "A2", id)
