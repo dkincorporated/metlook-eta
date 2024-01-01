@@ -519,7 +519,7 @@ class ServiceActivity : ComponentActivity() {
                     }
                 }
             },
-            sheetPeekHeight = 384.dp
+            sheetPeekHeight = 512.dp
         )
     }
 }
