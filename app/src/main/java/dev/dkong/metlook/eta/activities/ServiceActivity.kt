@@ -512,22 +512,7 @@ class ServiceActivity : ComponentActivity() {
                                         )
                                     },
                                     trailingContent = {
-                                        (v as? Tram)?.let { tram ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(16.dp))
-                                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                                                    .requiredSize(48.dp)
-                                            ) {
-                                                Text(
-                                                    text = tram.classId,
-                                                    style = MaterialTheme.typography.headlineSmall,
-                                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                    modifier = Modifier
-                                                        .align(Alignment.Center)
-                                                )
-                                            }
-                                        }
+                                        v.icon?.let { it() }
                                     }
                                 )
                             }
