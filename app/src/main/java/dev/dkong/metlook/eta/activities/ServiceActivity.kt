@@ -9,6 +9,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,9 +25,11 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -53,6 +56,7 @@ import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
+import dev.dkong.metlook.eta.common.VehicleData
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -64,6 +68,7 @@ import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 import dev.dkong.metlook.eta.objects.metlook.PatternType
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.PatternResult
 import dev.dkong.metlook.eta.ui.theme.MetlookTheme
 import io.ktor.client.call.body
@@ -83,7 +88,7 @@ class ServiceActivity : ComponentActivity() {
         val bundleService = intent?.extras?.getString("service")
         bundleService?.let { serviceString ->
             // Parse the service
-            val service = Constants.jsonFormat.decodeFromString<ParcelableService>(serviceString)
+            val service = Constants.jsonFormat.decodeFromString<ServiceDeparture>(serviceString)
 
             // Render the UI
             setContent {
@@ -103,7 +108,7 @@ class ServiceActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     @Composable
-    fun ServiceScreen(navHostController: NavHostController, originalDeparture: ParcelableService) {
+    fun ServiceScreen(navHostController: NavHostController, originalDeparture: ServiceDeparture) {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val density = LocalDensity.current
@@ -141,7 +146,10 @@ class ServiceActivity : ComponentActivity() {
                     appendQueryParameter("expand", "all")
                     // Pass a stop for Tram to get estimated times, because the API is weird
                     if (originalDeparture.routeType == RouteType.Tram)
-                        appendQueryParameter("stop_id", originalDeparture.stopId.toString())
+                        appendQueryParameter(
+                            "stop_id",
+                            originalDeparture.departureStop.stopId.toString()
+                        )
                     // Only get skipped stops for Train
                     if (originalDeparture.routeType == RouteType.Train)
                         appendQueryParameter("include_skipped_stops", "true")
@@ -301,12 +309,12 @@ class ServiceActivity : ComponentActivity() {
                                 TextMetLabel(text = it)
                             }
                             TwoLineCenterTopAppBarText(
-                                title = originalDeparture.name,
+                                title = originalDeparture.serviceTitle,
                                 subtitle = if (arrayOf(RouteType.Tram, RouteType.Bus).contains(
                                         originalDeparture.routeType
                                     )
                                 ) {
-                                    "To ${originalDeparture.destination}"
+                                    "To ${originalDeparture.destinationName}"
                                 } else if (originalDeparture.routeType == RouteType.Train) {
                                     nextStopIndex?.let {
                                         val nextStopName = pattern[it].stop.stopName().first
@@ -471,6 +479,38 @@ class ServiceActivity : ComponentActivity() {
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                    // Vehicle info
+                    val vehicle = VehicleData.getVehicle(
+                        originalDeparture.vehicleDescriptor?.id,
+                        originalDeparture.routeType
+                    )
+                    vehicle?.let { v ->
+                        if (!isSheetExpanded) {
+                            item {
+                                SectionHeading(heading = "Vehicle")
+                                ListItem(
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    headlineContent = {
+                                        Text(
+                                            text = v.name,
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    supportingContent = {
+                                        Text(
+                                            text = v.id,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                )
                             }
                         }
                     }

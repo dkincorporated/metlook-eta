@@ -485,16 +485,7 @@ class DirectionStopActivity : ComponentActivity() {
                                     val serviceIntent = Intent(context, ServiceActivity::class.java)
                                     serviceIntent.putExtra(
                                         "service",
-                                        Constants.jsonFormat.encodeToString(with(departure) {
-                                            ParcelableService(
-                                                runRef,
-                                                routeType,
-                                                route,
-                                                serviceTitle,
-                                                destinationName,
-                                                stop.stopId
-                                            )
-                                        })
+                                        Constants.jsonFormat.encodeToString(departure)
                                     )
                                     context.startActivity(serviceIntent)
                                     // Save the recent service

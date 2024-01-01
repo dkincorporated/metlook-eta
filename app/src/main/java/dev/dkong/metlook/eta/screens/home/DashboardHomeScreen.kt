@@ -147,16 +147,7 @@ fun DashboardHomeScreen(navHostController: NavHostController) {
                         val serviceIntent = Intent(context, ServiceActivity::class.java)
                         serviceIntent.putExtra(
                             "service",
-                            Constants.jsonFormat.encodeToString(with(service) {
-                                ParcelableService(
-                                    runRef,
-                                    routeType,
-                                    route,
-                                    serviceTitle,
-                                    destinationName,
-                                    service.departureStop.stopId
-                                )
-                            })
+                            Constants.jsonFormat.encodeToString(service)
                         )
                         context.startActivity(serviceIntent)
                         // Save the recent service

@@ -62,10 +62,12 @@ abstract class RecentsDataStore<T>(
                         ?: RecentsSettingsDataStore.defaultTimeLimit
                 )
             }
-            .slice(
-                0 until
-                        (minOf(getCountLimit(context), deserialised.size))
-            )
+            .let {
+                it.slice(
+                    0 until
+                            (minOf(getCountLimit(context), it.size))
+                )
+            }
     }
 
 
