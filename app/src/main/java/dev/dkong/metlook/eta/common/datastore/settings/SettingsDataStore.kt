@@ -35,6 +35,16 @@ abstract class SettingsDataStore<K>(
             .first()[key]
 
     /**
+     * Get the current value once, but use the default value if current value is null
+     * @param default the value to return if the current value is null
+     * @return current value, or the default value if value is currently null
+     */
+    suspend fun getOnce(context: Context, default: K): K =
+        context.dataStoreSettings
+            .data
+            .first()[key] ?: default
+
+    /**
      * Register a listener to listen for new values
      * @param listener the function to receive the new values
      */
