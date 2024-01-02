@@ -44,7 +44,7 @@ abstract class RecentsDataStore<T>(
      * Get the current count limit
      */
     private suspend fun getCountLimit(context: Context) =
-        limitCoordinator.getOnce(context) ?: RecentsSettingsDataStore.recentsCountLimit
+        limitCoordinator.getOnce(context, RecentsSettingsDataStore.recentsCountLimit)
 
     /**
      * Process the result of the data store
@@ -58,8 +58,10 @@ abstract class RecentsDataStore<T>(
             .filter {
                 filter(
                     it,
-                    RecentsSettingsDataStore.timeLimit.getOnce(context)
-                        ?: RecentsSettingsDataStore.defaultTimeLimit
+                    RecentsSettingsDataStore.timeLimit.getOnce(
+                        context,
+                        RecentsSettingsDataStore.defaultTimeLimit
+                    )
                 )
             }
             .let {
