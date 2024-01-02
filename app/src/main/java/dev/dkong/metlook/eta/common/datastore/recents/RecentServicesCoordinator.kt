@@ -22,6 +22,6 @@ object RecentServicesCoordinator : RecentsDataStore<ServiceDeparture>(
 
     override fun filter(item: ServiceDeparture, timeLimitHr: Int): Boolean = with(item) {
         // Filter out departures that departed more than a day ago
-        timeToScheduledDeparture().inWholeHours >= -1 * timeLimitHr
+        timeToScheduledDeparture.inWholeHours >= -1 * timeLimitHr
     }
 }

@@ -131,7 +131,7 @@ class StopActivity : ComponentActivity() {
         // Observed list of departures (for filters)
         val departures =
             remember { mutableStateListOf<Pair<DepartureDirectionGroup, List<Pair<Int, List<ServiceDeparture>>>>>() }
-        val stopName = stop.stopName()
+        val stopName = stop.stopName
         val filters = remember {
             mutableStateMapOf(
                 // Initialise filters with default values
@@ -163,8 +163,8 @@ class StopActivity : ComponentActivity() {
                                     destinationGroup.first,
                                     destinationGroup.second
                                         .filter { departure ->
-                                            if ((departure.timeToEstimatedDeparture()?.inWholeMinutes
-                                                    ?: departure.timeToScheduledDeparture().inWholeMinutes) > 60
+                                            if ((departure.timeToEstimatedDeparture?.inWholeMinutes
+                                                    ?: departure.timeToScheduledDeparture.inWholeMinutes) > 60
                                             ) {
                                                 filters["next-sixty"] != true
                                             } else true
@@ -254,7 +254,7 @@ class StopActivity : ComponentActivity() {
                             )
 
                             // Filter out unwanted departures
-                            if (!processedDeparture.isValid()) return@map null
+                            if (!processedDeparture.isValid) return@map null
 
                             return@map processedDeparture
                         }
@@ -274,8 +274,8 @@ class StopActivity : ComponentActivity() {
                                     // Sort by earliest departure
                                     .sortedBy { destinationGroup ->
                                         with(destinationGroup.second[0]) {
-                                            timeToEstimatedDeparture()?.inWholeSeconds
-                                                ?: timeToScheduledDeparture().inWholeSeconds
+                                            timeToEstimatedDeparture?.inWholeSeconds
+                                                ?: timeToScheduledDeparture.inWholeSeconds
                                         }
                                     }
                             )

@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.objects.ptv
 
 import dev.dkong.metlook.eta.common.RouteType
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.reflect.typeOf
@@ -37,7 +38,8 @@ data class Stop(
      * Attempt to split the stop name for on-road stops (tram, bus)
      * @return stop road, stop on-road, stop number (if applicable)
      */
-    fun stopName(): Triple<String, String?, String?> {
+    @Contextual
+    val stopName: Triple<String, String?, String?> get() {
         val stopName = when (routeType) {
             RouteType.Train -> fullStopName.replace(" Station", "")
             else -> fullStopName

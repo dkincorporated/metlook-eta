@@ -396,7 +396,7 @@ object StoppingPatternComposables {
                     text =
                     if (isBefore) ""
                     else if (skippedStops.size == 1)
-                        "Skips ${skippedStops.first().stop.stopName().first}"
+                        "Skips ${skippedStops.first().stop.stopName.first}"
                     else "Runs express to",
                     style = MaterialTheme.typography.bodyLarge,
                     fontStyle = FontStyle.Italic,
@@ -430,7 +430,7 @@ object StoppingPatternComposables {
             },
             headlineContent = { m ->
                 Text(
-                    text = patternStop.stop.stopName().first,
+                    text = patternStop.stop.stopName.first,
                     style = MaterialTheme.typography.titleLarge,
                     color =
                     if (!isSkipped) MaterialTheme.colorScheme.onSurface
@@ -439,7 +439,7 @@ object StoppingPatternComposables {
                 )
             },
             supportingContent = {
-                patternStop.stop.stopName().second?.let { s ->
+                patternStop.stop.stopName.second?.let { s ->
                     Text(
                         text = "on $s",
                         style = MaterialTheme.typography.bodyMedium,
@@ -455,14 +455,14 @@ object StoppingPatternComposables {
                         )
                     )
                 } else {
-                    patternStop.stop.stopName().third?.let { stopNumber ->
+                    patternStop.stop.stopName.third?.let { stopNumber ->
                         TextMetLabel(text = stopNumber)
                     }
                 }
             },
             trailingContent = {
-                val isPassed = (patternStop.timeToEstimatedDeparture()
-                    ?: patternStop.timeToScheduledDeparture()).inWholeSeconds < 0
+                val isPassed = (patternStop.timeToEstimatedDeparture
+                    ?: patternStop.timeToScheduledDeparture).inWholeSeconds < 0
 
                 if (!isSkipped) {
                     Box(
@@ -483,9 +483,9 @@ object StoppingPatternComposables {
                             Text(
                                 text =
                                 if (patternStop.isAtPlatform && !isPassed) "Now"
-                                else if (patternStop.isArriving() && !isPassed) "Now*"
-                                else ((patternStop.timeToEstimatedDeparture()
-                                    ?: patternStop.timeToScheduledDeparture())
+                                else if (patternStop.isArriving && !isPassed) "Now*"
+                                else ((patternStop.timeToEstimatedDeparture
+                                    ?: patternStop.timeToScheduledDeparture)
                                     .let {
                                         when (it.inWholeSeconds) {
                                             in 0 until 60 -> "<1"
@@ -496,11 +496,11 @@ object StoppingPatternComposables {
                                     .toString().replace(
                                         "-",
                                         "−"
-                                    ) + if (patternStop.timeToEstimatedDeparture() == null) "*" else ""),
+                                    ) + if (patternStop.timeToEstimatedDeparture == null) "*" else ""),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            if ((!patternStop.isAtPlatform && !patternStop.isArriving()) || isPassed)
+                            if ((!patternStop.isAtPlatform && !patternStop.isArriving) || isPassed)
                                 Text(
                                     text = "min",
                                     style = MaterialTheme.typography.bodySmall,
@@ -539,19 +539,19 @@ object StoppingPatternComposables {
 
                             InfoItem(
                                 title = "Scheduled",
-                                value = patternStop.scheduledDepartureTime()
+                                value = patternStop.scheduledDepartureTime
                             )
 
-                            patternStop.estimatedDepartureTime()?.let {
+                            patternStop.estimatedDepartureTime?.let {
                                 InfoItem(
                                     title =
-                                    if ((patternStop.timeToEstimatedDeparture()?.inWholeSeconds
+                                    if ((patternStop.timeToEstimatedDeparture?.inWholeSeconds
                                             ?: 1) < 0
                                     ) "Actual" else "Estimated",
                                     value = it
                                 )
                             }
-                            patternStop.delay()?.let {
+                            patternStop.delay?.let {
                                 InfoItem(
                                     title = "Delay",
                                     value =

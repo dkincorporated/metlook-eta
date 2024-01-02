@@ -223,7 +223,7 @@ class ServiceActivity : ComponentActivity() {
 
                 // Get the next stop
                 nextStopId = processedPattern.find { departure ->
-                    (departure.timeToEstimatedDeparture()?.inWholeSeconds ?: -1) > 0
+                    (departure.timeToEstimatedDeparture?.inWholeSeconds ?: -1) > 0
                 }
                     ?.stop
                     ?.stopId
@@ -318,11 +318,11 @@ class ServiceActivity : ComponentActivity() {
                                     "To ${originalDeparture.destinationName}"
                                 } else if (originalDeparture.routeType == RouteType.Train) {
                                     nextStopIndex?.let {
-                                        val nextStopName = pattern[it].stop.stopName().first
+                                        val nextStopName = pattern[it].stop.stopName.first
                                         "${
                                             with(pattern[it]) {
                                                 if (this.isAtPlatform) "Arrived at"
-                                                else if (this.isArriving()) "Arriving at"
+                                                else if (this.isArriving) "Arriving at"
                                                 else "Next station is"
                                             }
                                         }: $nextStopName"
@@ -430,7 +430,7 @@ class ServiceActivity : ComponentActivity() {
                                                         followingStopIndex?.let { followingStopIndex ->
                                                             pattern.slice((followingStopIndex + 1) until pattern.size)
                                                                 .find { departure -> departure.stopType == StoppingPatternComposables.StopType.Skipped }
-                                                                ?.stop?.stopName()?.first
+                                                                ?.stop?.stopName?.first
                                                         }
                                                     } to"
 

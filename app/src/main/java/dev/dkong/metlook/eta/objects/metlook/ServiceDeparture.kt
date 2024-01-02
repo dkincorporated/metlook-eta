@@ -46,9 +46,8 @@ data class ServiceDeparture(
     /**
      * Whether the service is valid
      */
-    fun isValid(): Boolean {
-        return !(routeType == RouteType.Bus && runId != -1)
-    }
+    @Contextual
+    val isValid: Boolean = !(routeType == RouteType.Bus && runId != -1)
 
     /**
      * Whether the service is cancelled
@@ -143,7 +142,8 @@ data class ServiceDeparture(
     /**
      * Get the discrete stopping pattern description/type (only for Train)
      */
-    fun patternType(): PatternType = Utils.patternType(routeType, routeId, expressStopCount)
+    @Contextual
+    val patternType: PatternType = Utils.patternType(routeType, routeId, expressStopCount)
 
     /**
      * Whether one Service is the same as another Service or object

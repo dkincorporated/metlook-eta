@@ -184,7 +184,7 @@ class DirectionStopActivity : ComponentActivity() {
             ) {
                 result = result
                     .filter { departure ->
-                        filters[departure.patternType().patternClass.ordinal] == true
+                        filters[departure.patternType.patternClass.ordinal] == true
                     }
             }
             if (
@@ -256,7 +256,7 @@ class DirectionStopActivity : ComponentActivity() {
                             )
 
                             // Filter out unwanted departures
-                            if (!processedDeparture.isValid()) return@map null
+                            if (!processedDeparture.isValid) return@map null
 
                             return@map processedDeparture
                         }
@@ -272,7 +272,7 @@ class DirectionStopActivity : ComponentActivity() {
                         departuresPatternList.clear()
 
                         val distinctPatterns =
-                            allDepartures.map { departure -> departure.patternType().patternClass }
+                            allDepartures.map { departure -> departure.patternType.patternClass }
                                 .distinct()
                                 .sortedBy { patternType -> patternType.ordinal }
 
@@ -353,8 +353,8 @@ class DirectionStopActivity : ComponentActivity() {
                             TwoLineCenterTopAppBarText(
                                 title = "To ${direction.directionName}",
                                 subtitle = with(stop) {
-                                    stopName().first +
-                                            (stopName().second?.let { s -> "/$s" } ?: "")
+                                    stopName.first +
+                                            (stopName.second?.let { s -> "/$s" } ?: "")
                                 }
                             )
                         }
