@@ -367,8 +367,8 @@ object StoppingPatternComposables {
             Box(modifier = Modifier.requiredWidth(24.dp)) {
                 if (showIndicator) {
                     // Do not show pattern indicator for first stop
-                    StoppingPatternComposables.StopIndicator(
-                        stopType = StoppingPatternComposables.StopType.Blank
+                    StopIndicator(
+                        stopType = StopType.Blank
                     )
                 }
             }

@@ -486,7 +486,43 @@ class ServiceActivity : ComponentActivity() {
                                 }
                             }
                         }
-
+                        // Vehicle info
+                        val vehicle = VehicleData.getVehicle(
+                            originalDeparture.vehicleDescriptor?.id,
+                            originalDeparture.routeType
+                        )
+                        vehicle?.let { v ->
+                            if (isSheetExpanded) {
+                                item {
+                                    SectionHeading(heading = "Vehicle")
+                                    ListItem(
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        headlineContent = {
+                                            Text(
+                                                text = v.name,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = v.id,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        if (isSheetExpanded) {
+                            item {
+                                SectionHeading(heading = "Stopping pattern")
+                            }
+                        }
                         pattern.forEachIndexed { index, patternStop ->
                             val isStopBeforeNext = index == previousStopIndex
                             val isNextStop = index == nextStopIndex
@@ -494,8 +530,8 @@ class ServiceActivity : ComponentActivity() {
                             val isLastStop = index == pattern.lastIndex
 
                             if (
-                                isStopBeforeNext
-                                || isNextStop
+//                                isStopBeforeNext
+                                isNextStop
                                 || isStopAfterNext
                                 || isLastStop
                                 || isSheetExpanded
@@ -512,7 +548,7 @@ class ServiceActivity : ComponentActivity() {
                                                     else -> "Next stop is"
                                                 }
                                             },
-                                            showIndicator = index > 0,
+                                            showIndicator = false, // index > 0,
                                             modifier = Modifier.padding(bottom = 8.dp)
                                         )
                                     }
@@ -556,7 +592,7 @@ class ServiceActivity : ComponentActivity() {
                                         patternStop = patternStop,
                                         stopType =
                                         if (!isSheetExpanded && patternStop.stopType == StoppingPatternComposables.StopType.Stop) {
-                                            if (isStopBeforeNext) StoppingPatternComposables.StopType.ContinuesBefore
+                                            if (isNextStop) StoppingPatternComposables.StopType.ContinuesBefore
                                             else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
                                             else patternStop.stopType
                                         } else patternStop.stopType,
@@ -623,38 +659,6 @@ class ServiceActivity : ComponentActivity() {
                                             }
                                         }
                                     }
-                                }
-                            }
-                        }
-                        // Vehicle info
-                        val vehicle = VehicleData.getVehicle(
-                            originalDeparture.vehicleDescriptor?.id,
-                            originalDeparture.routeType
-                        )
-                        vehicle?.let { v ->
-                            if (!isSheetExpanded) {
-                                item {
-                                    SectionHeading(heading = "Vehicle")
-                                    ListItem(
-                                        modifier = Modifier
-                                            .padding(horizontal = 16.dp)
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .background(MaterialTheme.colorScheme.surface),
-                                        headlineContent = {
-                                            Text(
-                                                text = v.name,
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = MaterialTheme.colorScheme.onSurface
-                                            )
-                                        },
-                                        supportingContent = {
-                                            Text(
-                                                text = v.id,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    )
                                 }
                             }
                         }
