@@ -510,9 +510,6 @@ class ServiceActivity : ComponentActivity() {
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                    },
-                                    trailingContent = {
-                                        v.icon?.let { it() }
                                     }
                                 )
                             }

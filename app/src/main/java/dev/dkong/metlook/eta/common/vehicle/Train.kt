@@ -6,7 +6,7 @@ package dev.dkong.metlook.eta.common.vehicle
  * @param id the fleet number of the vehicle
  * @param carCount the number of cars of the vehicle
  */
-sealed class Train(name: String, id: String, carCount: Int) : VehicleType(name, id, null) {
+sealed class Train(name: String, id: String, carCount: Int) : VehicleType(name, id) {
     class Hcmt(id: String, carCount: Int) : Train("High-Capacity Metro Train", id, carCount)
     class Xtrapolis(id: String, carCount: Int) : Train("Alstom X'Trapolis", id, carCount)
     class Siemens(id: String, carCount: Int) : Train("Siemens Nexas", id, carCount)
