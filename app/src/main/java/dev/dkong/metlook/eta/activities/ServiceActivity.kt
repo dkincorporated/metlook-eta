@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -42,10 +43,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -439,6 +442,8 @@ class ServiceActivity : ComponentActivity() {
                             }
                             item {
                                 nextStopIndex?.let next@{ nextIndex ->
+                                    // Show departure stop card when
+                                    // - original stop is after the currently next stop.
                                     originalStopIndex?.let original@{ originalIndex ->
                                         // Don't display if the stop has passed, or it is the next stop
                                         if (originalIndex <= nextIndex) return@original
@@ -457,6 +462,9 @@ class ServiceActivity : ComponentActivity() {
                                             )
                                         }
                                     }
+                                    // Show alighting card when
+                                    // - the service has passed the original stop; and
+                                    // - the alighting stop is after the next stop (hasn't passed).
                                     if (
                                         compareValues(alightingStopIndex, nextStopIndex) >= 0
                                         && compareValues(nextStopIndex, originalStopIndex) > 0
@@ -633,6 +641,13 @@ class ServiceActivity : ComponentActivity() {
                                                         }
                                                         // Hide the dropdown
                                                         isDropDownShown = false
+                                                    },
+                                                    trailingIcon = {
+                                                        Image(
+                                                            painter = painterResource(id = R.drawable.outline_notifications_active_24),
+                                                            null,
+                                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                                        )
                                                     }
                                                 )
                                             }
