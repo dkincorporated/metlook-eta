@@ -230,7 +230,7 @@ class ServiceActivity : ComponentActivity() {
 
                 // Get the next stop
                 nextStopId = processedPattern.find { departure ->
-                    (departure.timeToEstimatedDeparture?.inWholeSeconds ?: -1) > 0
+                    (departure.timeToEstimatedDeparture()?.inWholeSeconds ?: -1) > 0
                 }
                     ?.stop
                     ?.stopId
@@ -335,7 +335,7 @@ class ServiceActivity : ComponentActivity() {
                                         "${
                                             with(pattern[it]) {
                                                 if (this.isAtPlatform) "Arrived at"
-                                                else if (this.isArriving) "Arriving at"
+                                                else if (this.isArriving()) "Arriving at"
                                                 else "Next station is"
                                             }
                                         }: $nextStopName"
@@ -436,11 +436,11 @@ class ServiceActivity : ComponentActivity() {
                                         title =
                                         if (isAtPlatform) "Departs now!"
                                         else
-                                            timeToEstimatedDeparture?.let {
+                                            timeToEstimatedDeparture()?.let {
                                                 if (it.inWholeSeconds < 60) "Departs in <1 min"
                                                 else "Departs in ${it.inWholeMinutes} min"
                                             }
-                                                ?: "Departs in ${timeToScheduledDeparture.inWholeMinutes}* min",
+                                                ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
                                         subtitle = "From ${stop.fullStopName}",
                                         R.drawable.baseline_airline_stops_24
                                     )

@@ -163,8 +163,8 @@ class StopActivity : ComponentActivity() {
                                     destinationGroup.first,
                                     destinationGroup.second
                                         .filter { departure ->
-                                            if ((departure.timeToEstimatedDeparture?.inWholeMinutes
-                                                    ?: departure.timeToScheduledDeparture.inWholeMinutes) > 60
+                                            if ((departure.timeToEstimatedDeparture()?.inWholeMinutes
+                                                    ?: departure.timeToScheduledDeparture().inWholeMinutes) > 60
                                             ) {
                                                 filters["next-sixty"] != true
                                             } else true
@@ -274,8 +274,8 @@ class StopActivity : ComponentActivity() {
                                     // Sort by earliest departure
                                     .sortedBy { destinationGroup ->
                                         with(destinationGroup.second[0]) {
-                                            timeToEstimatedDeparture?.inWholeSeconds
-                                                ?: timeToScheduledDeparture.inWholeSeconds
+                                            timeToEstimatedDeparture()?.inWholeSeconds
+                                                ?: timeToScheduledDeparture().inWholeSeconds
                                         }
                                     }
                             )

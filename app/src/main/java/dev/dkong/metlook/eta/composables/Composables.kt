@@ -107,7 +107,7 @@ fun DepartureCard(
         headlineContent = {
             val serviceTitle =
                 if (departureList.size == 1)
-                    "${departure.scheduledDepartureTime} ${departure.serviceTitle}"
+                    "${departure.scheduledDepartureTime()} ${departure.serviceTitle}"
                 else
                     departure.serviceTitle
 
@@ -153,13 +153,13 @@ fun DepartureCard(
 
             val timeTexts = departureList.map { departure ->
                 if (departure.isAtPlatform) "Now" // now arrived
-                else if (departure.isArriving) "Now*" // now arriving
+                else if (departure.isArriving()) "Now*" // now arriving
                 else if (departure.estimatedDeparture != null
-                    && departure.timeToEstimatedDeparture?.inWholeMinutes?.let { it < 1 } == true
+                    && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
                 ) "<1"
                 else if (departure.estimatedDeparture != null)
-                    "${departure.timeToEstimatedDeparture?.inWholeMinutes}"
-                else "${departure.timeToScheduledDeparture.inWholeMinutes}*"
+                    "${departure.timeToEstimatedDeparture()?.inWholeMinutes}"
+                else "${departure.timeToScheduledDeparture().inWholeMinutes}*"
             }
 
             Column(
@@ -172,7 +172,7 @@ fun DepartureCard(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 // Display the 'min' indicator if at least one departure is not at platform or arriving
-                if (departureList.any { d -> !d.isAtPlatform && !d.isArriving }) {
+                if (departureList.any { d -> !d.isAtPlatform && !d.isArriving() }) {
                     Text(
                         text = "min",
                         style = MaterialTheme.typography.bodySmall
@@ -210,7 +210,7 @@ fun RecentServiceCard(
     ListItem(
         headlineContent = {
             Text(
-                text = "${service.scheduledDepartureTime} ${service.serviceTitle}",
+                text = "${service.scheduledDepartureTime()} ${service.serviceTitle}",
                 style = MaterialTheme.typography.titleLarge,
                 color =
                 if (service.isCancelled) MaterialTheme.colorScheme.onErrorContainer
@@ -246,7 +246,7 @@ fun RecentServiceCard(
                 Text(
                     // Display min to scheduled departure for now
                     text = "${
-                        service.timeToScheduledDeparture
+                        service.timeToScheduledDeparture()
                             .inWholeMinutes.toString()
                             .replace("-", "−")
                     }*",

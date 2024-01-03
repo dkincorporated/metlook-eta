@@ -30,15 +30,13 @@ abstract class Departure(
      * Get the time to the scheduled departure
      * @return duration until scheduled departure
      */
-    @Contextual
-    val timeToScheduledDeparture: Duration = originalDeparture.scheduledDeparture - Clock.System.now()
+    fun timeToScheduledDeparture(): Duration = originalDeparture.scheduledDeparture - Clock.System.now()
 
     /**
      * Get the time to the estimated departure
      * @return duration until estimated departure
      */
-    @Contextual
-    val timeToEstimatedDeparture: Duration? =
+    fun timeToEstimatedDeparture(): Duration? =
         if (estimatedDeparture != null) estimatedDeparture - Clock.System.now()
         else null
 
@@ -47,23 +45,20 @@ abstract class Departure(
      * Get the delay of the service
      * @return delay duration
      */
-    @Contextual
-    val delay: Duration? = estimatedDeparture?.minus(scheduledDeparture)
+    fun delay(): Duration? = estimatedDeparture?.minus(scheduledDeparture)
 
     /**
      * Whether the service is arriving
      *
      * Only for trains; other modes will always return false.
      */
-    @Contextual
-    val isArriving: Boolean = routeType == RouteType.Train &&
-            (delay?.inWholeSeconds?.rem(60L) ?: 0) != 0L
+    fun isArriving(): Boolean = routeType == RouteType.Train &&
+            (delay()?.inWholeSeconds?.rem(60L) ?: 0) != 0L
 
     /**
      * Get the display time of the scheduled departure
      */
-    @Contextual
-    val scheduledDepartureTime =
+    fun scheduledDepartureTime() =
         Constants.displayTimeFormatter.format(
             scheduledDeparture
                 .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
@@ -73,8 +68,7 @@ abstract class Departure(
     /**
      * Get the display time of the estimated departure
      */
-    @Contextual
-    val estimatedDepartureTime =
+    fun estimatedDepartureTime() =
         estimatedDeparture?.let {
             Constants.displayTimeFormatter.format(
                 estimatedDeparture
