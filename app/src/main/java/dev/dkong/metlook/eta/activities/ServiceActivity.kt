@@ -459,7 +459,7 @@ class ServiceActivity : ComponentActivity() {
                                     }
                                     if (
                                         compareValues(alightingStopIndex, nextStopIndex) >= 0
-                                        && compareValues(nextStopIndex, originalStopIndex) >= 0
+                                        && compareValues(nextStopIndex, originalStopIndex) > 0
                                     ) {
                                         // Display alighting stop if service is past original stop
                                         alightingStopIndex?.let { alightingIndex ->
