@@ -34,10 +34,11 @@ object VehicleData {
         return when (routeType) {
             RouteType.Train -> {
                 // Attempt to match HCMT
-                val hcmtMatch = Regex("""(\b\d{1,2}m)\b""").find(id)
+                val hcmtMatch = Regex("(?:90|99)(\\d{1,2})M").find(id)
                 hcmtMatch?.let { match ->
+                    if (match.groupValues.size < 2) return@let
                     val hcmtNumber = match.groupValues[1]
-                    return Train.Hcmt(id, 7)
+                    return Train.Hcmt("Set $hcmtNumber ($id)", 7)
                 }
                 // Not HCMT; go by carriage number
                 val carNumberExp = Regex("""(\d+M)""")
@@ -47,20 +48,17 @@ object VehicleData {
                     .find { carNumberExp.matches(it) }
                     ?.replace("M", "")
                     ?.let {
-                        return if (it.isDigitsOnly()) {
-                            when (it.toInt()) {
-                                in 301..699 -> Train.Comeng(id, carCount)
-                                in 701..844 -> Train.Siemens(id, carCount)
-                                !in 299..851 -> Train.Xtrapolis(id, carCount)
+                        when (it.toInt()) {
+                            in 301..699 -> Train.Comeng(id, carCount)
+                            in 701..844 -> Train.Siemens(id, carCount)
+                            !in 299..851 -> Train.Xtrapolis(id, carCount)
 
-                                else -> null
-                            }
-                        } else null
+                            else -> null
+                        }
                     }
             }
 
             RouteType.Tram -> {
-                if (!id.isDigitsOnly()) return null
                 return when (id.toInt()) {
                     in 116..230 -> Tram.Z3(id)
                     in 231..258 -> Tram.A1(id)
