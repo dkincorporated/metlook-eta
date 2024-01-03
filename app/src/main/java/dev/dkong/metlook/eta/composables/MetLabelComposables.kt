@@ -44,7 +44,7 @@ val metLabelModifier = Modifier
 @Composable
 internal fun MetLabel(
     modifier: Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     boxContent: @Composable BoxScope.() -> Unit
 ) {
     Box(
@@ -64,8 +64,8 @@ internal fun MetLabel(
 @Composable
 fun IconMetLabel(
     @DrawableRes icon: Int,
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    foregroundColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    foregroundColor: Color = MaterialTheme.colorScheme.onPrimary,
     modifier: Modifier = metLabelModifier.clip(CircleShape)
 ) {
     MetLabel(
@@ -95,8 +95,8 @@ fun IconMetLabel(
 @Composable
 fun TextMetLabel(
     text: String, // TODO: use stringResource for prod
-    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    foregroundColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    foregroundColor: Color = MaterialTheme.colorScheme.onPrimary,
     modifier: Modifier = metLabelModifier.clip(RoundedCornerShape(4.dp))
 ) {
     MetLabel(

@@ -429,8 +429,11 @@ class ServiceActivity : ComponentActivity() {
                         }
                         item {
                             originalStopIndex?.let { originalIndex ->
-                                // Don't display if the stop has passed
-                                if (originalIndex < (nextStopIndex ?: originalIndex)) return@let
+                                // Don't display if the stop has passed, or it is the next stop
+                                if (
+                                    originalIndex < (nextStopIndex ?: originalIndex)
+                                    || originalIndex == nextStopIndex
+                                ) return@let
                                 with(pattern[originalIndex]) {
                                     InfoCard(
                                         title =
