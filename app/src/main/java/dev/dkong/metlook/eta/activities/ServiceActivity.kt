@@ -383,187 +383,34 @@ class ServiceActivity : ComponentActivity() {
                 // Map
             },
             sheetContent = {
-                LazyColumn(
-                    state = patternListState,
+                val isSheetExpanded =
+                    scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
+                            || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
+
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    val isSheetExpanded =
-                        scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
-                                || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
-
-                    // Info card
-                    if (!isSheetExpanded) {
-                        @Composable
-                        fun InfoCard(
-                            title: String,
-                            subtitle: String? = null,
-                            @DrawableRes icon: Int? = null
-                        ) {
-                            ListItem(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surface),
-                                headlineContent = {
-                                    Text(
-                                        text = title,
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                },
-                                supportingContent = {
-                                    subtitle?.let {
-                                        Text(
-                                            text = it,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    }
-                                },
-                                leadingContent = {
-                                    icon?.let {
-                                        IconMetLabel(icon = it)
-                                    }
-                                }
-                            )
-                        }
-                        item {
-                            originalStopIndex?.let { originalIndex ->
-                                // Don't display if the stop has passed, or it is the next stop
-                                if (
-                                    originalIndex < (nextStopIndex ?: originalIndex)
-                                    || originalIndex == nextStopIndex
-                                ) return@let
-                                with(pattern[originalIndex]) {
-                                    InfoCard(
-                                        title =
-                                        if (isAtPlatform) "Departs now!"
-                                        else
-                                            timeToEstimatedDeparture()?.let {
-                                                if (it.inWholeSeconds < 60) "Departs in <1 min"
-                                                else "Departs in ${it.inWholeMinutes} min"
-                                            }
-                                                ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
-                                        subtitle = "From ${stop.fullStopName}",
-                                        R.drawable.baseline_airline_stops_24
-                                    )
+                    LazyColumn(
+                        state = patternListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                if (isSheetExpanded) return@onGloballyPositioned
+                                with(density) {
+                                    collapsedPatternHeight = coordinates.size.height.toDp()
                                 }
                             }
-                        }
-                    }
-
-                    pattern.forEachIndexed { index, stop ->
-                        val isStopBeforeNext = index == previousStopIndex
-                        val isNextStop = index == nextStopIndex
-                        val isStopAfterNext = index == followingStopIndex
-                        val isLastStop = index == pattern.lastIndex
-
-                        if (
-                            isStopBeforeNext
-                            || isNextStop
-                            || isStopAfterNext
-                            || isLastStop
-                            || isSheetExpanded
-                        ) {
-                            if (isNextStop && !isSheetExpanded) {
-                                // Display next-stop heading
-                                item {
-                                    StoppingPatternComposables.PatternHeadingCard(
-                                        heading = when (index) {
-                                            0 -> "Originates from"
-                                            pattern.lastIndex -> "Terminates at"
-                                            else -> when (stop.routeType) {
-                                                RouteType.Train -> "Next station is"
-                                                else -> "Next stop is"
-                                            }
-                                        },
-                                        showIndicator = index > 0,
-                                        modifier = Modifier.padding(bottom = 8.dp)
-                                    )
-                                }
-                            }
-                            if (
-                                isLastStop
-                                && originalDeparture.routeType == RouteType.Train
-                                && (nextStopIndex ?: pattern.lastIndex) < pattern.lastIndex - 1
-                                && !isSheetExpanded
-                            ) {
-                                // Display pattern type heading (only if next stop is not the last or second-last stop)
-                                patternType?.let { patternType ->
-                                    item {
-                                        StoppingPatternComposables.PatternHeadingCard(
-                                            heading = when (patternType) {
-                                                // Conditionally format the message
-                                                PatternType.LimitedStops -> "Express to"
-                                                PatternType.SuperLimitedStops -> "Ltd Express to"
-                                                PatternType.AllStops -> "Stopping all stations to"
-                                                PatternType.SkipsOneStop -> // Find the skipped stop
-                                                    "Stopping all stations except ${
-                                                        followingStopIndex?.let { followingStopIndex ->
-                                                            pattern.slice((followingStopIndex + 1) until pattern.size)
-                                                                .find { departure -> departure.stopType == StoppingPatternComposables.StopType.Skipped }
-                                                                ?.stop?.stopName?.first
-                                                        }
-                                                    } to"
-
-                                                else -> "Service to"
-                                            },
-                                            showIndicator = index > 0,
-                                            modifier = Modifier.padding(top = 8.dp)
-                                        )
-                                    }
-                                }
-                            }
-                            item(key = stop.stop.stopId.toString() + stop.departureSequence) {
-                                StoppingPatternComposables.StoppingPatternCard(
-                                    patternStop = stop,
-                                    stopType =
-                                    if (!isSheetExpanded && stop.stopType == StoppingPatternComposables.StopType.Stop) {
-                                        if (isStopBeforeNext) StoppingPatternComposables.StopType.ContinuesBefore
-                                        else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
-                                        else stop.stopType
-                                    } else stop.stopType,
-                                    modifier = if (isNextStop) Modifier
-                                        .clip(
-                                            RoundedCornerShape(16.dp)
-                                        )
-                                        .background(if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
-                                        .animateItemPlacement()
-                                    else Modifier.animateItemPlacement()
-                                )
-                            }
-                            // Check whether skipped-stop card needs to be shown
-                            nextStopIndex?.let { nextIndex ->
-                                if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
-                                    item(key = "E" + stop.stop.stopId.toString()) {
-                                        StoppingPatternComposables.SkippedStopPatternCard(
-                                            skippedStops = pattern.slice((index + 1) until nextIndex),
-                                            isBefore = true
-                                        )
-                                    }
-                                }
-                                followingStopIndex?.let { followingIndex ->
-                                    if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
-                                        item(key = "E" + stop.stop.stopId.toString()) {
-                                            StoppingPatternComposables.SkippedStopPatternCard(
-                                                skippedStops = pattern.slice((nextIndex + 1) until followingIndex),
-                                                isBefore = false
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Vehicle info
-                    val vehicle = VehicleData.getVehicle(
-                        originalDeparture.vehicleDescriptor?.id,
-                        originalDeparture.routeType
-                    )
-                    vehicle?.let { v ->
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                    ) {
+                        // Info card
                         if (!isSheetExpanded) {
-                            item {
-                                SectionHeading(heading = "Vehicle")
+                            @Composable
+                            fun InfoCard(
+                                title: String,
+                                subtitle: String? = null,
+                                @DrawableRes icon: Int? = null
+                            ) {
                                 ListItem(
                                     modifier = Modifier
                                         .padding(horizontal = 16.dp)
@@ -571,28 +418,197 @@ class ServiceActivity : ComponentActivity() {
                                         .background(MaterialTheme.colorScheme.surface),
                                     headlineContent = {
                                         Text(
-                                            text = v.name,
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            text = title,
+                                            style = MaterialTheme.typography.titleLarge
                                         )
                                     },
                                     supportingContent = {
-                                        Text(
-                                            text = v.id,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                        subtitle?.let {
+                                            Text(
+                                                text = it,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    },
+                                    leadingContent = {
+                                        icon?.let {
+                                            IconMetLabel(icon = it)
+                                        }
                                     }
                                 )
                             }
+                            item {
+                                originalStopIndex?.let { originalIndex ->
+                                    // Don't display if the stop has passed, or it is the next stop
+                                    if (
+                                        originalIndex < (nextStopIndex ?: originalIndex)
+                                        || originalIndex == nextStopIndex
+                                    ) return@let
+                                    with(pattern[originalIndex]) {
+                                        InfoCard(
+                                            title =
+                                            if (isAtPlatform) "Departs now!"
+                                            else
+                                                timeToEstimatedDeparture()?.let {
+                                                    if (it.inWholeSeconds < 60) "Departs in <1 min"
+                                                    else "Departs in ${it.inWholeMinutes} min"
+                                                }
+                                                    ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
+                                            subtitle = "From ${stop.fullStopName}",
+                                            R.drawable.baseline_airline_stops_24
+                                        )
+                                    }
+                                }
+                            }
                         }
-                    }
-                    item {
-                        NavBarPadding()
+
+                        pattern.forEachIndexed { index, stop ->
+                            val isStopBeforeNext = index == previousStopIndex
+                            val isNextStop = index == nextStopIndex
+                            val isStopAfterNext = index == followingStopIndex
+                            val isLastStop = index == pattern.lastIndex
+
+                            if (
+                                isStopBeforeNext
+                                || isNextStop
+                                || isStopAfterNext
+                                || isLastStop
+                                || isSheetExpanded
+                            ) {
+                                if (isNextStop && !isSheetExpanded) {
+                                    // Display next-stop heading
+                                    item {
+                                        StoppingPatternComposables.PatternHeadingCard(
+                                            heading = when (index) {
+                                                0 -> "Originates from"
+                                                pattern.lastIndex -> "Terminates at"
+                                                else -> when (stop.routeType) {
+                                                    RouteType.Train -> "Next station is"
+                                                    else -> "Next stop is"
+                                                }
+                                            },
+                                            showIndicator = index > 0,
+                                            modifier = Modifier.padding(bottom = 8.dp)
+                                        )
+                                    }
+                                }
+                                if (
+                                    isLastStop
+                                    && originalDeparture.routeType == RouteType.Train
+                                    && (nextStopIndex ?: pattern.lastIndex) < pattern.lastIndex - 1
+                                    && !isSheetExpanded
+                                ) {
+                                    // Display pattern type heading (only if next stop is not the last or second-last stop)
+                                    patternType?.let { patternType ->
+                                        item {
+                                            StoppingPatternComposables.PatternHeadingCard(
+                                                heading = when (patternType) {
+                                                    // Conditionally format the message
+                                                    PatternType.LimitedStops -> "Express to"
+                                                    PatternType.SuperLimitedStops -> "Ltd Express to"
+                                                    PatternType.AllStops -> "Stopping all stations to"
+                                                    PatternType.SkipsOneStop -> // Find the skipped stop
+                                                        "Stopping all stations except ${
+                                                            followingStopIndex?.let { followingStopIndex ->
+                                                                pattern.slice((followingStopIndex + 1) until pattern.size)
+                                                                    .find { departure -> departure.stopType == StoppingPatternComposables.StopType.Skipped }
+                                                                    ?.stop?.stopName?.first
+                                                            }
+                                                        } to"
+
+                                                    else -> "Service to"
+                                                },
+                                                showIndicator = index > 0,
+                                                modifier = Modifier.padding(top = 8.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                item(key = stop.stop.stopId.toString() + stop.departureSequence) {
+                                    StoppingPatternComposables.StoppingPatternCard(
+                                        patternStop = stop,
+                                        stopType =
+                                        if (!isSheetExpanded && stop.stopType == StoppingPatternComposables.StopType.Stop) {
+                                            if (isStopBeforeNext) StoppingPatternComposables.StopType.ContinuesBefore
+                                            else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
+                                            else stop.stopType
+                                        } else stop.stopType,
+                                        modifier = if (isNextStop) Modifier
+                                            .clip(
+                                                RoundedCornerShape(16.dp)
+                                            )
+                                            .background(if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+                                            .animateItemPlacement()
+                                        else Modifier.animateItemPlacement()
+                                    )
+                                }
+                                // Check whether skipped-stop card needs to be shown
+                                nextStopIndex?.let { nextIndex ->
+                                    if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
+                                        item(key = "E" + stop.stop.stopId.toString()) {
+                                            StoppingPatternComposables.SkippedStopPatternCard(
+                                                skippedStops = pattern.slice((index + 1) until nextIndex),
+                                                isBefore = true
+                                            )
+                                        }
+                                    }
+                                    followingStopIndex?.let { followingIndex ->
+                                        if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
+                                            item(key = "E" + stop.stop.stopId.toString()) {
+                                                StoppingPatternComposables.SkippedStopPatternCard(
+                                                    skippedStops = pattern.slice((nextIndex + 1) until followingIndex),
+                                                    isBefore = false
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // Vehicle info
+                        val vehicle = VehicleData.getVehicle(
+                            originalDeparture.vehicleDescriptor?.id,
+                            originalDeparture.routeType
+                        )
+                        vehicle?.let { v ->
+                            if (!isSheetExpanded) {
+                                item {
+                                    SectionHeading(heading = "Vehicle")
+                                    ListItem(
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(MaterialTheme.colorScheme.surface),
+                                        headlineContent = {
+                                            Text(
+                                                text = v.name,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = v.id,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            NavBarPadding()
+                        }
+                        if (!isSheetExpanded) {
+                            items(2) {
+                                NavBarPadding()
+                            }
+                        }
                     }
                 }
             },
-            sheetPeekHeight = 512.dp
+            sheetPeekHeight = collapsedPatternHeight
         )
     }
 }
