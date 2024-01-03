@@ -343,8 +343,8 @@ object StoppingPatternComposables {
                     }
                     trailingContent?.let { it() }
                 }
+                dropdown?.let { it() }
             }
-            dropdown?.let { it() }
         }
     }
 
