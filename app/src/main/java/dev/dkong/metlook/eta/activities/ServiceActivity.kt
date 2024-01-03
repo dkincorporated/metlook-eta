@@ -132,6 +132,8 @@ class ServiceActivity : ComponentActivity() {
         var followingStopIndex by remember { mutableStateOf<Int?>(null) }
         var patternType by remember { mutableStateOf<PatternType?>(null) }
 
+        var originalStopIndex by remember { mutableStateOf<Int?>(null) }
+
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
         var hasFirstLoaded by remember { mutableStateOf(false) }
@@ -235,6 +237,12 @@ class ServiceActivity : ComponentActivity() {
 
                 nextStopIndex =
                     pattern.indexOfFirst { departure -> departure.stop.stopId == nextStopId }
+                        .takeIf { it != -1 }
+
+                originalStopIndex =
+                    pattern.indexOfFirst { departure ->
+                        departure.stop.stopId == originalDeparture.departureStop.stopId
+                    }
                         .takeIf { it != -1 }
 
                 // Find the actual next stop (not skipped stop)
@@ -419,22 +427,22 @@ class ServiceActivity : ComponentActivity() {
                                 }
                             )
                         }
-
                         item {
-                            nextStopIndex?.let { nextIndex ->
-                                with(if (nextIndex == 0) pattern.first() else pattern[nextIndex]) {
-                                    // Show departure card if at first stop or at Flinders Street
-                                    if (nextIndex != 0 && stop.stopId != 1071) return@let
+                            originalStopIndex?.let { originalIndex ->
+                                // Don't display if the stop has passed
+                                if (originalIndex < (nextStopIndex ?: originalIndex)) return@let
+                                with(pattern[originalIndex]) {
                                     InfoCard(
+                                        title =
                                         if (isAtPlatform) "Departs now!"
                                         else
                                             timeToEstimatedDeparture?.let {
-                                                if (it.inWholeSeconds < 60) "Departs in ${it.inWholeSeconds} sec"
+                                                if (it.inWholeSeconds < 60) "Departs in <1 min"
                                                 else "Departs in ${it.inWholeMinutes} min"
                                             }
                                                 ?: "Departs in ${timeToScheduledDeparture.inWholeMinutes}* min",
-                                        "From ${stop.stopName.first}",
-                                        R.drawable.baseline_flight_takeoff_24
+                                        subtitle = "From ${stop.fullStopName}",
+                                        R.drawable.baseline_airline_stops_24
                                     )
                                 }
                             }
