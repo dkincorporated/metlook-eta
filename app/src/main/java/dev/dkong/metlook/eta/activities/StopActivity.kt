@@ -340,19 +340,10 @@ class StopActivity : ComponentActivity() {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            // Stop number
-                            stopName.third?.let { n ->
-                                TextMetLabel(text = n)
-                            }
+                        TwoLineCenterTopAppBarText(
+                            title = stopName.first,
+                            subtitle = stopName.second?.let { s -> "on $s" })
 
-                            TwoLineCenterTopAppBarText(
-                                title = stopName.first,
-                                subtitle = stopName.second?.let { s -> "on $s" })
-                        }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
                         containerColor =
@@ -379,6 +370,12 @@ class StopActivity : ComponentActivity() {
                                         .requiredSize(24.dp) // from icon button
                                 )
                             }
+                        else {
+                            // Stop number
+                            stopName.third?.let { n ->
+                                TextMetLabel(text = n)
+                            }
+                        }
                     },
                     modifier = Modifier
                         .onGloballyPositioned { coordinates ->

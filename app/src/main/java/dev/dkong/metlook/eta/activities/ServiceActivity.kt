@@ -317,36 +317,28 @@ class ServiceActivity : ComponentActivity() {
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            originalDeparture.route.routeNumber?.let {
-                                TextMetLabel(text = it)
-                            }
-                            TwoLineCenterTopAppBarText(
-                                title = originalDeparture.serviceTitle,
-                                subtitle = if (arrayOf(RouteType.Tram, RouteType.Bus).contains(
-                                        originalDeparture.routeType
-                                    )
-                                ) {
-                                    "To ${originalDeparture.destinationName}"
-                                } else if (originalDeparture.routeType == RouteType.Train) {
-                                    nextStopIndex?.let {
-                                        val nextStopName = pattern[it].stop.stopName.first
-                                        "${
-                                            with(pattern[it]) {
-                                                if (this.isAtPlatform) "Arrived at"
-                                                else if (this.isArriving()) "Arriving at"
-                                                else "Next station is"
-                                            }
-                                        }: $nextStopName"
-                                    }
-                                } else {
-                                    null
+                        TwoLineCenterTopAppBarText(
+                            title = originalDeparture.serviceTitle,
+                            subtitle = if (arrayOf(RouteType.Tram, RouteType.Bus).contains(
+                                    originalDeparture.routeType
+                                )
+                            ) {
+                                "To ${originalDeparture.destinationName}"
+                            } else if (originalDeparture.routeType == RouteType.Train) {
+                                nextStopIndex?.let {
+                                    val nextStopName = pattern[it].stop.stopName.first
+                                    "${
+                                        with(pattern[it]) {
+                                            if (this.isAtPlatform) "Arrived at"
+                                            else if (this.isArriving()) "Arriving at"
+                                            else "Next station is"
+                                        }
+                                    }: $nextStopName"
                                 }
-                            )
-                        }
+                            } else {
+                                null
+                            }
+                        )
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
                         containerColor =
@@ -373,6 +365,12 @@ class ServiceActivity : ComponentActivity() {
                                         .requiredSize(24.dp) // from icon button
                                 )
                             }
+                        else {
+                            // Service icon
+                            originalDeparture.route.routeNumber?.let {
+                                TextMetLabel(text = it)
+                            }
+                        }
                     },
                     modifier = Modifier.onGloballyPositioned { coordinates ->
                         with(density) {
@@ -603,6 +601,7 @@ class ServiceActivity : ComponentActivity() {
                             NavBarPadding()
                         }
                         if (!isSheetExpanded) {
+                            // Automatically sized sheet is a bit off, so add more padding to compensate
                             items(2) {
                                 NavBarPadding()
                             }
