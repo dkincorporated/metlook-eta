@@ -3,7 +3,6 @@ package dev.dkong.metlook.eta.common.utils
 import androidx.compose.ui.graphics.Color
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.RouteType
-import dev.dkong.metlook.eta.ui.official.*
 import dev.dkong.metlook.eta.ui.theme.*
 import dev.dkong.metlook.eta.ui.official.OfficialColour
 
@@ -23,7 +22,7 @@ class ResourceUtils {
             return with(OfficialColour) {
                 when (routeType) {
                     RouteType.Train -> {
-                        if (routeId == null) return PtvTrain
+                        routeId ?: return PtvTrain
                         when (routeId) {
                             1, 2, 7, 9 -> TrainBurnley
                             5, 8 -> TrainCliftonHill
@@ -36,7 +35,7 @@ class ResourceUtils {
                     }
 
                     RouteType.Tram -> {
-                        if (routeId == null) return PtvTram
+                        routeId ?: return PtvTram
                         when (routeId) {
                             721 -> Yt1
                             722 -> Yt109
@@ -74,23 +73,21 @@ class ResourceUtils {
 
         /**
          * Returns the foreground color for the route type and route ID
-         * @param intRouteId the route ID
+         * @param routeId the route ID
          * @param routeType the route type
          * @return the foreground color -- black or white
          */
-        fun getRouteForegroundColour(routeType: RouteType?, intRouteId: Int?): Color {
+        fun getRouteForegroundColour(routeType: RouteType?, routeId: Int?): Color {
             return when (routeType) {
                 RouteType.Train -> {
-                    if (intRouteId == null) return White
-                    when (intRouteId) {
+                    when (routeId) {
                         12, 4, 11, 3, 14, 15 -> Black
                         else -> White
                     }
                 }
 
                 RouteType.Tram -> {
-                    if (intRouteId == null) return White
-                    when (intRouteId) {
+                    when (routeId) {
                         721, 722, 724, 761, 887, 940, 947, 958, 976, 1002, 1881, 3343 -> Black
                         else -> White
                     }

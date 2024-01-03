@@ -30,7 +30,7 @@ object VehicleData {
      */
     fun getVehicle(id: String?, routeType: RouteType): VehicleType? {
         // Null ID cannot be identified
-        if (id == null) return null
+        id ?: return null
         return when (routeType) {
             RouteType.Train -> {
                 // Attempt to match HCMT
