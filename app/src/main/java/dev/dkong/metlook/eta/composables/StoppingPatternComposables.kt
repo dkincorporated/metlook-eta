@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -337,7 +338,11 @@ object StoppingPatternComposables {
                     ) {
                         leadingContent?.let { it() }
                         Column {
-                            headlineContent(Modifier.weight(1f).wrapContentSize())
+                            headlineContent(
+                                Modifier
+                                    .weight(1f)
+                                    .wrapContentSize()
+                            )
                             supportingContent?.let { it() }
                         }
                     }
@@ -416,12 +421,10 @@ object StoppingPatternComposables {
         patternStop: PatternDeparture,
         stopType: StopType,
         dropdown: (@Composable () -> Unit)? = null,
+        isAlighting: Boolean = false,
         modifier: Modifier = Modifier
     ) {
-        val isSkipped = arrayOf(
-            StopType.Skipped,
-            StopType.ArrowSkipped
-        ).contains(stopType)
+        val isSkipped = stopType.stopClass == StopType.StopClass.Skipped
 
         var isMenuExpanded by remember { mutableStateOf(false) }
 
@@ -429,7 +432,12 @@ object StoppingPatternComposables {
         PatternListItem(
             modifier = modifier,
             patternIndicator = {
-                StopIndicator(stopType = stopType)
+                StopIndicator(
+                    stopType = stopType,
+                    indicatorColour =
+                    if (isAlighting) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary
+                )
             },
             headlineContent = { m ->
                 Text(
@@ -442,24 +450,47 @@ object StoppingPatternComposables {
                 )
             },
             supportingContent = {
-                patternStop.stop.stopName.second?.let { s ->
-                    Text(
-                        text = "on $s",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Column {
+                    patternStop.stop.stopName.second?.let { s ->
+                        Text(
+                            text = "on $s",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (isAlighting) {
+                        Text(
+                            text = "Alighting",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             },
             leadingContent = {
+                val labelColour = Pair(
+                    if (isAlighting) MaterialTheme.colorScheme.onError
+                    else MaterialTheme.colorScheme.onPrimary,
+                    if (isAlighting) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.primary
+                )
+
                 if (patternStop.platform != null && !isSkipped) {
                     TextMetLabel(
                         text = patternStop.platform, modifier = metLabelModifier.clip(
                             CircleShape
-                        )
+                        ),
+                        foregroundColor = labelColour.first,
+                        backgroundColor = labelColour.second
                     )
                 } else {
                     patternStop.stop.stopName.third?.let { stopNumber ->
-                        TextMetLabel(text = stopNumber)
+                        TextMetLabel(
+                            text = stopNumber,
+                            foregroundColor = labelColour.first,
+                            backgroundColor = labelColour.second
+                        )
                     }
                 }
             },

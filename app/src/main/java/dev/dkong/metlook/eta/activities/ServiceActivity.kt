@@ -636,7 +636,8 @@ class ServiceActivity : ComponentActivity() {
                                                     }
                                                 )
                                             }
-                                        }
+                                        },
+                                        isAlighting = compareValues(index, alightingStopIndex) == 0
                                     )
                                 }
                                 // Check whether skipped-stop card needs to be shown
