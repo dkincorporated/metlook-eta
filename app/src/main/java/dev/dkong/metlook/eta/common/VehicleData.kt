@@ -34,7 +34,7 @@ object VehicleData {
         return when (routeType) {
             RouteType.Train -> {
                 // Attempt to match HCMT
-                val hcmtMatch = Regex("(?:90|99)(\\d{1,2})M").find(id)
+                val hcmtMatch = Regex("(?:90|99)((\\d{2})|0\\d)M$").find(id)
                 hcmtMatch?.let { match ->
                     if (match.groupValues.size < 2) return@let
                     val hcmtNumber = match.groupValues[1]

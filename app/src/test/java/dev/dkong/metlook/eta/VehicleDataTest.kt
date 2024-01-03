@@ -28,6 +28,12 @@ internal class VehicleDataTest {
                 RouteType.Train
             ) is Train.Xtrapolis
         )
+        assert(
+            VehicleData.getVehicle(
+                "1427T-1652T-253M-254M-903M-904M",
+                RouteType.Train
+            ) is Train.Xtrapolis
+        )
     }
 
     /**
