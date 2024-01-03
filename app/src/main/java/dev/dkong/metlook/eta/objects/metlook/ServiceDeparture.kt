@@ -29,7 +29,8 @@ data class ServiceDeparture(
     private val run: Run,
     val direction: Direction,
     val disruptions: List<Disruption>,
-    val departureStop: Stop
+    val departureStop: Stop,
+    var alightingStop: Stop? = null
 ) : dev.dkong.metlook.eta.objects.metlook.Departure(departure, run) {
     val runRef = departure.runRef
     val runId = departure.runId

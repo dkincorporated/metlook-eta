@@ -219,8 +219,7 @@ fun RecentServiceCard(
         },
         supportingContent = {
             Text(
-                text = "From " + service.departureStop.stopName
-                    .let { if (it.second != null) "${it.first} / ${it.second}" else it.first },
+                text = "From ${service.departureStop.fullStopName}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

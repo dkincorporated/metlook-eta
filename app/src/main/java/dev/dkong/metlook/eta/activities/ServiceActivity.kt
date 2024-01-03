@@ -8,25 +8,20 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -40,19 +35,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
@@ -63,8 +55,8 @@ import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.VehicleData
+import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
-import dev.dkong.metlook.eta.common.vehicle.Tram
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.IconMetLabel
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -73,7 +65,6 @@ import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.StoppingPatternComposables
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
-import dev.dkong.metlook.eta.objects.metlook.ParcelableService
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 import dev.dkong.metlook.eta.objects.metlook.PatternType
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
@@ -135,6 +126,7 @@ class ServiceActivity : ComponentActivity() {
         var patternType by remember { mutableStateOf<PatternType?>(null) }
 
         var originalStopIndex by remember { mutableStateOf<Int?>(null) }
+        var alightingStopIndex by remember { mutableStateOf<Int?>(null) }
 
         // Lifecycle states
         // TODO: Try to find a more elegant way to handle these
@@ -277,6 +269,13 @@ class ServiceActivity : ComponentActivity() {
                                 }
                         )
                     }
+                    // Get alighting stop if set
+                    if (alightingStopIndex == null)
+                        originalDeparture.alightingStop?.let { alightingStop ->
+                            alightingStopIndex = pattern
+                                .indexOfFirst { it.stop == alightingStop }
+                                .takeIf { it != -1 }
+                        }
                 }
 
                 hasFirstLoaded = true
@@ -437,32 +436,57 @@ class ServiceActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                            nextStopIndex?.let { nextStopIndex ->
+
+                            }
                             item {
-                                originalStopIndex?.let { originalIndex ->
-                                    // Don't display if the stop has passed, or it is the next stop
-                                    if (
-                                        originalIndex < (nextStopIndex ?: originalIndex)
-                                        || originalIndex == nextStopIndex
-                                    ) return@let
-                                    with(pattern[originalIndex]) {
-                                        InfoCard(
-                                            title =
-                                            if (isAtPlatform) "Departs now!"
-                                            else
-                                                timeToEstimatedDeparture()?.let {
-                                                    if (it.inWholeSeconds < 60) "Departs in <1 min"
-                                                    else "Departs in ${it.inWholeMinutes} min"
-                                                }
-                                                    ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
-                                            subtitle = "From ${stop.fullStopName}",
-                                            R.drawable.baseline_airline_stops_24
-                                        )
+                                nextStopIndex?.let { nextIndex ->
+                                    originalStopIndex?.let { originalIndex ->
+                                        // Don't display if the stop has passed, or it is the next stop
+                                        if (originalIndex > nextIndex)
+                                            with(pattern[originalIndex]) {
+                                                InfoCard(
+                                                    title =
+                                                    if (isAtPlatform) "Departs now!"
+                                                    else
+                                                        timeToEstimatedDeparture()?.let {
+                                                            if (it.inWholeSeconds < 60) "Departs in <1 min"
+                                                            else "Departs in ${it.inWholeMinutes} min"
+                                                        }
+                                                            ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
+                                                    subtitle = "From ${stop.fullStopName}",
+                                                    R.drawable.baseline_airline_stops_24
+                                                )
+                                            }
+                                    }
+                                    if (compareValues(alightingStopIndex, originalStopIndex) > 0) {
+                                        // Display alighting stop if service is past original stop
+                                        alightingStopIndex?.let { alightingIndex ->
+                                            with(pattern[alightingIndex]) {
+                                                InfoCard(
+                                                    title =
+                                                    if (nextStopIndex == alightingIndex) "Alight at next stop"
+                                                    else "${
+                                                        pattern
+                                                            .slice((nextIndex + if (pattern[nextIndex].isAtPlatform) 1 else 0)..alightingIndex)
+                                                            .count { it.stopType.stopClass == StoppingPatternComposables.StopType.StopClass.Stop }
+                                                    } stops, ${
+                                                        (timeToEstimatedDeparture()
+                                                            ?: timeToScheduledDeparture())
+                                                            .inWholeMinutes
+                                                    } min to go",
+                                                    subtitle = "Alighting at ${stop.fullStopName}",
+                                                    R.drawable.outline_pin_drop_24
+                                                )
+
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        pattern.forEachIndexed { index, stop ->
+                        pattern.forEachIndexed { index, patternStop ->
                             val isStopBeforeNext = index == previousStopIndex
                             val isNextStop = index == nextStopIndex
                             val isStopAfterNext = index == followingStopIndex
@@ -482,7 +506,7 @@ class ServiceActivity : ComponentActivity() {
                                             heading = when (index) {
                                                 0 -> "Originates from"
                                                 pattern.lastIndex -> "Terminates at"
-                                                else -> when (stop.routeType) {
+                                                else -> when (patternStop.routeType) {
                                                     RouteType.Train -> "Next station is"
                                                     else -> "Next stop is"
                                                 }
@@ -524,28 +548,58 @@ class ServiceActivity : ComponentActivity() {
                                         }
                                     }
                                 }
-                                item(key = stop.stop.stopId.toString() + stop.departureSequence) {
+                                item(key = patternStop.stop.stopId.toString() + patternStop.departureSequence) {
+                                    var isDropDownShown by remember { mutableStateOf(false) }
+
                                     StoppingPatternComposables.StoppingPatternCard(
-                                        patternStop = stop,
+                                        patternStop = patternStop,
                                         stopType =
-                                        if (!isSheetExpanded && stop.stopType == StoppingPatternComposables.StopType.Stop) {
+                                        if (!isSheetExpanded && patternStop.stopType == StoppingPatternComposables.StopType.Stop) {
                                             if (isStopBeforeNext) StoppingPatternComposables.StopType.ContinuesBefore
                                             else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
-                                            else stop.stopType
-                                        } else stop.stopType,
-                                        modifier = if (isNextStop) Modifier
+                                            else patternStop.stopType
+                                        } else patternStop.stopType,
+                                        modifier = (if (isNextStop) Modifier
                                             .clip(
                                                 RoundedCornerShape(16.dp)
                                             )
                                             .background(if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
                                             .animateItemPlacement()
-                                        else Modifier.animateItemPlacement()
+                                        else Modifier.animateItemPlacement())
+                                            .clickable {
+                                                // Open dropdown menu
+                                                isDropDownShown = true
+                                            }
                                     )
+
+                                    DropdownMenu(
+                                        expanded = isDropDownShown,
+                                        onDismissRequest = { isDropDownShown = false }) {
+                                        DropdownMenuItem(
+                                            text = { Text("Alight here") },
+                                            onClick = {
+                                                // Don't show options if stop is before next
+                                                nextStopIndex?.let { if (index <= it) return@DropdownMenuItem }
+                                                // Mark stop as the alighting stop
+                                                alightingStopIndex = index
+                                                // Update the stop
+                                                scope.launch {
+                                                    RecentServicesCoordinator.add(
+                                                        context,
+                                                        originalDeparture.copy(alightingStop = patternStop.stop)
+                                                    )
+                                                    update(false)
+                                                }
+                                                // Hide the dropdown
+                                                isDropDownShown = false
+                                            }
+                                        )
+                                    }
                                 }
                                 // Check whether skipped-stop card needs to be shown
                                 nextStopIndex?.let { nextIndex ->
                                     if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
-                                        item(key = "E" + stop.stop.stopId.toString()) {
+                                        item(key = "E" + patternStop.stop.stopId.toString()) {
                                             StoppingPatternComposables.SkippedStopPatternCard(
                                                 skippedStops = pattern.slice((index + 1) until nextIndex),
                                                 isBefore = true
@@ -554,7 +608,7 @@ class ServiceActivity : ComponentActivity() {
                                     }
                                     followingStopIndex?.let { followingIndex ->
                                         if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
-                                            item(key = "E" + stop.stop.stopId.toString()) {
+                                            item(key = "E" + patternStop.stop.stopId.toString()) {
                                                 StoppingPatternComposables.SkippedStopPatternCard(
                                                     skippedStops = pattern.slice((nextIndex + 1) until followingIndex),
                                                     isBefore = false
