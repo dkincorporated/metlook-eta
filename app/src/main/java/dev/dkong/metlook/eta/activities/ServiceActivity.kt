@@ -466,7 +466,7 @@ class ServiceActivity : ComponentActivity() {
                                             with(pattern[alightingIndex]) {
                                                 InfoCard(
                                                     title =
-                                                    if (nextStopIndex == alightingIndex) "Alight at next stop"
+                                                    if (nextStopIndex == alightingIndex) "Alight at the next stop"
                                                     else "${
                                                         pattern
                                                             .slice((nextIndex + if (pattern[nextIndex].isAtPlatform) 1 else 0)..alightingIndex)
@@ -604,6 +604,8 @@ class ServiceActivity : ComponentActivity() {
                                             .animateItemPlacement()
                                         else Modifier.animateItemPlacement())
                                             .clickable {
+                                                // Don't show options if stop is before next
+                                                nextStopIndex?.let { if (index < it) return@clickable }
                                                 // Open dropdown menu
                                                 isDropDownShown = true
                                             },
@@ -618,9 +620,7 @@ class ServiceActivity : ComponentActivity() {
                                                 )
                                                 DropdownMenuItem(
                                                     text = { Text("Alight here") },
-                                                    onClick = o@{
-                                                        // Don't show options if stop is before next
-                                                        nextStopIndex?.let { if (index < it) return@o }
+                                                    onClick = {
                                                         // Mark stop as the alighting stop
                                                         alightingStopIndex = index
                                                         // Update the stop

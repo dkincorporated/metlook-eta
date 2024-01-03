@@ -460,7 +460,7 @@ object StoppingPatternComposables {
                     }
                     if (isAlighting) {
                         Text(
-                            text = "Alighting",
+                            text = "Alighting here",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
