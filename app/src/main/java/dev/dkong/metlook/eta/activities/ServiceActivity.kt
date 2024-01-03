@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -436,30 +437,30 @@ class ServiceActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                            nextStopIndex?.let { nextStopIndex ->
-
-                            }
                             item {
-                                nextStopIndex?.let { nextIndex ->
-                                    originalStopIndex?.let { originalIndex ->
+                                nextStopIndex?.let next@{ nextIndex ->
+                                    originalStopIndex?.let original@{ originalIndex ->
                                         // Don't display if the stop has passed, or it is the next stop
-                                        if (originalIndex > nextIndex)
-                                            with(pattern[originalIndex]) {
-                                                InfoCard(
-                                                    title =
-                                                    if (isAtPlatform) "Departs now!"
-                                                    else
-                                                        timeToEstimatedDeparture()?.let {
-                                                            if (it.inWholeSeconds < 60) "Departs in <1 min"
-                                                            else "Departs in ${it.inWholeMinutes} min"
-                                                        }
-                                                            ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
-                                                    subtitle = "From ${stop.fullStopName}",
-                                                    R.drawable.baseline_airline_stops_24
-                                                )
-                                            }
+                                        if (originalIndex <= nextIndex) return@original
+                                        with(pattern[originalIndex]) {
+                                            InfoCard(
+                                                title =
+                                                if (isAtPlatform) "Departs now!"
+                                                else
+                                                    timeToEstimatedDeparture()?.let {
+                                                        if (it.inWholeSeconds < 60) "Departs in <1 min"
+                                                        else "Departs in ${it.inWholeMinutes} min"
+                                                    }
+                                                        ?: "Departs in ${timeToScheduledDeparture().inWholeMinutes}* min",
+                                                subtitle = "From ${stop.fullStopName}",
+                                                R.drawable.baseline_airline_stops_24
+                                            )
+                                        }
                                     }
-                                    if (compareValues(alightingStopIndex, originalStopIndex) > 0) {
+                                    if (
+                                        compareValues(alightingStopIndex, nextStopIndex) > 0
+                                        && compareValues(nextStopIndex, originalStopIndex) >= 0
+                                    ) {
                                         // Display alighting stop if service is past original stop
                                         alightingStopIndex?.let { alightingIndex ->
                                             with(pattern[alightingIndex]) {
@@ -569,32 +570,38 @@ class ServiceActivity : ComponentActivity() {
                                             .clickable {
                                                 // Open dropdown menu
                                                 isDropDownShown = true
+                                            },
+                                        dropdown = {
+                                            DropdownMenu(
+                                                expanded = isDropDownShown,
+                                                onDismissRequest = { isDropDownShown = false }) {
+                                                SectionHeading(
+                                                    heading = patternStop.stop.stopName.first,
+                                                    includePadding = false,
+                                                    modifier = Modifier.padding(MenuDefaults.DropdownMenuItemContentPadding)
+                                                )
+                                                DropdownMenuItem(
+                                                    text = { Text("Alight here") },
+                                                    onClick = o@{
+                                                        // Don't show options if stop is before next
+                                                        nextStopIndex?.let { if (index < it) return@o }
+                                                        // Mark stop as the alighting stop
+                                                        alightingStopIndex = index
+                                                        // Update the stop
+                                                        scope.launch {
+                                                            RecentServicesCoordinator.add(
+                                                                context,
+                                                                originalDeparture.copy(alightingStop = patternStop.stop)
+                                                            )
+                                                            update(false)
+                                                        }
+                                                        // Hide the dropdown
+                                                        isDropDownShown = false
+                                                    }
+                                                )
                                             }
+                                        }
                                     )
-
-                                    DropdownMenu(
-                                        expanded = isDropDownShown,
-                                        onDismissRequest = { isDropDownShown = false }) {
-                                        DropdownMenuItem(
-                                            text = { Text("Alight here") },
-                                            onClick = {
-                                                // Don't show options if stop is before next
-                                                nextStopIndex?.let { if (index <= it) return@DropdownMenuItem }
-                                                // Mark stop as the alighting stop
-                                                alightingStopIndex = index
-                                                // Update the stop
-                                                scope.launch {
-                                                    RecentServicesCoordinator.add(
-                                                        context,
-                                                        originalDeparture.copy(alightingStop = patternStop.stop)
-                                                    )
-                                                    update(false)
-                                                }
-                                                // Hide the dropdown
-                                                isDropDownShown = false
-                                            }
-                                        )
-                                    }
                                 }
                                 // Check whether skipped-stop card needs to be shown
                                 nextStopIndex?.let { nextIndex ->

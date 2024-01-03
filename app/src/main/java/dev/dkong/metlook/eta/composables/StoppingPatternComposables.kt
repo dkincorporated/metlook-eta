@@ -307,6 +307,7 @@ object StoppingPatternComposables {
         headlineContent: @Composable (Modifier) -> Unit,
         supportingContent: (@Composable () -> Unit)? = null,
         trailingContent: (@Composable () -> Unit)? = null,
+        dropdown: (@Composable () -> Unit)? = null,
         modifier: Modifier = Modifier
     ) {
         Row(
@@ -343,6 +344,7 @@ object StoppingPatternComposables {
                     trailingContent?.let { it() }
                 }
             }
+            dropdown?.let { it() }
         }
     }
 
@@ -413,6 +415,7 @@ object StoppingPatternComposables {
     fun StoppingPatternCard(
         patternStop: PatternDeparture,
         stopType: StopType,
+        dropdown: (@Composable () -> Unit)? = null,
         modifier: Modifier = Modifier
     ) {
         val isSkipped = arrayOf(
@@ -562,7 +565,8 @@ object StoppingPatternComposables {
                         }
                     }
                 }
-            }
+            },
+            dropdown = dropdown
         )
     }
 }
