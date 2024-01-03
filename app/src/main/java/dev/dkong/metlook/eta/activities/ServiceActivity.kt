@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,11 +49,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
@@ -60,6 +64,7 @@ import dev.dkong.metlook.eta.common.VehicleData
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.common.vehicle.Tram
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
+import dev.dkong.metlook.eta.composables.IconMetLabel
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.SectionHeading
@@ -379,6 +384,62 @@ class ServiceActivity : ComponentActivity() {
                     val isSheetExpanded =
                         scaffoldState.bottomSheetState.currentValue == SheetValue.Expanded
                                 || scaffoldState.bottomSheetState.targetValue == SheetValue.Expanded
+
+                    // Info card
+                    if (!isSheetExpanded) {
+                        @Composable
+                        fun InfoCard(
+                            title: String,
+                            subtitle: String? = null,
+                            @DrawableRes icon: Int? = null
+                        ) {
+                            ListItem(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.surface),
+                                headlineContent = {
+                                    Text(
+                                        text = title,
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                },
+                                supportingContent = {
+                                    subtitle?.let {
+                                        Text(
+                                            text = it,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                },
+                                leadingContent = {
+                                    icon?.let {
+                                        IconMetLabel(icon = it)
+                                    }
+                                }
+                            )
+                        }
+
+                        item {
+                            nextStopIndex?.let { nextIndex ->
+                                with(if (nextIndex == 0) pattern.first() else pattern[nextIndex]) {
+                                    // Show departure card if at first stop or at Flinders Street
+                                    if (nextIndex != 0 && stop.stopId != 1071) return@let
+                                    InfoCard(
+                                        if (isAtPlatform) "Departs now!"
+                                        else
+                                            timeToEstimatedDeparture?.let {
+                                                if (it.inWholeSeconds < 60) "Departs in ${it.inWholeSeconds} sec"
+                                                else "Departs in ${it.inWholeMinutes} min"
+                                            }
+                                                ?: "Departs in ${timeToScheduledDeparture.inWholeMinutes}* min",
+                                        "From ${stop.stopName.first}",
+                                        R.drawable.baseline_flight_takeoff_24
+                                    )
+                                }
+                            }
+                        }
+                    }
 
                     pattern.forEachIndexed { index, stop ->
                         val isStopBeforeNext = index == previousStopIndex
