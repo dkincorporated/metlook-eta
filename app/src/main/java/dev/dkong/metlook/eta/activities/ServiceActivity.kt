@@ -612,6 +612,11 @@ class ServiceActivity : ComponentActivity() {
                                             .animateItemPlacement()
                                         else Modifier.animateItemPlacement())
                                             .clickable {
+                                                // Don't show options if not a stop
+                                                if (
+                                                    patternStop.stopType.stopClass !=
+                                                    StoppingPatternComposables.StopType.StopClass.Stop
+                                                ) return@clickable
                                                 // Don't show options if stop is before next
                                                 nextStopIndex?.let { if (index < it) return@clickable }
                                                 // Open dropdown menu
@@ -620,7 +625,8 @@ class ServiceActivity : ComponentActivity() {
                                         dropdown = {
                                             DropdownMenu(
                                                 expanded = isDropDownShown,
-                                                onDismissRequest = { isDropDownShown = false }) {
+                                                onDismissRequest = { isDropDownShown = false }
+                                            ) {
                                                 SectionHeading(
                                                     heading = patternStop.stop.stopName.first,
                                                     includePadding = false,
@@ -646,7 +652,9 @@ class ServiceActivity : ComponentActivity() {
                                                         Image(
                                                             painter = painterResource(id = R.drawable.outline_notifications_active_24),
                                                             null,
-                                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                                                            colorFilter = ColorFilter.tint(
+                                                                MaterialTheme.colorScheme.onSurface
+                                                            )
                                                         )
                                                     }
                                                 )
