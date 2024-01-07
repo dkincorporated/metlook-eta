@@ -3,6 +3,12 @@
 
     <string name="not_applicable">Not applicable</string>
 
+    <!-- Time durations -->
+    <string name="duration_sec">sec</string>
+    <string name="duration_min">min</string>
+    <string name="duration_hr">hr</string>
+    <string name="duration_day">day</string>
+
     <!-- Route types -->
     <string name="route_type_train">Train</string>
     <string name="route_type_tram">Tram</string>
