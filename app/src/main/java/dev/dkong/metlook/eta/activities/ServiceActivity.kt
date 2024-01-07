@@ -66,7 +66,7 @@ import dev.dkong.metlook.eta.composables.IconMetLabel
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.SectionHeading
-import dev.dkong.metlook.eta.composables.StoppingPatternComposables
+import dev.dkong.metlook.eta.composables.PatternComposables
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
@@ -190,9 +190,9 @@ class ServiceActivity : ComponentActivity() {
                                 run,
                                 stop,
                                 when (index) {
-                                    0 -> StoppingPatternComposables.StopType.First
-                                    decodedPattern.departures.lastIndex -> StoppingPatternComposables.StopType.Last
-                                    else -> StoppingPatternComposables.StopType.Stop
+                                    0 -> PatternComposables.StopType.First
+                                    decodedPattern.departures.lastIndex -> PatternComposables.StopType.Last
+                                    else -> PatternComposables.StopType.Stop
                                 }
                             )
 
@@ -209,8 +209,8 @@ class ServiceActivity : ComponentActivity() {
                                                 2
                                             )
                                             && departure.skippedStops.size > 1
-                                        ) StoppingPatternComposables.StopType.ArrowSkipped
-                                        else StoppingPatternComposables.StopType.Skipped
+                                        ) PatternComposables.StopType.ArrowSkipped
+                                        else PatternComposables.StopType.Skipped
                                     )
                                 }
 
@@ -249,16 +249,16 @@ class ServiceActivity : ComponentActivity() {
                     previousStopIndex =
                         pattern.slice(0 until nextIndex)
                             .indexOfLast { departure ->
-                                departure.stopType == StoppingPatternComposables.StopType.Stop
-                                        || departure.stopType == StoppingPatternComposables.StopType.First
+                                departure.stopType == PatternComposables.StopType.Stop
+                                        || departure.stopType == PatternComposables.StopType.First
                             }
                             .takeIf { it != -1 }
                     // Find the earliest stop that is actually a Stop after the next stop
                     followingStopIndex =
                         pattern.slice((nextIndex + 1) until pattern.size)
                             .indexOfFirst { departure ->
-                                departure.stopType == StoppingPatternComposables.StopType.Stop
-                                        || departure.stopType == StoppingPatternComposables.StopType.Last
+                                departure.stopType == PatternComposables.StopType.Stop
+                                        || departure.stopType == PatternComposables.StopType.Last
                             }
                             .let { if (it == -1) null else it + nextIndex + 1 }
                     // Update the pattern type
@@ -269,7 +269,7 @@ class ServiceActivity : ComponentActivity() {
                             pattern.slice((followingIndex + 1) until pattern.size)
                                 .count { departure ->
                                     departure.stopType.stopClass ==
-                                            StoppingPatternComposables.StopType.StopClass.Skipped
+                                            PatternComposables.StopType.StopClass.Skipped
                                 }
                         )
                     }
@@ -478,7 +478,7 @@ class ServiceActivity : ComponentActivity() {
                                                     else "${
                                                         pattern
                                                             .slice((nextIndex + if (pattern[nextIndex].isAtPlatform) 1 else 0)..alightingIndex)
-                                                            .count { it.stopType.stopClass == StoppingPatternComposables.StopType.StopClass.Stop }
+                                                            .count { it.stopType.stopClass == PatternComposables.StopType.StopClass.Stop }
                                                     } stops, ${
                                                         (timeToEstimatedDeparture()
                                                             ?: timeToScheduledDeparture())
@@ -547,7 +547,7 @@ class ServiceActivity : ComponentActivity() {
                                 if (isNextStop && !isSheetExpanded) {
                                     // Display next-stop heading
                                     item {
-                                        StoppingPatternComposables.PatternHeadingCard(
+                                        PatternComposables.PatternHeadingCard(
                                             heading = when (index) {
                                                 0 -> "Originates from"
                                                 pattern.lastIndex -> "Terminates at"
@@ -570,7 +570,7 @@ class ServiceActivity : ComponentActivity() {
                                     // Display pattern type heading (only if next stop is not the last or second-last stop)
                                     patternType?.let { patternType ->
                                         item {
-                                            StoppingPatternComposables.PatternHeadingCard(
+                                            PatternComposables.PatternHeadingCard(
                                                 heading = when (patternType) {
                                                     // Conditionally format the message
                                                     PatternType.LimitedStops -> "Express to"
@@ -580,7 +580,7 @@ class ServiceActivity : ComponentActivity() {
                                                         "Stopping all stations except ${
                                                             followingStopIndex?.let { followingStopIndex ->
                                                                 pattern.slice((followingStopIndex + 1) until pattern.size)
-                                                                    .find { departure -> departure.stopType == StoppingPatternComposables.StopType.Skipped }
+                                                                    .find { departure -> departure.stopType == PatternComposables.StopType.Skipped }
                                                                     ?.stop?.stopName?.first
                                                             }
                                                         } to"
@@ -596,12 +596,12 @@ class ServiceActivity : ComponentActivity() {
                                 item(key = patternStop.stop.stopId.toString() + patternStop.departureSequence) {
                                     var isDropDownShown by remember { mutableStateOf(false) }
 
-                                    StoppingPatternComposables.StoppingPatternCard(
+                                    PatternComposables.StoppingPatternCard(
                                         patternStop = patternStop,
                                         stopType =
-                                        if (!isSheetExpanded && patternStop.stopType == StoppingPatternComposables.StopType.Stop) {
-                                            if (isNextStop) StoppingPatternComposables.StopType.ContinuesBefore
-                                            else if (isStopAfterNext) StoppingPatternComposables.StopType.ContinuesAfter
+                                        if (!isSheetExpanded && patternStop.stopType == PatternComposables.StopType.Stop) {
+                                            if (isNextStop) PatternComposables.StopType.ContinuesBefore
+                                            else if (isStopAfterNext) PatternComposables.StopType.ContinuesAfter
                                             else patternStop.stopType
                                         } else patternStop.stopType,
                                         modifier = (if (isNextStop) Modifier
@@ -615,7 +615,7 @@ class ServiceActivity : ComponentActivity() {
                                                 // Don't show options if not a stop
                                                 if (
                                                     patternStop.stopType.stopClass !=
-                                                    StoppingPatternComposables.StopType.StopClass.Stop
+                                                    PatternComposables.StopType.StopClass.Stop
                                                 ) return@clickable
                                                 // Don't show options if stop is before next
                                                 nextStopIndex?.let { if (index < it) return@clickable }
@@ -667,7 +667,7 @@ class ServiceActivity : ComponentActivity() {
                                 nextStopIndex?.let { nextIndex ->
                                     if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
                                         item(key = "E" + patternStop.stop.stopId.toString()) {
-                                            StoppingPatternComposables.SkippedStopPatternCard(
+                                            PatternComposables.SkippedStopPatternCard(
                                                 skippedStops = pattern.slice((index + 1) until nextIndex),
                                                 isBefore = true
                                             )
@@ -676,7 +676,7 @@ class ServiceActivity : ComponentActivity() {
                                     followingStopIndex?.let { followingIndex ->
                                         if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
                                             item(key = "E" + patternStop.stop.stopId.toString()) {
-                                                StoppingPatternComposables.SkippedStopPatternCard(
+                                                PatternComposables.SkippedStopPatternCard(
                                                     skippedStops = pattern.slice((nextIndex + 1) until followingIndex),
                                                     isBefore = false
                                                 )

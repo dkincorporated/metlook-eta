@@ -60,15 +60,16 @@ private class ScaledDuration(
          * Get the string-formatted duration value
          */
         fun getValue() = durationValue
+            // If the rounded value is 0, make it 1
             .let {
-                if (it == 0L) "<1" else it.toString()
+                if (it == 0L) "1" else it.toString()
             }
             // Replace negative sign
             .let {
                 if (durationValue < 0f) it.replace("-", "−")
                 else it
             }
-            // Add the time suffix
+            // Apply the text format (if any)
             .let {
                 textFormat?.let { f -> f(it) } ?: it
             }

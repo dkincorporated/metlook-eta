@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -35,19 +34,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
-import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
 
 /**
  * Composables for the stopping pattern
  */
-object StoppingPatternComposables {
+object PatternComposables {
     /**
      * Thickness of the pattern indicator
      */
@@ -612,7 +609,7 @@ fun PreviewStoppingPattern() {
         Modifier
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        StoppingPatternComposables.PatternListItem(
+        PatternComposables.PatternListItem(
 //            heading = {
 //                Text(
 //                    text = "Next station is",
@@ -621,7 +618,7 @@ fun PreviewStoppingPattern() {
 //                )
 //            },
             patternIndicator = {
-                StoppingPatternComposables.StopIndicator(stopType = StoppingPatternComposables.StopType.Stop)
+                PatternComposables.StopIndicator(stopType = PatternComposables.StopType.Stop)
             },
             headlineContent = {
                 Text(
