@@ -93,21 +93,18 @@ fun StopCard(stop: Stop, shape: Shape, onClick: (Stop) -> Unit, modifier: Modifi
 
 /**
  * Layout for a two-row duration display, with value and unit
- * @param durations the displayable duration items
+ * @param departures list of [Departure]s for which to display departing time
  */
 @Composable
 fun DepartureTime(
     departures: List<Departure>
 ) {
-    val context = LocalContext.current
-
     val lowestCommonDuration = departures
         .filter { departure -> !departure.isAtPlatform && !departure.isArriving() }
         .map { departure ->
             ScaledDuration.getScaledDuration(
                 departure.timeToEstimatedDeparture(),
-                departure.timeToScheduledDeparture(),
-                context
+                departure.timeToScheduledDeparture()
             )
         }
         .lowestCommonUnit()
@@ -120,8 +117,7 @@ fun DepartureTime(
                 ?.toDurationUnit(
                     ScaledDuration.getScaledDuration(
                         departure.timeToEstimatedDeparture(),
-                        departure.timeToScheduledDeparture(),
-                        context
+                        departure.timeToScheduledDeparture()
                     ).scaleDuration()
                 )
                 ?.value()
@@ -217,34 +213,7 @@ fun DepartureCard(
         trailingContent = {
             if (departure.isCancelled) return@ListItem
 
-            val timeTexts = departureList.map { departure ->
-                if (departure.isAtPlatform) "Now" // now arrived
-                else if (departure.isArriving()) "Now*" // now arriving
-                else if (departure.estimatedDeparture != null
-                    && departure.timeToEstimatedDeparture()?.inWholeMinutes?.let { it < 1 } == true
-                ) "<1"
-                else if (departure.estimatedDeparture != null)
-                    "${departure.timeToEstimatedDeparture()?.inWholeMinutes}"
-                else "${departure.timeToScheduledDeparture().inWholeMinutes}*"
-            }
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = timeTexts.joinToString(" • "),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                // Display the 'min' indicator if at least one departure is not at platform or arriving
-                if (departureList.any { d -> !d.isAtPlatform && !d.isArriving() }) {
-                    Text(
-                        text = "min",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
+            DepartureTime(departures = departureList)
         },
         colors = ListItemDefaults.colors(
             containerColor = if (departure.isCancelled) MaterialTheme.colorScheme.errorContainer
@@ -304,25 +273,7 @@ fun RecentServiceCard(
         trailingContent = {
             if (service.isCancelled) return@ListItem
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    // Display min to scheduled departure for now
-                    text = "${
-                        service.timeToScheduledDeparture()
-                            .inWholeMinutes.toString()
-                            .replace("-", "−")
-                    }*",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = "min",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+            DepartureTime(departures = listOf(service))
         },
         colors = ListItemDefaults.colors(
             containerColor = if (service.isCancelled) MaterialTheme.colorScheme.errorContainer

@@ -3,6 +3,7 @@ package dev.dkong.metlook.eta.common.utils
 import android.content.Context
 import androidx.annotation.StringRes
 import dev.dkong.metlook.eta.R
+import kotlin.math.abs
 import kotlin.time.Duration
 
 /**
@@ -14,7 +15,6 @@ import kotlin.time.Duration
  */
 class ScaledDuration internal constructor(
     private val duration: Duration,
-    private val context: Context,
     private val textFormat: ((String) -> String)? = null
 ) {
     companion object {
@@ -22,18 +22,17 @@ class ScaledDuration internal constructor(
          * Get the scaled-duration object with a definite [Duration]
          * @param duration the [Duration] to be scaled
          */
-        fun getScaledDuration(duration: Duration, context: Context) =
-            ScaledDuration(duration, context)
+        fun getScaledDuration(duration: Duration) =
+            ScaledDuration(duration)
 
         /**
          * Get the scaled-duration object with a nullable and fallback [Duration]
          * @param nullableDuration the [Duration] that may be null, and will fallback to [duration] if null
          * @param duration the [Duration] that will be falled back on if [nullableDuration] is null
          */
-        fun getScaledDuration(nullableDuration: Duration?, duration: Duration, context: Context) =
+        fun getScaledDuration(nullableDuration: Duration?, duration: Duration) =
             ScaledDuration(
                 nullableDuration ?: duration,
-                context,
                 if (nullableDuration == null) { s -> "$s*" } else null
             )
 
@@ -136,7 +135,7 @@ class ScaledDuration internal constructor(
      * Get the time difference in the most-appropriate duration unit
      */
     fun scaleDuration(): DurationUnit {
-        return when (duration.inWholeSeconds) {
+        return when (abs(duration.inWholeSeconds)) {
             in 0..59 -> DurationUnit.Second(duration, textFormat)
             in 60..3599 -> DurationUnit.Minute(duration, textFormat)
             in 3600..86399 -> DurationUnit.Hour(duration, textFormat)
