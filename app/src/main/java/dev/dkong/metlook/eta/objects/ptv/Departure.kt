@@ -1,6 +1,7 @@
 package dev.dkong.metlook.eta.objects.ptv
 
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
@@ -18,7 +19,45 @@ data class DepartureResult(
     val runs: Map<String, Run>,
     val directions: Map<String, Direction>,
     val disruptions: Map<Int, Disruption>
-)
+) {
+    /**
+     * Convert to a sequence of [ServiceDeparture]s
+     * @param stop the stop for the departures
+     * @return processed sequence of [ServiceDeparture]s
+     */
+    fun toDepartureSequence(stop: Stop): Sequence<ServiceDeparture> =
+        departures
+            .asSequence()
+            .map { departure ->
+                // Entries with data errors will be ignored
+
+                val route = routes[departure.routeId]
+                    ?: return@map null
+                val run = runs[departure.runRef]
+                    ?: return@map null
+                val direction =
+                    directions[departure.directionId.toString()]
+                        ?: return@map null
+
+                // Initiate the all-in-one departure object
+                val processedDeparture = ServiceDeparture(
+                    departure,
+                    route,
+                    run,
+                    direction,
+                    disruptions.filter { entry ->
+                        departure.disruptionIds.contains(entry.value.disruptionId)
+                    }.values.toList(),
+                    stop
+                )
+
+                // Filter out unwanted departures
+                if (!processedDeparture.isValid) return@map null
+
+                return@map processedDeparture
+            }
+            .filterNotNull() // remove invalid entries
+}
 
 /**
  * Departure object from PTV API

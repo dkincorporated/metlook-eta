@@ -228,37 +228,8 @@ class StopActivity : ComponentActivity() {
                         Constants.jsonFormat.decodeFromString<DepartureResult>(response)
 
                     // Store the processed departures
-                    val groupedDepartures = decodedDepartures.departures
-                        .asSequence()
-                        .map { departure ->
-                            // Entries with data errors will be ignored
-
-                            val route = decodedDepartures.routes[departure.routeId]
-                                ?: return@map null
-                            val run = decodedDepartures.runs[departure.runRef]
-                                ?: return@map null
-                            val direction =
-                                decodedDepartures.directions[departure.directionId.toString()]
-                                    ?: return@map null
-
-                            // Initiate the all-in-one departure object
-                            val processedDeparture = ServiceDeparture(
-                                departure,
-                                route,
-                                run,
-                                direction,
-                                decodedDepartures.disruptions.filter { entry ->
-                                    departure.disruptionIds.contains(entry.value.disruptionId)
-                                }.values.toList(),
-                                stop
-                            )
-
-                            // Filter out unwanted departures
-                            if (!processedDeparture.isValid) return@map null
-
-                            return@map processedDeparture
-                        }
-                        .filterNotNull() // remove invalid entries
+                    val groupedDepartures = decodedDepartures
+                        .toDepartureSequence(stop)
                         // Group departures
                         .groupBy { d -> d.directionGroupingValue }
                         .toList()
