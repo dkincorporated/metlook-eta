@@ -699,7 +699,7 @@ class ServiceActivity : ComponentActivity() {
                         if (isSheetExpanded) {
                             transposingService?.let {
                                 item {
-                                    SectionHeading(heading = "Continues as")
+                                    SectionHeading(heading = "Continues from ${it.departureStop.fullStopName} as")
                                     DepartureCard(
                                         departureList = listOf(it),
                                         shape = ListPosition.FirstAndLast.roundedShape,
