@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +31,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils.allSame
+import dev.dkong.metlook.eta.common.utils.ScaledDuration
+import dev.dkong.metlook.eta.common.utils.ScaledDuration.Companion.lowestCommonUnit
+import dev.dkong.metlook.eta.objects.metlook.Departure
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.ptv.Stop
 
@@ -85,6 +89,68 @@ fun StopCard(stop: Stop, shape: Shape, onClick: (Stop) -> Unit, modifier: Modifi
                 onClick(stop)
             }
     )
+}
+
+/**
+ * Layout for a two-row duration display, with value and unit
+ * @param durations the displayable duration items
+ */
+@Composable
+fun DepartureTime(
+    departures: List<Departure>
+) {
+    val context = LocalContext.current
+
+    val lowestCommonDuration = departures
+        .filter { departure -> !departure.isAtPlatform && !departure.isArriving() }
+        .map { departure ->
+            ScaledDuration.getScaledDuration(
+                departure.timeToEstimatedDeparture(),
+                departure.timeToScheduledDeparture(),
+                context
+            )
+        }
+        .lowestCommonUnit()
+
+    val heading = departures.joinToString(" • ") { departure ->
+        if (departure.isAtPlatform) "Now"
+        else if (departure.isArriving()) "Now*"
+        else {
+            lowestCommonDuration
+                ?.toDurationUnit(
+                    ScaledDuration.getScaledDuration(
+                        departure.timeToEstimatedDeparture(),
+                        departure.timeToScheduledDeparture(),
+                        context
+                    ).scaleDuration()
+                )
+                ?.value()
+                ?: ""
+        }
+    }
+
+    val subheading =
+        lowestCommonDuration?.let { unit ->
+            stringResource(id = unit.displayUnit)
+        }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = heading,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        // Display the 'min' indicator if at least one departure is not at platform or arriving
+        subheading?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
 }
 
 /**
