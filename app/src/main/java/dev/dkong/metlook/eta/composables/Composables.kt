@@ -111,8 +111,8 @@ fun DepartureTime(
         .lowestCommonUnit()
 
     val heading = departures.joinToString(" • ") { departure ->
-        if (departure.isAtPlatform) "Now"
-        else if (departure.isArriving()) "Now*"
+        if (useEstimatedTime && departure.isAtPlatform) "Now"
+        else if (useEstimatedTime && departure.isArriving()) "Now*"
         else {
             lowestCommonDuration
                 ?.toDurationUnit(
