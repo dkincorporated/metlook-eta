@@ -23,8 +23,10 @@ abstract class Departure(
     val routeType = originalRun.routeType
     val isAtPlatform = originalDeparture.atPlatform
     val platform = originalDeparture.platform
-    val scheduledDeparture = originalDeparture.scheduledDeparture
-    val estimatedDeparture = originalDeparture.estimatedDeparture
+    val scheduledDepartureIso = originalDeparture.scheduledDepartureUtcString
+    val estimatedDepartureIso = originalDeparture.estimatedDepartureUtcString
+    private val scheduledDeparture = originalDeparture.scheduledDeparture
+    private val estimatedDeparture = originalDeparture.estimatedDeparture
 
     /**
      * Get the time to the scheduled departure

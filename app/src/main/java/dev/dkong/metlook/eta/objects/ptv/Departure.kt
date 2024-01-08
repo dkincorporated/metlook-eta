@@ -77,9 +77,9 @@ data class Departure(
     @SerialName("disruption_ids")
     val disruptionIds: List<Int>,
     @SerialName("scheduled_departure_utc")
-    private val scheduledDepartureUtcString: String,
+    val scheduledDepartureUtcString: String,
     @SerialName("estimated_departure_utc")
-    private val estimatedDepartureUtcString: String?,
+    val estimatedDepartureUtcString: String?,
     @SerialName("at_platform")
     val atPlatform: Boolean,
     @SerialName("platform_number")

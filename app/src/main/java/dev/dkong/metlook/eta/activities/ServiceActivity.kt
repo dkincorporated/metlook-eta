@@ -1,5 +1,6 @@
 package dev.dkong.metlook.eta.activities
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -55,12 +56,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
 import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.VehicleData
 import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.common.utils.ServiceTransposal
+import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.IconMetLabel
 import dev.dkong.metlook.eta.composables.NavBarPadding
@@ -79,6 +83,7 @@ import io.ktor.client.request.get
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
 
 /**
  * Activity for a specific Service
@@ -128,6 +133,7 @@ class ServiceActivity : ComponentActivity() {
         var nextStopIndex by remember { mutableStateOf<Int?>(null) }
         var followingStopIndex by remember { mutableStateOf<Int?>(null) }
         var patternType by remember { mutableStateOf<PatternType?>(null) }
+        var transposingService by remember { mutableStateOf<ServiceDeparture?>(null) }
 
         var originalStopIndex by remember { mutableStateOf<Int?>(null) }
         var alightingStopIndex by remember { mutableStateOf<Int?>(null) }
@@ -281,6 +287,9 @@ class ServiceActivity : ComponentActivity() {
                                 .takeIf { it != -1 }
                         }
                 }
+
+                // Get transposing service, if any
+                transposingService = ServiceTransposal.getTransposedService(pattern.last())
 
                 hasFirstLoaded = true
                 loadingState = false
@@ -683,6 +692,32 @@ class ServiceActivity : ComponentActivity() {
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                        // Service transposal card
+                        if (isSheetExpanded) {
+                            transposingService?.let {
+                                item {
+                                    SectionHeading(heading = "Continues as")
+                                    DepartureCard(
+                                        departureList = listOf(it),
+                                        shape = ListPosition.FirstAndLast.roundedShape,
+                                        onClick = {
+                                            // Launch the Service screen
+                                            val serviceIntent = Intent(context, ServiceActivity::class.java)
+                                            serviceIntent.putExtra(
+                                                "service",
+                                                Constants.jsonFormat.encodeToString(it.first())
+                                            )
+                                            context.startActivity(serviceIntent)
+                                            // Save the recent service
+                                            scope.launch {
+                                                RecentServicesCoordinator.add(context, it.first())
+                                            }
+                                        },
+                                        modifier = Modifier.animateItemPlacement()
+                                    )
                                 }
                             }
                         }

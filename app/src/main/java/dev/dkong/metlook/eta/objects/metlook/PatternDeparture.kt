@@ -15,4 +15,5 @@ data class PatternDeparture(
     val stopType: PatternComposables.StopType
 ) : dev.dkong.metlook.eta.objects.metlook.Departure(departure, run) {
     val departureSequence = departure.departureSequence
+    val vehicleDescriptor = run.vehicleDescriptor
 }
