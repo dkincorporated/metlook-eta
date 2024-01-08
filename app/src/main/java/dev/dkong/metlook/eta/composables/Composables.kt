@@ -103,7 +103,7 @@ fun DepartureTime(
     val lowestCommonDuration = departures
         .filter { departure -> !departure.isAtPlatform && !departure.isArriving() }
         .map { departure ->
-            ScaledDuration.getScaledDuration(
+            ScaledDuration(
                 departure.timeToEstimatedDeparture(),
                 departure.timeToScheduledDeparture()
             )
@@ -111,7 +111,7 @@ fun DepartureTime(
         // If all the departures are either arriving or at platform, get the duration unit from the first one
         .lowestCommonUnit()
         ?: departures.first().let {
-            ScaledDuration.getScaledDuration(
+            ScaledDuration(
                 it.timeToEstimatedDeparture(),
                 it.timeToScheduledDeparture()
             )
@@ -123,7 +123,7 @@ fun DepartureTime(
         else {
             lowestCommonDuration
                 .toDurationUnit(
-                    ScaledDuration.getScaledDuration(
+                    ScaledDuration(
                         if (useEstimatedTime) departure.timeToEstimatedDeparture() else null,
                         departure.timeToScheduledDeparture()
                     ).scaleDuration()

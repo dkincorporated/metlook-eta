@@ -17,25 +17,23 @@ class ScaledDuration internal constructor(
     private val duration: Duration,
     private val textFormat: ((String) -> String)? = null
 ) {
+    /**
+     * Get the scaled-duration object with a definite [Duration]
+     * @param duration the [Duration] to be scaled
+     */
+    constructor(duration: Duration) : this(duration, null)
+
+    /**
+     * Get the scaled-duration object with a nullable and fallback [Duration]
+     * @param nullableDuration the [Duration] that may be null, and will fallback to [duration] if null
+     * @param duration the [Duration] that will be falled back on if [nullableDuration] is null
+     */
+    constructor(nullableDuration: Duration?, duration: Duration) : this(
+        nullableDuration ?: duration,
+        if (nullableDuration == null) { s -> "$s*" } else null
+    )
+
     companion object {
-        /**
-         * Get the scaled-duration object with a definite [Duration]
-         * @param duration the [Duration] to be scaled
-         */
-        fun getScaledDuration(duration: Duration) =
-            ScaledDuration(duration)
-
-        /**
-         * Get the scaled-duration object with a nullable and fallback [Duration]
-         * @param nullableDuration the [Duration] that may be null, and will fallback to [duration] if null
-         * @param duration the [Duration] that will be falled back on if [nullableDuration] is null
-         */
-        fun getScaledDuration(nullableDuration: Duration?, duration: Duration) =
-            ScaledDuration(
-                nullableDuration ?: duration,
-                if (nullableDuration == null) { s -> "$s*" } else null
-            )
-
         /**
          * Scale every [DurationUnit] to the lowest common unit
          */

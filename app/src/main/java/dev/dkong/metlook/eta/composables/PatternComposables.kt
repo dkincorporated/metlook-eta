@@ -514,7 +514,7 @@ object PatternComposables {
                                     isMenuExpanded = true
                                 }
                         ) {
-                            val scaledDuration = ScaledDuration.getScaledDuration(
+                            val scaledDuration = ScaledDuration(
                                 patternStop.timeToEstimatedDeparture(),
                                 patternStop.timeToScheduledDeparture()
                             ).scaleDuration()
