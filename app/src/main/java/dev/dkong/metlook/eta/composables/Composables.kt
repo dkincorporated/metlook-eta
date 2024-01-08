@@ -97,7 +97,8 @@ fun StopCard(stop: Stop, shape: Shape, onClick: (Stop) -> Unit, modifier: Modifi
  */
 @Composable
 fun DepartureTime(
-    departures: List<Departure>
+    departures: List<Departure>,
+    useEstimatedTime: Boolean = false
 ) {
     val lowestCommonDuration = departures
         .filter { departure -> !departure.isAtPlatform && !departure.isArriving() }
@@ -116,7 +117,7 @@ fun DepartureTime(
             lowestCommonDuration
                 ?.toDurationUnit(
                     ScaledDuration.getScaledDuration(
-                        departure.timeToEstimatedDeparture(),
+                        if (useEstimatedTime) departure.timeToEstimatedDeparture() else null,
                         departure.timeToScheduledDeparture()
                     ).scaleDuration()
                 )
@@ -273,7 +274,7 @@ fun RecentServiceCard(
         trailingContent = {
             if (service.isCancelled) return@ListItem
 
-            DepartureTime(departures = listOf(service))
+            DepartureTime(departures = listOf(service), useEstimatedTime = false)
         },
         colors = ListItemDefaults.colors(
             containerColor = if (service.isCancelled) MaterialTheme.colorScheme.errorContainer
