@@ -1,20 +1,26 @@
 package dev.dkong.metlook.eta.objects.metlook
 
+import android.content.Context
+import android.content.Intent
+import dev.dkong.metlook.eta.activities.ServiceActivity
 import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils
+import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
 import dev.dkong.metlook.eta.objects.ptv.Departure
 import dev.dkong.metlook.eta.objects.ptv.Direction
 import dev.dkong.metlook.eta.objects.ptv.Disruption
 import dev.dkong.metlook.eta.objects.ptv.Route
 import dev.dkong.metlook.eta.objects.ptv.Run
 import dev.dkong.metlook.eta.objects.ptv.Stop
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlin.time.Duration
 
 /**
@@ -145,6 +151,22 @@ data class ServiceDeparture(
      */
     @Contextual
     val patternType: PatternType = Utils.patternType(routeType, routeId, expressStopCount)
+
+    /**
+     * Launch [ServiceActivity] for this departure
+     * @param context the launching context
+     */
+    suspend fun launchServiceActivity(context: Context) {
+        // Launch the Service screen
+        val serviceIntent = Intent(context, ServiceActivity::class.java)
+        serviceIntent.putExtra(
+            "service",
+            Constants.jsonFormat.encodeToString(this)
+        )
+        context.startActivity(serviceIntent)
+        // Save the recent service
+        RecentServicesCoordinator.add(context, this)
+    }
 
     /**
      * Whether one Service is the same as another Service or object

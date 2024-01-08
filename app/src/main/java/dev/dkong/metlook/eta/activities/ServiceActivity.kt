@@ -704,16 +704,8 @@ class ServiceActivity : ComponentActivity() {
                                         departureList = listOf(it),
                                         shape = ListPosition.FirstAndLast.roundedShape,
                                         onClick = {
-                                            // Launch the Service screen
-                                            val serviceIntent = Intent(context, ServiceActivity::class.java)
-                                            serviceIntent.putExtra(
-                                                "service",
-                                                Constants.jsonFormat.encodeToString(it.first())
-                                            )
-                                            context.startActivity(serviceIntent)
-                                            // Save the recent service
                                             scope.launch {
-                                                RecentServicesCoordinator.add(context, it.first())
+                                                it.first().launchServiceActivity(context)
                                             }
                                         },
                                         modifier = Modifier.animateItemPlacement()

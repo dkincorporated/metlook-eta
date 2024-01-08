@@ -453,16 +453,8 @@ class DirectionStopActivity : ComponentActivity() {
                                     departures.size
                                 ).roundedShape,
                                 onClick = {
-                                    // Launch the Service screen
-                                    val serviceIntent = Intent(context, ServiceActivity::class.java)
-                                    serviceIntent.putExtra(
-                                        "service",
-                                        Constants.jsonFormat.encodeToString(departure)
-                                    )
-                                    context.startActivity(serviceIntent)
-                                    // Save the recent service
                                     scope.launch {
-                                        RecentServicesCoordinator.add(context, departure)
+                                        departure.launchServiceActivity(context)
                                     }
                                 },
                                 modifier = Modifier.animateItemPlacement()
