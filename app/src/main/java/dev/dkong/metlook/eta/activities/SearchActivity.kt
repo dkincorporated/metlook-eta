@@ -255,7 +255,7 @@ class SearchActivity : ComponentActivity() {
                         )
                         SectionHeading(heading = "Popular stations")
                         suggestions.forEach { suggestion ->
-                            BetterListItem(
+                            ListItem(
                                 headlineContent = {
                                     Text(
                                         text = suggestion,
@@ -318,15 +318,15 @@ class SearchActivity : ComponentActivity() {
                 }
             }
             // Search results
-            if (searchResultsStopFiltered.isEmpty() /* && searchResultsRoute.isEmpty() */) {
-                item {
-                    PlaceholderMessage(
-                        largeIcon = R.drawable.baseline_travel_explore_24,
-                        title = placeholderTitle,
-                        subtitle = "Search for something to get started."
-                    )
-                }
-            }
+//            if (searchResultsStopFiltered.isEmpty() /* && searchResultsRoute.isEmpty() */) {
+//                item {
+//                    PlaceholderMessage(
+//                        largeIcon = R.drawable.baseline_travel_explore_24,
+//                        title = placeholderTitle,
+//                        subtitle = "Search for something to get started."
+//                    )
+//                }
+//            }
             searchResultsStopFiltered.forEach { routeType ->
                 item(key = routeType.first.id) {
                     SectionHeading(
