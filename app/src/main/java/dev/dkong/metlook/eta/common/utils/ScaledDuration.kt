@@ -134,8 +134,8 @@ class ScaledDuration internal constructor(
      */
     fun scaleDuration(): DurationUnit {
         return when (abs(duration.inWholeSeconds)) {
-            in 0..59 -> DurationUnit.Second(duration, textFormat)
-            in 60..3599 -> DurationUnit.Minute(duration, textFormat)
+//            in 0..59 -> DurationUnit.Second(duration, textFormat)
+            in 0..3599 -> DurationUnit.Minute(duration, textFormat)
             in 3600..86399 -> DurationUnit.Hour(duration, textFormat)
             else -> DurationUnit.Day(duration, textFormat)
         }

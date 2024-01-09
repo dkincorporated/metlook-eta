@@ -334,6 +334,7 @@ object PatternComposables {
         modifier: Modifier = Modifier
     ) {
         BetterListItem(
+            backgroundColour = Color.Transparent,
             patternIndicator = {
                 StopIndicator(stopType = StopType.ArrowSkipped)
             },

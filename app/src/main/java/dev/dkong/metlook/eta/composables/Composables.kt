@@ -132,9 +132,11 @@ fun DepartureTime(
     }
 
     val subheading =
-        lowestCommonDuration?.let { unit ->
-            stringResource(id = unit.displayUnit)
-        }
+        if (!useEstimatedTime
+            || departures.any { departure -> !departure.isAtPlatform || !departure.isArriving() }
+        ) {
+            stringResource(id = lowestCommonDuration.displayUnit)
+        } else null
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
