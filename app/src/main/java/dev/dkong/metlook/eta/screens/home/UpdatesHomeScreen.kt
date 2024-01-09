@@ -59,6 +59,7 @@ import dev.dkong.metlook.eta.common.Constants.jsonFormat
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.objects.ptv.Disruption
@@ -191,7 +192,7 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
     var showDetail by remember { mutableStateOf(false) }
     val isSuspended = disruption.disruptionType.lowercase().contains("suspended")
 
-    ListItem(
+    BetterListItem(
         headlineContent = {
             Text(
                 text = disruption.title,
@@ -210,14 +211,14 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                 }
             }
         },
-        colors = ListItemDefaults.colors(
-            containerColor =
-                if (isSuspended) MaterialTheme.colorScheme.errorContainer
-                else MaterialTheme.colorScheme.surface,
-            headlineColor =
-                if (isSuspended) MaterialTheme.colorScheme.onErrorContainer
-                else MaterialTheme.colorScheme.primary
-        ),
+//        colors = ListItemDefaults.colors(
+//            containerColor =
+//                if (isSuspended) MaterialTheme.colorScheme.errorContainer
+//                else MaterialTheme.colorScheme.surface,
+//            headlineColor =
+//                if (isSuspended) MaterialTheme.colorScheme.onErrorContainer
+//                else MaterialTheme.colorScheme.primary
+//        ),
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)

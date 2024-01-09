@@ -53,7 +53,7 @@ fun NavBarPadding() {
 fun StopCard(stop: Stop, shape: Shape, onClick: (Stop) -> Unit, modifier: Modifier = Modifier) {
     val stopName = stop.stopName
 
-    ListItem(
+    BetterListItem(
         headlineContent = {
             Text(
                 text = stopName.first,
@@ -84,7 +84,6 @@ fun StopCard(stop: Stop, shape: Shape, onClick: (Stop) -> Unit, modifier: Modifi
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
             .clickable {
                 onClick(stop)
             }
@@ -172,7 +171,7 @@ fun DepartureCard(
      */
     val departure = departureList.first()
 
-    ListItem(
+    BetterListItem(
         headlineContent = {
             val serviceTitle =
                 if (departureList.size == 1)
@@ -218,16 +217,16 @@ fun DepartureCard(
             }
         },
         trailingContent = {
-            if (departure.isCancelled) return@ListItem
+            if (departure.isCancelled) return@BetterListItem
 
             DepartureTime(departures = departureList)
         },
-        colors = ListItemDefaults.colors(
-            containerColor = if (departure.isCancelled) MaterialTheme.colorScheme.errorContainer
-            else MaterialTheme.colorScheme.surface,
-            headlineColor = if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
-            else MaterialTheme.colorScheme.onSurface
-        ),
+//        colors = ListItemDefaults.colors(
+//            containerColor = if (departure.isCancelled) MaterialTheme.colorScheme.errorContainer
+//            else MaterialTheme.colorScheme.surface,
+//            headlineColor = if (departure.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+//            else MaterialTheme.colorScheme.onSurface
+//        ),
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)
@@ -249,7 +248,7 @@ fun RecentServiceCard(
     onClick: (ServiceDeparture) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    ListItem(
+    BetterListItem(
         headlineContent = {
             Text(
                 text = "${service.scheduledDepartureTime()} ${service.serviceTitle}",
@@ -278,16 +277,16 @@ fun RecentServiceCard(
             }
         },
         trailingContent = {
-            if (service.isCancelled) return@ListItem
+            if (service.isCancelled) return@BetterListItem
 
             DepartureTime(departures = listOf(service), useEstimatedTime = false)
         },
-        colors = ListItemDefaults.colors(
-            containerColor = if (service.isCancelled) MaterialTheme.colorScheme.errorContainer
-            else MaterialTheme.colorScheme.surface,
-            headlineColor = if (service.isCancelled) MaterialTheme.colorScheme.onErrorContainer
-            else MaterialTheme.colorScheme.onSurface
-        ),
+//        colors = ListItemDefaults.colors(
+//            containerColor = if (service.isCancelled) MaterialTheme.colorScheme.errorContainer
+//            else MaterialTheme.colorScheme.surface,
+//            headlineColor = if (service.isCancelled) MaterialTheme.colorScheme.onErrorContainer
+//            else MaterialTheme.colorScheme.onSurface
+//        ),
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 1.dp)
             .clip(shape)

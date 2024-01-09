@@ -59,6 +59,7 @@ import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.datastore.recents.RecentStopsCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.CheckableChip
 import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
@@ -254,7 +255,7 @@ class SearchActivity : ComponentActivity() {
                         )
                         SectionHeading(heading = "Popular stations")
                         suggestions.forEach { suggestion ->
-                            ListItem(
+                            BetterListItem(
                                 headlineContent = {
                                     Text(
                                         text = suggestion,

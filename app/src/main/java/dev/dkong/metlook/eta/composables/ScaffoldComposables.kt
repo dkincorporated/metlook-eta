@@ -11,18 +11,22 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
@@ -68,6 +72,68 @@ import dev.dkong.metlook.eta.common.Constants
 
 // Scaffold-type Composables, used throughout the app
 // Author: David Kong
+
+/**
+ * Custom implementation of [ListItem] that works better with [IntrinsicSize] in a [Row]
+ *
+ * Params are the same as the original [ListItem].
+ *
+ * @see ListItem
+ */
+@Composable
+fun BetterListItem(
+    heading: (@Composable () -> Unit)? = null,
+    patternIndicator: (@Composable () -> Unit)? = null,
+    leadingContent: (@Composable () -> Unit)? = null,
+    headlineContent: @Composable (Modifier) -> Unit,
+    supportingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    dropdown: (@Composable () -> Unit)? = null,
+    backgroundColour: Color = MaterialTheme.colorScheme.surface,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(backgroundColour)
+            .padding(horizontal = 16.dp)
+            .height(IntrinsicSize.Min)
+    ) {
+        patternIndicator?.let { it() }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            heading?.let { it() }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    leadingContent?.let { it() }
+                    Column {
+                        headlineContent(
+                            Modifier
+                                .weight(1f)
+                                .wrapContentSize()
+                        )
+                        supportingContent?.let { it() }
+                    }
+                }
+                trailingContent?.let { it() }
+            }
+            dropdown?.let { it() }
+        }
+    }
+}
 
 /**
  * Base template for screens using a scaffold

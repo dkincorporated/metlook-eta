@@ -44,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -64,6 +65,7 @@ import dev.dkong.metlook.eta.common.VehicleData
 import dev.dkong.metlook.eta.common.datastore.recents.RecentServicesCoordinator
 import dev.dkong.metlook.eta.common.utils.PtvApi
 import dev.dkong.metlook.eta.common.utils.ServiceTransposal
+import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.DepartureCard
 import dev.dkong.metlook.eta.composables.ElevatedAppBarNavigationIcon
 import dev.dkong.metlook.eta.composables.IconMetLabel
@@ -152,7 +154,7 @@ class ServiceActivity : ComponentActivity() {
             subtitle: String? = null,
             @DrawableRes icon: Int? = null
         ) {
-            ListItem(
+            BetterListItem(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .clip(RoundedCornerShape(16.dp))
@@ -531,7 +533,7 @@ class ServiceActivity : ComponentActivity() {
                             if (isSheetExpanded) {
                                 item {
                                     SectionHeading(heading = "Vehicle")
-                                    ListItem(
+                                    BetterListItem(
                                         modifier = Modifier
                                             .padding(horizontal = 16.dp)
                                             .clip(RoundedCornerShape(16.dp))
@@ -626,6 +628,10 @@ class ServiceActivity : ComponentActivity() {
                                     var isDropDownShown by remember { mutableStateOf(false) }
 
                                     PatternComposables.StoppingPatternCard(
+                                        backgroundColour = if (isNextStop) {
+                                            if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer
+                                            else MaterialTheme.colorScheme.surface
+                                        } else Color.Transparent,
                                         patternStop = patternStop,
                                         stopType =
                                         if (!isSheetExpanded && patternStop.stopType == PatternComposables.StopType.Stop) {
@@ -637,7 +643,6 @@ class ServiceActivity : ComponentActivity() {
                                             .clip(
                                                 RoundedCornerShape(16.dp)
                                             )
-                                            .background(if (isSheetExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
                                             .animateItemPlacement()
                                         else Modifier.animateItemPlacement())
                                             .clickable {

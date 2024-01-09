@@ -28,6 +28,7 @@ import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.Utils.finishActivity
 import dev.dkong.metlook.eta.common.tracker.TrackerManager
+import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
 import dev.dkong.metlook.eta.composables.MaterialColumn
 import dev.dkong.metlook.eta.composables.SettingsItem
@@ -79,7 +80,7 @@ fun SettingsScreen(navHostController: NavHostController) {
     ) {
         pages.forEachIndexed { index, page ->
             item {
-                ListItem(
+                BetterListItem(
                     headlineContent = {
                         Text(
                             text = page.title,

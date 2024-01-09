@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -294,66 +293,6 @@ object PatternComposables {
     }
 
     /**
-     * Custom implementation of [ListItem] that works better with [IntrinsicSize] in a [Row]
-     *
-     * Params are the same as the original [ListItem].
-     *
-     * @see ListItem
-     */
-    @Composable
-    fun PatternListItem(
-        heading: (@Composable () -> Unit)? = null,
-        patternIndicator: (@Composable () -> Unit)? = null,
-        leadingContent: (@Composable () -> Unit)? = null,
-        headlineContent: @Composable (Modifier) -> Unit,
-        supportingContent: (@Composable () -> Unit)? = null,
-        trailingContent: (@Composable () -> Unit)? = null,
-        dropdown: (@Composable () -> Unit)? = null,
-        modifier: Modifier = Modifier
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .height(IntrinsicSize.Min)
-        ) {
-            patternIndicator?.let { it() }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                heading?.let { it() }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        leadingContent?.let { it() }
-                        Column {
-                            headlineContent(
-                                Modifier
-                                    .weight(1f)
-                                    .wrapContentSize()
-                            )
-                            supportingContent?.let { it() }
-                        }
-                    }
-                    trailingContent?.let { it() }
-                }
-                dropdown?.let { it() }
-            }
-        }
-    }
-
-    /**
      * Card to display heading text within a stopping pattern
      */
     @Composable
@@ -394,7 +333,7 @@ object PatternComposables {
         isBefore: Boolean,
         modifier: Modifier = Modifier
     ) {
-        PatternListItem(
+        BetterListItem(
             patternIndicator = {
                 StopIndicator(stopType = StopType.ArrowSkipped)
             },
@@ -422,6 +361,7 @@ object PatternComposables {
         stopType: StopType,
         dropdown: (@Composable () -> Unit)? = null,
         isAlighting: Boolean = false,
+        backgroundColour: Color = MaterialTheme.colorScheme.surface,
         modifier: Modifier = Modifier
     ) {
         val isSkipped = stopType.stopClass == StopType.StopClass.Skipped
@@ -429,7 +369,8 @@ object PatternComposables {
         var isMenuExpanded by remember { mutableStateOf(false) }
 
         // Stop card
-        PatternListItem(
+        BetterListItem(
+            backgroundColour = backgroundColour,
             modifier = modifier,
             patternIndicator = {
                 StopIndicator(
@@ -605,7 +546,7 @@ fun PreviewStoppingPattern() {
         Modifier
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        PatternComposables.PatternListItem(
+        BetterListItem(
 //            heading = {
 //                Text(
 //                    text = "Next station is",
