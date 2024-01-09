@@ -89,11 +89,12 @@ fun BetterListItem(
     supportingContent: (@Composable () -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
     dropdown: (@Composable () -> Unit)? = null,
+    horizontalPadding: Dp = 16.dp,
     backgroundColour: Color = MaterialTheme.colorScheme.surface,
     modifier: Modifier = Modifier
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(horizontalPadding),
         modifier = modifier
             .fillMaxWidth()
             .background(backgroundColour)
@@ -114,7 +115,7 @@ fun BetterListItem(
                     .fillMaxWidth()
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(horizontalPadding),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
                 ) {

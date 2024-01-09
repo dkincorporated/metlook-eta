@@ -84,14 +84,16 @@ fun SettingsScreen(navHostController: NavHostController) {
                     headlineContent = {
                         Text(
                             text = page.title,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     supportingContent = {
                         page.subtitle?.let {
                             Text(
                                 text = it,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     },

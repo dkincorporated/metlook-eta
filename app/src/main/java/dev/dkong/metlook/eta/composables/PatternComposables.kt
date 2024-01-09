@@ -370,6 +370,7 @@ object PatternComposables {
 
         // Stop card
         BetterListItem(
+            horizontalPadding = 8.dp,
             backgroundColour = backgroundColour,
             modifier = modifier,
             patternIndicator = {
