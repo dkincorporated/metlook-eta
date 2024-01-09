@@ -143,6 +143,42 @@ class ServiceActivity : ComponentActivity() {
         var hasFirstLoaded by remember { mutableStateOf(false) }
         var isScreenActive by remember { mutableStateOf(true) }
 
+        /**
+         * Card for heads-up information in the bottom sheet
+         */
+        @Composable
+        fun InfoCard(
+            title: String,
+            subtitle: String? = null,
+            @DrawableRes icon: Int? = null
+        ) {
+            ListItem(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface),
+                headlineContent = {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                supportingContent = {
+                    subtitle?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                },
+                leadingContent = {
+                    icon?.let {
+                        IconMetLabel(icon = it)
+                    }
+                }
+            )
+        }
+
         suspend fun update(isFirstLoad: Boolean) {
             if (isFirstLoad)
                 loadingState = true
@@ -288,6 +324,11 @@ class ServiceActivity : ComponentActivity() {
                         }
                 }
 
+                if (nextStopIndex == null && pattern.isNotEmpty()) {
+                    // Expand the bottom sheet fully if no next stop was found
+                    if (isFirstLoad) scaffoldState.bottomSheetState.expand()
+                }
+
                 // Get transposing service, if any
                 transposingService = ServiceTransposal.getTransposedService(pattern.last())
 
@@ -415,40 +456,18 @@ class ServiceActivity : ComponentActivity() {
                             }
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
-                        // Info card
-                        if (!isSheetExpanded) {
-                            @Composable
-                            fun InfoCard(
-                                title: String,
-                                subtitle: String? = null,
-                                @DrawableRes icon: Int? = null
-                            ) {
-                                ListItem(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    headlineContent = {
-                                        Text(
-                                            text = title,
-                                            style = MaterialTheme.typography.titleLarge
-                                        )
-                                    },
-                                    supportingContent = {
-                                        subtitle?.let {
-                                            Text(
-                                                text = it,
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                    },
-                                    leadingContent = {
-                                        icon?.let {
-                                            IconMetLabel(icon = it)
-                                        }
-                                    }
+                        // No next stop found
+                        if (nextStopIndex == null && pattern.isNotEmpty()) {
+                            item {
+                                InfoCard(
+                                    title = "No next stop",
+                                    subtitle = "Due to data availability, the next stop couldn't be determined. Check the stopping pattern times.",
+                                    icon = R.drawable.outline_not_listed_location_24
                                 )
                             }
+                        }
+                        // Info card
+                        if (!isSheetExpanded) {
                             item {
                                 nextStopIndex?.let next@{ nextIndex ->
                                     // Show departure stop card when
@@ -541,10 +560,11 @@ class ServiceActivity : ComponentActivity() {
                             }
                         }
                         pattern.forEachIndexed { index, patternStop ->
-                            val isStopBeforeNext = index == previousStopIndex
+//                            val isStopBeforeNext = index == previousStopIndex
                             val isNextStop = index == nextStopIndex
                             val isStopAfterNext = index == followingStopIndex
-                            val isLastStop = index == pattern.lastIndex
+                            val isLastStop = index ==
+                                    pattern.lastIndex && nextStopIndex != null
 
                             if (
 //                                isStopBeforeNext
@@ -674,14 +694,14 @@ class ServiceActivity : ComponentActivity() {
                                 }
                                 // Check whether skipped-stop card needs to be shown
                                 nextStopIndex?.let { nextIndex ->
-                                    if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
-                                        item(key = "E" + patternStop.stop.stopId.toString()) {
-                                            PatternComposables.SkippedStopPatternCard(
-                                                skippedStops = pattern.slice((index + 1) until nextIndex),
-                                                isBefore = true
-                                            )
-                                        }
-                                    }
+//                                    if (!isSheetExpanded && isStopBeforeNext && index != nextIndex - 1) {
+//                                        item(key = "E" + patternStop.stop.stopId.toString()) {
+//                                            PatternComposables.SkippedStopPatternCard(
+//                                                skippedStops = pattern.slice((index + 1) until nextIndex),
+//                                                isBefore = true
+//                                            )
+//                                        }
+//                                    }
                                     followingStopIndex?.let { followingIndex ->
                                         if (!isSheetExpanded && isNextStop && nextIndex + 1 != followingIndex) {
                                             item(key = "E" + patternStop.stop.stopId.toString()) {
@@ -696,7 +716,7 @@ class ServiceActivity : ComponentActivity() {
                             }
                         }
                         // Service transposal card
-                        if (isSheetExpanded) {
+                        if (isSheetExpanded || nextStopIndex == null) {
                             transposingService?.let {
                                 item {
                                     SectionHeading(heading = "Continues from ${it.departureStop.fullStopName} as")
