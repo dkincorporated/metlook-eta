@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -13,7 +12,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -43,11 +48,6 @@ object Constants {
      * Date Format for date-times from PTV API
      */
     val dateTimeFormat = DateTimeFormatter.ISO_DATE_TIME
-
-    /**
-     * Format for displaying time of DateTime objects
-     */
-    val displayTimeFormatter = DateTimeFormatter.ofPattern("h:mma")
 
     /**
      * Get the base surface colour for background-type surfaces
@@ -98,4 +98,37 @@ object Constants {
      * Refresh interval for all automatically refresh screens, in milliseconds
      */
     val refreshInterval = 15000L
+
+    // Date Time
+    private fun Instant.toLocal(): LocalDateTime =
+        this.toLocalDateTime(TimeZone.currentSystemDefault())
+
+    /**
+     * Convert an [Instant] to a date + time display string
+     */
+    fun Instant.toDateTimeString(): String =
+        with(this.toLocal()) {
+            "$hour:${minute.toString().padStart(2, '0')} $dayOfMonth/$monthNumber/$year"
+        }
+
+    /**
+     * Convert an [Instant] to a date-only display string
+     */
+    fun Instant.toDateString(): String =
+        with(this.toLocal()) {
+            "$dayOfMonth/$monthNumber/$year"
+        }
+
+    /**
+     * Convert an [Instant] to a time-only 24-hour-time display string
+     */
+    fun Instant.toTimeString(): String =
+        with(this.toLocal()) {
+            "$hour:${minute.toString().padStart(2, '0')}"
+        }
+
+    /**
+     * Format for displaying time of DateTime objects
+     */
+    val timeFormatter = DateTimeFormatter.ofPattern("h:mma")
 }

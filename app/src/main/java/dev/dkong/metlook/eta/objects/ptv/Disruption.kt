@@ -1,6 +1,8 @@
 package dev.dkong.metlook.eta.objects.ptv
 
 import dev.dkong.metlook.eta.common.RouteType
+import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -53,13 +55,13 @@ data class Disruption(
     @SerialName("disruption_type")
     val disruptionType: String,
     @SerialName("published_on")
-    val publishedOn: String,
+    private val publishedOnString: String,
     @SerialName("last_updated")
-    val lastUpdated: String,
+    private val lastUpdatedString: String,
     @SerialName("from_date")
-    val fromDate: String,
+    private val fromDateString: String,
     @SerialName("to_date")
-    val toDate: String?,
+    private val toDateString: String?,
     val routes: List<DisruptionRoute>,
     val stops: List<DisruptionStop>,
     val colour: String,
@@ -84,6 +86,30 @@ data class Disruption(
         "planned closure" -> 10
         else -> 99
     }
+
+    /**
+     * Published-on [Instant] date time
+     */
+    @Contextual
+    val publishedOn = Instant.parse(publishedOnString)
+
+    /**
+     * Last-updated [Instant] date time
+     */
+    @Contextual
+    val lastUpdated = Instant.parse(lastUpdatedString)
+
+    /**
+     * From-date [Instant] date time
+     */
+    @Contextual
+    val fromDate = Instant.parse(fromDateString)
+
+    /**
+     * To-date [Instant] date time
+     */
+    @Contextual
+    val toDate = toDateString?.let { Instant.parse(it) }
 }
 
 /**

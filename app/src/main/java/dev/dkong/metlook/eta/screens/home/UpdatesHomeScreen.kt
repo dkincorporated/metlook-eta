@@ -54,11 +54,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
+import dev.dkong.metlook.eta.common.Constants
 import dev.dkong.metlook.eta.common.Constants.httpClient
 import dev.dkong.metlook.eta.common.Constants.jsonFormat
+import dev.dkong.metlook.eta.common.Constants.toDateTimeString
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.RouteType
 import dev.dkong.metlook.eta.common.utils.PtvApi
+import dev.dkong.metlook.eta.common.utils.ScaledDuration
 import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
@@ -67,7 +70,9 @@ import dev.dkong.metlook.eta.objects.ptv.Disruptions
 import dev.dkong.metlook.eta.objects.ptv.DisruptionsResult
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
+import java.time.Instant
 
 /**
  * Updates page for the home screen
@@ -196,7 +201,7 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
         headlineContent = {
             Text(
                 text = disruption.title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         supportingContent = {
@@ -230,6 +235,28 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
 
     // Modal bottom sheet
     if (showDetail) {
+        /**
+         * Key-value text description
+         * @param key the name of the item
+         * @param value the value of the key item
+         */
+        @Composable
+        fun KeyValueText(key: String, value: String?) {
+            Text(
+                text = buildAnnotatedString {
+                    append("$key:")
+                    value?.let {
+                        append(" ")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(it)
+                        }
+                    }
+                },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
         ModalBottomSheet(onDismissRequest = { showDetail = false }) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -263,8 +290,8 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                 }
                 Text(
                     text = disruption.title,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 if (disruption.description != disruption.title) {
                     // Sometimes, they are the same, which would be redundant to show twice
@@ -274,15 +301,17 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Text(
-                    text = buildAnnotatedString {
-                        append("Status: ")
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(disruption.disruptionStatus)
+                KeyValueText(key = "Status", value = disruption.disruptionStatus)
+                KeyValueText(
+                    key = "Last updated",
+                    value = ScaledDuration(Clock.System.now() - disruption.lastUpdated).scaleDuration()
+                        .let {
+                            "${it.value()} ${stringResource(id = it.displayUnit)} ago"
                         }
-                    },
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
+                )
+                KeyValueText(
+                    key = "Active",
+                    value = "${disruption.fromDate.toDateTimeString()} – ${disruption.toDate?.toDateTimeString() ?: ""}"
                 )
                 if (disruption.url != "http://ptv.vic.gov.au/live-travel-updates/") {
                     Button(

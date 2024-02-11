@@ -20,7 +20,6 @@ object ServiceTransposal {
      * @param service the service to obtain for which to obtain its transposing service
      */
     suspend fun getTransposedService(departure: PatternDeparture): ServiceDeparture? {
-        Log.d("TRANSPOSAL", "Checking for ${departure.stop.stopName}")
         // Transposing service is only available for Trains
         if (departure.routeType != RouteType.Train) return null
 

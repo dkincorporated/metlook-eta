@@ -8,7 +8,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.time.Duration
 
@@ -61,7 +60,7 @@ abstract class Departure(
      * Get the display time of the scheduled departure
      */
     fun scheduledDepartureTime() =
-        Constants.displayTimeFormatter.format(
+        Constants.timeFormatter.format(
             scheduledDeparture
                 .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
                 .toJavaLocalDateTime()
@@ -72,7 +71,7 @@ abstract class Departure(
      */
     fun estimatedDepartureTime() =
         estimatedDeparture?.let {
-            Constants.displayTimeFormatter.format(
+            Constants.timeFormatter.format(
                 estimatedDeparture
                     .toLocalDateTime(TimeZone.of("Australia/Melbourne"))
                     .toJavaLocalDateTime()
