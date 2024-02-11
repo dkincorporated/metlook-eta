@@ -10,6 +10,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -50,10 +53,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -142,6 +148,7 @@ fun BetterListItem(
  * @param title the title to be displayed at the top
  * @param horizontalPadding the horizontal padding for the content
  * @param navigationIcon the icon to be displayed in the navigation button
+ * @param actions the row of actionable buttons in the top app bar
  * @param onNavigationIconClick the click action for the navigation icon
  * @param content the content to be displayed (must be lazy list)
  */
@@ -153,6 +160,7 @@ fun LargeTopAppbarScaffold(
     horizontalPadding: Dp = 0.dp,
     navigationIcon: ImageVector = Icons.AutoMirrored.Default.ArrowBack,
     onNavigationIconClick: () -> Unit = { navController.navigateUp() },
+    actions: @Composable() (RowScope.() -> Unit) = {},
     navigationBar: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit
 ) {
@@ -176,7 +184,8 @@ fun LargeTopAppbarScaffold(
                         onClick = onNavigationIconClick,
                         icon = navigationIcon
                     )
-                }
+                },
+                actions = actions
             )
         },
         bottomBar = navigationBar
@@ -510,5 +519,47 @@ fun CheckableChip(
                     Icon(Icons.Default.Close, "Remove")
                 }
         }
+    )
+}
+
+/**
+ * Modern M3-style text field
+ * @param value the mutable value for the field
+ * @param labelText the title of the field
+ * @param onValueChange callback function for a change in the value
+ */
+@Composable
+fun MaterialTextField(
+    value: MutableState<String>,
+    labelText: String,
+    onValueChange: (String) -> Unit = {},
+    trailingIcon: (@Composable () -> Unit)? = null
+) {
+    TextField(
+        value = value.value,
+        onValueChange = { newValue ->
+            value.value = newValue
+            onValueChange(newValue)
+        },
+        label = {
+            Text(text = labelText)
+        },
+        trailingIcon = trailingIcon,
+        singleLine = true,
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(16.dp)
+            ),
+        shape = RoundedCornerShape(16.dp),
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        )
     )
 }

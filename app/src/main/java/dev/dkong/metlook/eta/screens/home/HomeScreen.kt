@@ -43,6 +43,8 @@ import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.activities.SettingsActivity
 import dev.dkong.metlook.eta.common.Constants
+import dev.dkong.metlook.eta.common.ventura.TrackerManager
+import dev.dkong.metlook.eta.common.ventura.VenturaTrackerActivity
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffoldBox
 import dev.dkong.metlook.eta.composables.SectionHeading
 
@@ -51,7 +53,12 @@ fun HomeScreen(navHostController: NavHostController) {
     /**
      * Carrier record for Nav Drawer items other than the Nav Bar items
      */
-    data class NavDrawerItem(val name: String, val route: String, @DrawableRes val icon: Int)
+    data class NavDrawerItem(
+        val name: String,
+        val route: String,
+        @DrawableRes val icon: Int,
+        val onLaunch: () -> Unit
+    )
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -118,7 +125,16 @@ fun HomeScreen(navHostController: NavHostController) {
                 // Other Nav Drawer items
                 SectionHeading(heading = "More")
                 val navDrawerItems = listOf(
-                    NavDrawerItem("Settings", "settings", R.drawable.fancy_outlined_settings)
+                    NavDrawerItem(
+                        TrackerManager.integrationSettingsName,
+                        "tracker",
+                        R.drawable.outline_dataset_linked_24
+                    ) {
+                        context.startActivity(Intent(context, VenturaTrackerActivity::class.java))
+                    },
+                    NavDrawerItem("Settings", "settings", R.drawable.fancy_outlined_settings) {
+                        context.startActivity(Intent(context, SettingsActivity::class.java))
+                    }
                 )
                 navDrawerItems.forEach { item ->
                     NavigationDrawerItem(
@@ -127,9 +143,8 @@ fun HomeScreen(navHostController: NavHostController) {
                         },
                         selected = false,
                         onClick = {
-                            context.startActivity(Intent(context, SettingsActivity::class.java))
+                            item.onLaunch()
 
-//                            navHostController.navigate(item.route)
                             scope.launch {
                                 drawerState.close()
                             }
