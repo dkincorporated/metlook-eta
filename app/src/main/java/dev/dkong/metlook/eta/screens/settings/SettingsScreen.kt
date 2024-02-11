@@ -1,18 +1,13 @@
 package dev.dkong.metlook.eta.screens.settings
 
-import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +22,9 @@ import androidx.navigation.NavHostController
 import dev.dkong.metlook.eta.R
 import dev.dkong.metlook.eta.common.ListPosition
 import dev.dkong.metlook.eta.common.Utils.finishActivity
-import dev.dkong.metlook.eta.common.tracker.TrackerManager
+import dev.dkong.metlook.eta.common.ventura.TrackerManager
 import dev.dkong.metlook.eta.composables.BetterListItem
 import dev.dkong.metlook.eta.composables.LargeTopAppbarScaffold
-import dev.dkong.metlook.eta.composables.MaterialColumn
-import dev.dkong.metlook.eta.composables.SettingsItem
 
 /**
  * Main settings screen for the app

@@ -1,6 +1,6 @@
 package dev.dkong.metlook.eta.screens.settings
 
-import dev.dkong.metlook.eta.common.tracker.TrackerManager
+import dev.dkong.metlook.eta.common.ventura.TrackerManager
 import dev.dkong.metlook.eta.screens.Screen
 
 sealed class SettingsScreens(route: String, name: String) : Screen("settings/$route", name) {

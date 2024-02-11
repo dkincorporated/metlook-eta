@@ -16,7 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.dkong.metlook.eta.common.Constants
-import dev.dkong.metlook.eta.common.tracker.TrackerIntegrationSettingsScreen
+import dev.dkong.metlook.eta.common.ventura.TrackerIntegrationSettingsScreen
 import dev.dkong.metlook.eta.screens.RootScreen
 import dev.dkong.metlook.eta.screens.settings.LocationFeaturesScreen
 import dev.dkong.metlook.eta.screens.settings.RecentsSettingsScreen
