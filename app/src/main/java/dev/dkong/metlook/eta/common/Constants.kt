@@ -16,6 +16,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -76,7 +77,12 @@ object Constants {
     /**
      * Format for parsing JSON using Kotlinx Serialization
      */
-    val jsonFormat = Json { ignoreUnknownKeys = true }
+    @OptIn(ExperimentalSerializationApi::class)
+    val jsonFormat = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+        prettyPrintIndent = "  "
+    }
 
     /**
      * Client for ktor
