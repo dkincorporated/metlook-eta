@@ -19,3 +19,5 @@ local.properties
 app/src/main/java/dev/dkong/metlook/eta/common/ventura/
 app/src/main/res/drawable/logo_*
 app/release/*
+
+app/release/
