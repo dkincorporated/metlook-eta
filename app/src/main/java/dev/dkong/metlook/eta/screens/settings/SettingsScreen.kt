@@ -59,7 +59,7 @@ fun SettingsScreen(navHostController: NavHostController) {
         SettingsPage(
             TrackerManager.integrationSettingsName,
             TrackerManager.integrationSettingsDescription,
-            R.drawable.outline_dataset_linked_24
+            TrackerManager.drawable
         ) { navHostController.navigate(SettingsScreens.TrackerIntegration.route) }
     )
 

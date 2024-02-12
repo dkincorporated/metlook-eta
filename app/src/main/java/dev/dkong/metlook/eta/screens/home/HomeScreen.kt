@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -128,7 +129,7 @@ fun HomeScreen(navHostController: NavHostController) {
                     NavDrawerItem(
                         TrackerManager.integrationSettingsName,
                         "tracker",
-                        R.drawable.outline_dataset_linked_24
+                        TrackerManager.drawable
                     ) {
                         context.startActivity(Intent(context, VenturaTrackerActivity::class.java))
                     },
@@ -153,7 +154,8 @@ fun HomeScreen(navHostController: NavHostController) {
                             Image(
                                 painter = painterResource(id = item.icon),
                                 contentDescription = item.name,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant),
+                                modifier = Modifier.size(24.dp)
                             )
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
