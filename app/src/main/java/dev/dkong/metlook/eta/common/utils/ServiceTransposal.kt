@@ -20,8 +20,12 @@ object ServiceTransposal {
      * @param service the service to obtain for which to obtain its transposing service
      */
     suspend fun getTransposedService(departure: PatternDeparture): ServiceDeparture? {
-        // Transposing service is only available for Trains
-        if (departure.routeType != RouteType.Train) return null
+        if (
+            // Transposing service is only available for Trains
+            departure.routeType != RouteType.Train
+            // No transposing service if no vehicle ID
+            || (departure.vehicleDescriptor?.id ?: "") == ""
+        ) return null
 
         // Get all candidate departures
         val departures = getCandidateDepartures(departure)
