@@ -311,7 +311,9 @@ fun DisruptionCard(disruption: Disruption, shape: Shape, context: Context) {
                 )
                 KeyValueText(
                     key = "Active",
-                    value = "${disruption.fromDate.toDateTimeString()} – ${disruption.toDate?.toDateTimeString() ?: ""}"
+                    value =
+                    if (disruption.toDate == null) "since ${disruption.fromDate.toDateTimeString()}"
+                    else "${disruption.fromDate.toDateTimeString()} – ${disruption.toDate.toDateTimeString()}"
                 )
                 if (disruption.url != "http://ptv.vic.gov.au/live-travel-updates/") {
                     Button(
