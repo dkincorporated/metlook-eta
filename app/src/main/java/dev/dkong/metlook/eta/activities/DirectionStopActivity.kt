@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,11 +23,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -62,6 +66,7 @@ import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.PlaceholderMessage
 import dev.dkong.metlook.eta.composables.SectionHeading
+import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.ServiceDeparture
 import dev.dkong.metlook.eta.objects.metlook.ParcelableService
@@ -313,10 +318,18 @@ class DirectionStopActivity : ComponentActivity() {
             }
         }
 
-        PersistentBottomSheetScaffold(
-            scaffoldState = scaffoldState,
+        // Use a standard center-aligned top app bar scaffold until map is ready
+
+        val scrollBehavior =
+            TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Constants.appSurfaceColour(),
+            contentWindowInsets = WindowInsets(bottom = 0.dp),
             topBar = {
                 CenterAlignedTopAppBar(
+                    scrollBehavior = scrollBehavior,
                     title = {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -332,13 +345,8 @@ class DirectionStopActivity : ComponentActivity() {
                         }
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor =
-                        if (with(scaffoldState.bottomSheetState) {
-                                currentValue == SheetValue.Expanded
-                                        && targetValue == SheetValue.Expanded
-                            })
-                            Constants.scrolledAppbarContainerColour()
-                        else Constants.appSurfaceColour()
+                        containerColor = Constants.appSurfaceColour(),
+                        scrolledContainerColor = Constants.scrolledAppbarContainerColour()
                     ),
                     navigationIcon = {
                         ElevatedAppBarNavigationIcon(onClick = {
@@ -364,109 +372,97 @@ class DirectionStopActivity : ComponentActivity() {
                             }
                         }
                 )
-            },
-            topBarHeight = topBarHeight,
-            mainContent = {
-                // TODO: Map
-                PlaceholderMessage(
-                    title = "The map is coming soon",
-                    subtitle = "Please excuse us while we work behind the scenes."
-                )
-            },
-            mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
-            sheetContent = {
-                // Departures content
-
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                ) {
-                    // Filter chip(s)
-                    // Stopping pattern filters
-                    if (departuresPatternList.isNotEmpty()) {
-                        item {
-                            SectionHeading(heading = "Stopping pattern")
-                        }
-                    }
-                    // Route filters
-                    else if (departuresRouteList.isNotEmpty()) {
-                        item {
-                            SectionHeading(heading = "Line")
-                        }
-                    }
+            }
+        ) { padding ->
+            // Departures content
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxWidth()
+            ) {
+                // Filter chip(s)
+                // Stopping pattern filters
+                if (departuresPatternList.isNotEmpty()) {
                     item {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                        SectionHeading(heading = "Stopping pattern")
+                    }
+                }
+                // Route filters
+                else if (departuresRouteList.isNotEmpty()) {
+                    item {
+                        SectionHeading(heading = "Line")
+                    }
+                }
+                item {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        if (direction.routeType == RouteType.Train) {
+                            departuresPatternList.forEach { patternClass ->
+                                // Display all stopping pattern types
+                                CheckableChip(
+                                    selected = filters[patternClass.ordinal] == true,
+                                    name = stringResource(id = patternClass.displayName),
+                                    showIcon = false,
+                                    showRemoveIcon = true
+                                ) {
+                                    // Toggle the status
+                                    filters[patternClass.ordinal] =
+                                        if (filters[patternClass.ordinal] == null) true else null
+                                    updateFilters()
+                                }
+                            }
+                        } else if (listOf(RouteType.Tram, RouteType.Bus)
+                                .contains(stop.routeType)
                         ) {
-                            if (direction.routeType == RouteType.Train) {
-                                departuresPatternList.forEach { patternClass ->
-                                    // Display all stopping pattern types
+                            // For tram and bus, filter by route
+                            departuresRouteList
+                                .forEach { route ->
+                                    if (route.routeNumber == null) return@forEach
+                                    // Display all routes
                                     CheckableChip(
-                                        selected = filters[patternClass.ordinal] == true,
-                                        name = stringResource(id = patternClass.displayName),
+                                        selected = filters[route.routeId] == true,
+                                        name = route.routeNumber,
                                         showIcon = false,
                                         showRemoveIcon = true
                                     ) {
                                         // Toggle the status
-                                        filters[patternClass.ordinal] =
-                                            if (filters[patternClass.ordinal] == null) true else null
+                                        filters[route.routeId] =
+                                            if (filters[route.routeId] == null) true else null
                                         updateFilters()
                                     }
                                 }
-                            } else if (listOf(RouteType.Tram, RouteType.Bus)
-                                    .contains(stop.routeType)
-                            ) {
-                                // For tram and bus, filter by route
-                                departuresRouteList
-                                    .forEach { route ->
-                                        if (route.routeNumber == null) return@forEach
-                                        // Display all routes
-                                        CheckableChip(
-                                            selected = filters[route.routeId] == true,
-                                            name = route.routeNumber,
-                                            showIcon = false,
-                                            showRemoveIcon = true
-                                        ) {
-                                            // Toggle the status
-                                            filters[route.routeId] =
-                                                if (filters[route.routeId] == null) true else null
-                                            updateFilters()
-                                        }
-                                    }
-                            }
                         }
-                    }
-                    item {
-                        SectionHeading(heading = "Departures")
-                    }
-                    // Display the services
-                    departures.forEachIndexed { index, departure ->
-                        item(key = departure.runRef) {
-                            DepartureCard(
-                                departureList = listOf(departure),
-                                shape = ListPosition.fromPosition(
-                                    index,
-                                    departures.size
-                                ).roundedShape,
-                                onClick = {
-                                    scope.launch {
-                                        departure.launchServiceActivity(context)
-                                    }
-                                },
-                                modifier = Modifier.animateItemPlacement()
-                            )
-                        }
-                    }
-                    item {
-                        NavBarPadding()
                     }
                 }
-            },
-            sheetPeekHeight = 512.dp
-        )
+                item {
+                    SectionHeading(heading = "Departures")
+                }
+                // Display the services
+                departures.forEachIndexed { index, departure ->
+                    item(key = departure.runRef) {
+                        DepartureCard(
+                            departureList = listOf(departure),
+                            shape = ListPosition.fromPosition(
+                                index,
+                                departures.size
+                            ).roundedShape,
+                            onClick = {
+                                scope.launch {
+                                    departure.launchServiceActivity(context)
+                                }
+                            },
+                            modifier = Modifier.animateItemPlacement()
+                        )
+                    }
+                }
+                item {
+                    NavBarPadding()
+                }
+            }
+        }
     }
 }
