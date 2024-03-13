@@ -15,8 +15,8 @@ import kotlinx.serialization.SerializationException
  * Blueprint for any Recent-type data store
  */
 abstract class RecentsDataStore<T>(
-    val recentsKey: Preferences.Key<String>,
-    val limitCoordinator: SettingsDataStore<Int>
+    private val recentsKey: Preferences.Key<String>,
+    private val limitCoordinator: SettingsDataStore<Int>
 ) {
     /**
      * Serialise the data

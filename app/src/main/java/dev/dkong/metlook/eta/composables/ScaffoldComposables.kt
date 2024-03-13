@@ -527,13 +527,16 @@ fun CheckableChip(
  * @param value the mutable value for the field
  * @param labelText the title of the field
  * @param onValueChange callback function for a change in the value
+ * @param trailingIcon the content at the end of the text field
+ * @param keyboardOptions input options
  */
 @Composable
 fun MaterialTextField(
     value: MutableState<String>,
     labelText: String,
     onValueChange: (String) -> Unit = {},
-    trailingIcon: (@Composable () -> Unit)? = null
+    trailingIcon: (@Composable () -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     TextField(
         value = value.value,
@@ -546,6 +549,7 @@ fun MaterialTextField(
         },
         trailingIcon = trailingIcon,
         singleLine = true,
+        keyboardOptions = keyboardOptions,
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
