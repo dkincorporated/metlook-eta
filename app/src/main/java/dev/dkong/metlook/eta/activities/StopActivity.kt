@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,12 +29,14 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -46,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -306,10 +310,18 @@ class StopActivity : ComponentActivity() {
             }
         }
 
-        PersistentBottomSheetScaffold(
-            scaffoldState = scaffoldState,
+        // Use a standard center-aligned top app bar scaffold until map is ready
+
+        val scrollBehavior =
+            TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+        Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Constants.appSurfaceColour(),
+            contentWindowInsets = WindowInsets(bottom = 0.dp),
             topBar = {
                 CenterAlignedTopAppBar(
+                    scrollBehavior = scrollBehavior,
                     title = {
                         TwoLineCenterTopAppBarText(
                             title = stopName.first,
@@ -317,13 +329,8 @@ class StopActivity : ComponentActivity() {
 
                     },
                     colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor =
-                        if (with(scaffoldState.bottomSheetState) {
-                                currentValue == SheetValue.Expanded
-                                        && targetValue == SheetValue.Expanded
-                            })
-                            Constants.scrolledAppbarContainerColour()
-                        else Constants.appSurfaceColour()
+                        containerColor = Constants.appSurfaceColour(),
+                        scrolledContainerColor = Constants.scrolledAppbarContainerColour()
                     ),
                     navigationIcon = {
                         ElevatedAppBarNavigationIcon(onClick = {
@@ -355,138 +362,109 @@ class StopActivity : ComponentActivity() {
                             }
                         }
                 )
-            },
-            topBarHeight = appBarHeight,
-            mainContent = {
-                // Map
-                Box(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    PlaceholderMessage(
-                        title = "The map is coming soon",
-                        subtitle = "Please excuse us while we work behind the scenes."
-                    )
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                        },
-                        icon = {
-                            Icon(Icons.Outlined.KeyboardArrowUp, "Expand departures")
-                        },
-                        text = {
-                            Text(text = "Departures")
-                        },
+            }
+        ) { padding ->
+            // Departures
+            LazyColumn(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxWidth()
+            ) {
+                // Filter chip(s)
+                item {
+                    FlowRow(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(16.dp)
-                    )
-                }
-            },
-            mainContentBackgroundColour = MaterialTheme.colorScheme.tertiaryContainer,
-            sheetPeekHeight = 512.dp, // TODO: peek height
-            sheetContent = {
-                // Departures
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                ) {
-                    // Filter chip(s)
-                    item {
-                        FlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            CheckableChip(selected = filters["next-sixty"] == true, "Next 60 min") {
-                                filters["next-sixty"] =
-                                    filters["next-sixty"] != true
-                                updateFilters()
-                            }
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        CheckableChip(selected = filters["next-sixty"] == true, "Next 60 min") {
+                            filters["next-sixty"] =
+                                filters["next-sixty"] != true
+                            updateFilters()
                         }
                     }
-                    departures.forEach { group ->
-                        // Display group heading
-                        item(key = group.first.groupingId) {
-                            SectionHeading(
-                                heading = group.first.name,
-                                modifier = Modifier.animateItemPlacement()
-                            )
-                        }
-                        // Display the services
-                        // TODO: Decide what to do with extra services
-                        val maxNumberOfGroups = 4
-                        group.second.slice(
-                            0 until min(
-                                maxNumberOfGroups,
-                                group.second.size
-                            )
+                }
+                departures.forEach { group ->
+                    // Display group heading
+                    item(key = group.first.groupingId) {
+                        SectionHeading(
+                            heading = group.first.name,
+                            modifier = Modifier.animateItemPlacement()
                         )
-                            .forEachIndexed { index, departure ->
-                                val listedDepartures =
-                                    departure.second.slice(
-                                        0 until min(
-                                            2,
-                                            departure.second.size
-                                        )
+                    }
+                    // Display the services
+                    // TODO: Decide what to do with extra services
+                    val maxNumberOfGroups = 4
+                    group.second.slice(
+                        0 until min(
+                            maxNumberOfGroups,
+                            group.second.size
+                        )
+                    )
+                        .forEachIndexed { index, departure ->
+                            val listedDepartures =
+                                departure.second.slice(
+                                    0 until min(
+                                        2,
+                                        departure.second.size
                                     )
+                                )
 
-                                item(key = listedDepartures.first().runRef) {
-                                    DepartureCard(
-                                        departureList = listedDepartures,
-                                        shape = ListPosition.fromPosition(
-                                            index,
-                                            min(
-                                                maxNumberOfGroups,
-                                                group.second.size
-                                            ) // TODO
-                                        ).roundedShape,
-                                        onClick = { departures ->
-                                            val firstDeparture = departures.first()
+                            item(key = listedDepartures.first().runRef) {
+                                DepartureCard(
+                                    departureList = listedDepartures,
+                                    shape = ListPosition.fromPosition(
+                                        index,
+                                        min(
+                                            maxNumberOfGroups,
+                                            group.second.size
+                                        ) // TODO
+                                    ).roundedShape,
+                                    onClick = { departures ->
+                                        val firstDeparture = departures.first()
 //                                            if (departures.size == 1) {
 //                                                // Launch Service directly
 //                                                // TODO
 //                                            } else {
-                                            // Launch Direction Departures
-                                            val directionDeparturesIntent = Intent(
-                                                context,
-                                                DirectionStopActivity::class.java
+                                        // Launch Direction Departures
+                                        val directionDeparturesIntent = Intent(
+                                            context,
+                                            DirectionStopActivity::class.java
+                                        )
+                                        directionDeparturesIntent.putExtra(
+                                            "stop",
+                                            Constants.jsonFormat.encodeToString(stop)
+                                        )
+                                        directionDeparturesIntent.putExtra(
+                                            "direction",
+                                            Constants.jsonFormat.encodeToString(
+                                                firstDeparture.direction
                                             )
-                                            directionDeparturesIntent.putExtra(
-                                                "stop",
-                                                Constants.jsonFormat.encodeToString(stop)
-                                            )
-                                            directionDeparturesIntent.putExtra(
-                                                "direction",
-                                                Constants.jsonFormat.encodeToString(
-                                                    firstDeparture.direction
-                                                )
-                                            )
-                                            context.startActivity(directionDeparturesIntent)
+                                        )
+                                        context.startActivity(directionDeparturesIntent)
 //                                            }
-                                        },
-                                        modifier = Modifier.animateItemPlacement()
-                                    )
-                                }
-
+                                    },
+                                    modifier = Modifier.animateItemPlacement()
+                                )
                             }
-                    }
-                    if (departures.isNotEmpty()) {
-                        item(key = "footnote") {
-                            SettingsInfoFootnote(
-                                info = StringBuilder().apply {
-                                    append(stringResource(id = R.string.departures_asterisk_departure_times))
-                                    if (stop.routeType == RouteType.Train)
-                                        append("\n" + stringResource(id = R.string.departures_now_asterisk))
-                                }.toString()
-                            )
+
                         }
-                    }
-                    item {
-                        NavBarPadding()
+                }
+                if (departures.isNotEmpty()) {
+                    item(key = "footnote") {
+                        SettingsInfoFootnote(
+                            info = StringBuilder().apply {
+                                append(stringResource(id = R.string.departures_asterisk_departure_times))
+                                if (stop.routeType == RouteType.Train)
+                                    append("\n" + stringResource(id = R.string.departures_now_asterisk))
+                            }.toString()
+                        )
                     }
                 }
+                item {
+                    NavBarPadding()
+                }
             }
-        )
+        }
     }
 }
