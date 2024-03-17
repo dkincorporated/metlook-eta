@@ -41,7 +41,7 @@ object Constants {
             by preferencesDataStore(name = "settings")
 
     // Transition between screens
-    val transitionOffsetProportion = 10
+    const val transitionOffsetProportion = 10
     val transitionAnimationSpec: FiniteAnimationSpec<IntOffset> = tween(300)
 
     // PTV API

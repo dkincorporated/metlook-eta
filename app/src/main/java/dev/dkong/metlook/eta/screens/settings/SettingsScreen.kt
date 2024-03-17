@@ -56,11 +56,11 @@ fun SettingsScreen(navHostController: NavHostController) {
             "Save recent stops, stations and services",
             R.drawable.baseline_history_24
         ) { navHostController.navigate(SettingsScreens.Recents.route) },
-        SettingsPage(
-            TrackerManager.integrationSettingsName,
-            TrackerManager.integrationSettingsDescription,
-            TrackerManager.drawable
-        ) { navHostController.navigate(SettingsScreens.TrackerIntegration.route) }
+//        SettingsPage(
+//            TrackerManager.integrationSettingsName,
+//            TrackerManager.integrationSettingsDescription,
+//            TrackerManager.drawable
+//        ) { navHostController.navigate(SettingsScreens.TrackerIntegration.route) }
     )
 
     LargeTopAppbarScaffold(

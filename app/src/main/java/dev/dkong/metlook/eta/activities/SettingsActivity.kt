@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,33 +52,49 @@ class SettingsActivity : ComponentActivity() {
      */
     @Composable
     fun SettingsScreenHost(navHostController: NavHostController) {
+        val transitionOffset = 20
+        val enterScaleAmount = 0.8f
+        val exitScaleAmount = 0.95f
+
         NavHost(
             navController = navHostController,
             startDestination = RootScreen.Settings.route,
             modifier = Modifier.fillMaxSize(),
             enterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { it / Constants.transitionOffsetProportion },
+                    initialOffsetX = { it / transitionOffset },
                     animationSpec = Constants.transitionAnimationSpec
+                ) + scaleIn(
+                    initialScale = enterScaleAmount
                 ) + fadeIn()
             },
             exitTransition = {
-                fadeOut() + slideOutHorizontally(
-                    targetOffsetX = { -it / Constants.transitionOffsetProportion },
-                    animationSpec = Constants.transitionAnimationSpec
-                )
+                fadeOut() +
+                        scaleOut(
+                            targetScale = exitScaleAmount
+                        ) +
+                        slideOutHorizontally(
+                            targetOffsetX = { -it / transitionOffset },
+                            animationSpec = Constants.transitionAnimationSpec
+                        )
             },
             popEnterTransition = {
                 slideInHorizontally(
-                    initialOffsetX = { -it / Constants.transitionOffsetProportion },
+                    initialOffsetX = { -it / transitionOffset },
                     animationSpec = Constants.transitionAnimationSpec
+                ) + scaleIn(
+                    initialScale = enterScaleAmount
                 ) + fadeIn()
             },
             popExitTransition = {
-                fadeOut() + slideOutHorizontally(
-                    targetOffsetX = { it / Constants.transitionOffsetProportion },
-                    animationSpec = Constants.transitionAnimationSpec
-                )
+                fadeOut() +
+                        scaleOut(
+                            targetScale = exitScaleAmount
+                        ) +
+                        slideOutHorizontally(
+                            targetOffsetX = { it / transitionOffset },
+                            animationSpec = Constants.transitionAnimationSpec
+                        )
             }
         ) {
             // Settings
