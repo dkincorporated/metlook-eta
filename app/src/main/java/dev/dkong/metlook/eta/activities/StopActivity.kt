@@ -453,11 +453,7 @@ class StopActivity : ComponentActivity() {
                 if (departures.isNotEmpty()) {
                     item(key = "footnote") {
                         SettingsInfoFootnote(
-                            info = StringBuilder().apply {
-                                append(stringResource(id = R.string.departures_asterisk_departure_times))
-                                if (stop.routeType == RouteType.Train)
-                                    append("\n" + stringResource(id = R.string.departures_now_asterisk))
-                            }.toString()
+                            info = stringResource(id = R.string.departures_check_board_notice)
                         )
                     }
                 }

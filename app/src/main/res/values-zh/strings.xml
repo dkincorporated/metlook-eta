@@ -31,6 +31,9 @@
     <string name="departures_now_asterisk">
         被列为‘现在*’的出发时间表示本次列车正在驶入车站，并很快就到达。
     </string>
+    <string name="departures_check_board_notice">
+        请留意站台显示牌最新的信息。
+    </string>
 
     <!-- Fun messages -->
     <string-array name="fun_msg_loading">
