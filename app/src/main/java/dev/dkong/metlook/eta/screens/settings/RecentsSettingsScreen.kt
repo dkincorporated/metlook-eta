@@ -97,7 +97,7 @@ fun RecentsSettingsScreen(navHostController: NavHostController) {
                 onChange(v.roundToInt())
             },
             valueRange = range,
-            steps = (range.endInclusive / maxOf(1f, range.start)).roundToInt(),
+            steps = (range.endInclusive / maxOf(1f, range.start)).roundToInt() - 1,
             modifier = Modifier
                 .fillMaxWidth()
         )
