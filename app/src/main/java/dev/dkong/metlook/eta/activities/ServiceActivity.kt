@@ -585,18 +585,27 @@ class ServiceActivity : ComponentActivity() {
                                 if (isNextStop && !isSheetExpanded) {
                                     // Display next-stop heading
                                     item {
-                                        PatternComposables.PatternHeadingCard(
-                                            heading = when (index) {
-                                                0 -> "Originates from"
-                                                pattern.lastIndex -> "Terminates at"
-                                                else -> when (patternStop.routeType) {
-                                                    RouteType.Train -> "Next station is"
-                                                    else -> "Next stop is"
-                                                }
-                                            },
-                                            showIndicator = false, // index > 0,
-                                            modifier = Modifier.padding(bottom = 8.dp)
-                                        )
+                                        SectionHeading(heading = when (index) {
+                                            0 -> "Originates from"
+                                            pattern.lastIndex -> "Terminates at"
+                                            else -> when (patternStop.routeType) {
+                                                RouteType.Train -> "Next station is"
+                                                else -> "Next stop is"
+                                            }
+                                        })
+                                        // Use below if pattern line is to be displayed beside it
+//                                        PatternComposables.PatternHeadingCard(
+//                                            heading = when (index) {
+//                                                0 -> "Originates from"
+//                                                pattern.lastIndex -> "Terminates at"
+//                                                else -> when (patternStop.routeType) {
+//                                                    RouteType.Train -> "Next station is"
+//                                                    else -> "Next stop is"
+//                                                }
+//                                            },
+//                                            showIndicator = false, // index > 0,
+//                                            modifier = Modifier.padding(bottom = 8.dp)
+//                                        )
                                     }
                                 }
                                 if (
