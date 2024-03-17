@@ -332,7 +332,14 @@ class ServiceActivity : ComponentActivity() {
                 }
 
                 // Get transposing service, if any
-                transposingService = ServiceTransposal.getTransposedService(pattern.last())
+                transposingService = ServiceTransposal.getTransposedService(
+                    // If towards city, get Flinders Street as transposing stop
+                    if (originalDeparture.direction.directionId == 1)
+                    // Try to find Flinders Street; else, use the last stop
+                        pattern.find { d -> d.stop.stopId == 1071 } ?: pattern.last()
+                    // Else, get the last stop
+                    else pattern.last()
+                )
 
                 hasFirstLoaded = true
                 loadingState = false
