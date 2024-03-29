@@ -469,8 +469,8 @@ class ServiceActivity : ComponentActivity() {
                         if (nextStopIndex == null && pattern.isNotEmpty()) {
                             item {
                                 InfoCard(
-                                    title = "No next stop",
-                                    subtitle = "Due to data availability, the next stop couldn't be determined. Check the stopping pattern times.",
+                                    title = "Next stop unknown",
+                                    subtitle = "The next stop couldn't be determined based on the data. Check the stopping pattern times.",
                                     icon = R.drawable.outline_not_listed_location_24
                                 )
                             }
