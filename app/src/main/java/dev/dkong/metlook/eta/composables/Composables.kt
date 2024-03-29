@@ -133,7 +133,7 @@ fun DepartureTime(
 
     val subheading =
         if (!useEstimatedTime
-            || departures.any { departure -> !departure.isAtPlatform || !departure.isArriving() }
+            || departures.any { departure -> !departure.isAtPlatform && !departure.isArriving() }
         ) {
             stringResource(id = lowestCommonDuration.displayUnit)
         } else null
