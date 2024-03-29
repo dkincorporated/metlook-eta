@@ -243,7 +243,18 @@ class StopActivity : ComponentActivity() {
                                 entry.first,
                                 entry.second
                                     .groupBy { service ->
-                                        service.finalStopId
+                                        // If service goes to City, group by platform
+                                        if (service.routeType == RouteType.Train && arrayOf(
+                                                1071,
+                                                1180,
+                                                1068,
+                                                1155
+                                            ).contains(service.finalStopId)
+                                        ) service.platform?.toIntOrNull()
+                                            // If could not convert to int, group by final stop
+                                            ?: service.finalStopId
+                                        // Else, group by final stop
+                                        else service.finalStopId
                                     }
                                     .toList()
                                     // Sort by earliest departure
