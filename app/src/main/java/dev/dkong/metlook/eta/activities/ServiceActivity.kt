@@ -466,12 +466,22 @@ class ServiceActivity : ComponentActivity() {
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         // No next stop found
-                        if (nextStopIndex == null && pattern.isNotEmpty()) {
+                        if (nextStopIndex == null && pattern.isNotEmpty() && !originalDeparture.isReplacementBus) {
                             item {
                                 InfoCard(
                                     title = "Next stop unknown",
                                     subtitle = "The next stop couldn't be determined based on the data. Check the stopping pattern times.",
                                     icon = R.drawable.outline_not_listed_location_24
+                                )
+                            }
+                        }
+                        // Replacement bus service
+                        if (originalDeparture.isReplacementBus) {
+                            item {
+                                InfoCard(
+                                    title = "Replacement bus service",
+                                    subtitle = "This is a replacement service operated by bus. Live estimates are not available.",
+                                    icon = R.drawable.outline_directions_bus_24
                                 )
                             }
                         }

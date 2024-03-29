@@ -63,6 +63,12 @@ data class ServiceDeparture(
     val isCancelled = status == "cancelled"
 
     /**
+     * Whether the service is a replacement bus service
+     */
+    @Contextual
+    val isReplacementBus = flags?.contains("RRB") == true
+
+    /**
      * Get the title of the service
      */
     @Contextual
