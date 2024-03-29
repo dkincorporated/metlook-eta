@@ -60,42 +60,42 @@ class SettingsActivity : ComponentActivity() {
             navController = navHostController,
             startDestination = RootScreen.Settings.route,
             modifier = Modifier.fillMaxSize(),
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { it / transitionOffset },
-                    animationSpec = Constants.transitionAnimationSpec
-                ) + scaleIn(
-                    initialScale = enterScaleAmount
-                ) + fadeIn()
-            },
-            exitTransition = {
-                fadeOut() +
-                        scaleOut(
-                            targetScale = exitScaleAmount
-                        ) +
-                        slideOutHorizontally(
-                            targetOffsetX = { -it / transitionOffset },
-                            animationSpec = Constants.transitionAnimationSpec
-                        )
-            },
-            popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { -it / transitionOffset },
-                    animationSpec = Constants.transitionAnimationSpec
-                ) + scaleIn(
-                    initialScale = enterScaleAmount
-                ) + fadeIn()
-            },
-            popExitTransition = {
-                fadeOut() +
-                        scaleOut(
-                            targetScale = exitScaleAmount
-                        ) +
-                        slideOutHorizontally(
-                            targetOffsetX = { it / transitionOffset },
-                            animationSpec = Constants.transitionAnimationSpec
-                        )
-            }
+//            enterTransition = {
+//                slideInHorizontally(
+//                    initialOffsetX = { it / transitionOffset },
+//                    animationSpec = Constants.transitionAnimationSpec
+//                ) + scaleIn(
+//                    initialScale = enterScaleAmount
+//                ) + fadeIn()
+//            },
+//            exitTransition = {
+//                fadeOut() +
+//                        scaleOut(
+//                            targetScale = exitScaleAmount
+//                        ) +
+//                        slideOutHorizontally(
+//                            targetOffsetX = { -it / transitionOffset },
+//                            animationSpec = Constants.transitionAnimationSpec
+//                        )
+//            },
+//            popEnterTransition = {
+//                slideInHorizontally(
+//                    initialOffsetX = { -it / transitionOffset },
+//                    animationSpec = Constants.transitionAnimationSpec
+//                ) + scaleIn(
+//                    initialScale = enterScaleAmount
+//                ) + fadeIn()
+//            },
+//            popExitTransition = {
+//                fadeOut() +
+//                        scaleOut(
+//                            targetScale = exitScaleAmount
+//                        ) +
+//                        slideOutHorizontally(
+//                            targetOffsetX = { it / transitionOffset },
+//                            animationSpec = Constants.transitionAnimationSpec
+//                        )
+//            }
         ) {
             // Settings
             composable(RootScreen.Settings.route) {
