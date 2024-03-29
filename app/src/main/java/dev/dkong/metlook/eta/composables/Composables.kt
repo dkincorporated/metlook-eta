@@ -192,10 +192,17 @@ fun DepartureCard(
         supportingContent = {
             val serviceSubtitles = departureList
                 .map { departure ->
-                    if (departure.isCancelled) "Not running today"
-                    else if (departure.routeType == RouteType.Train)
-                        stringResource(id = departure.patternType.displayName)
-                    else "To ${departure.destinationName}"
+                    (
+                            if (departure.isCancelled) "Not running today"
+                            else if (departure.routeType == RouteType.Train)
+                                stringResource(id = departure.patternType.displayName)
+                            else "To ${departure.destinationName}"
+                            )
+                        .let {
+                            if (departure.flags?.contains("RRB") == true)
+                                "$it (rail replacement)"
+                            else it
+                        }
                 }
 
             Text(
