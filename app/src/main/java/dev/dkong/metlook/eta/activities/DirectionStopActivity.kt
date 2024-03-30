@@ -181,26 +181,31 @@ class DirectionStopActivity : ComponentActivity() {
         var isScreenActive by remember { mutableStateOf(true) }
 
         fun updateFilters() {
-            var result = allDepartures.toList()
-            // Filter by stopping pattern (train only), and only if at least one filter is applied
-            if (
-                direction.routeType == RouteType.Train
-                && PatternType.PatternClass.values().any { filters[it.ordinal] != null }
-            ) {
-                result = result
-                    .filter { departure ->
-                        filters[departure.patternType.patternClass.ordinal] == true
+            val result =
+                allDepartures.toList()
+                    // Filter by stopping pattern (train only), and only if at least one filter is applied
+                    .let { l ->
+                        if (
+                            direction.routeType == RouteType.Train
+                            && PatternType.PatternClass.values().any { p -> filters[p.ordinal] != null }
+                        ) {
+                            l
+                                .filter { departure ->
+                                    filters[departure.patternType.patternClass.ordinal] == true
+                                }
+                        } else l
                     }
-            }
-            if (
-                listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)
-                && departuresRouteList.any { filters[it.routeId] != null }
-            ) {
-                result = result
-                    .filter { departure ->
-                        filters[departure.routeId] == true
+                    .let { l ->
+                        if (
+                            listOf(RouteType.Tram, RouteType.Bus).contains(stop.routeType)
+                            && departuresRouteList.any { filters[it.routeId] != null }
+                        ) {
+                            l
+                                .filter { departure ->
+                                    filters[departure.routeId] == true
+                                }
+                        } else l
                     }
-            }
             // Update departures
             departures.clear()
             departures.addAll(result)
