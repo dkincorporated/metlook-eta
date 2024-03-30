@@ -110,11 +110,13 @@ class ScaledDuration internal constructor(
         fun value() = toUnit(this.duration)
             // If the rounded value is 0, make it 1
             .let {
-                if (it == 0L) "1" else it.toString()
+                if (it == 0L) {
+                    if (this.duration.isNegative()) "-1" else "1"
+                } else it.toString()
             }
             // Replace negative sign
             .let {
-                if (toUnit(this.duration) < 0f) it.replace("-", "−")
+                if (this.duration.isNegative()) it.replace("-", "−")
                 else it
             }
             // Apply the text format (if any)
