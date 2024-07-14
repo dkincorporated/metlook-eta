@@ -73,6 +73,7 @@ import dev.dkong.metlook.eta.composables.NavBarPadding
 import dev.dkong.metlook.eta.composables.PersistentBottomSheetScaffold
 import dev.dkong.metlook.eta.composables.SectionHeading
 import dev.dkong.metlook.eta.composables.PatternComposables
+import dev.dkong.metlook.eta.composables.RecentServiceCard
 import dev.dkong.metlook.eta.composables.TextMetLabel
 import dev.dkong.metlook.eta.composables.TwoLineCenterTopAppBarText
 import dev.dkong.metlook.eta.objects.metlook.PatternDeparture
@@ -760,12 +761,12 @@ class ServiceActivity : ComponentActivity() {
                             precedingService?.let {
                                 item {
                                     SectionHeading(heading = "Preceding service")
-                                    DepartureCard(
-                                        departureList = listOf(it),
+                                    RecentServiceCard(
+                                        service = it,
                                         shape = ListPosition.FirstAndLast.roundedShape,
                                         onClick = {
                                             scope.launch {
-                                                it.first().launchServiceActivity(context)
+                                                it.launchServiceActivity(context)
                                             }
                                         },
                                         modifier = Modifier.animateItemPlacement()
@@ -775,12 +776,12 @@ class ServiceActivity : ComponentActivity() {
                             continuingService?.let {
                                 item {
                                     SectionHeading(heading = "Continuing service")
-                                    DepartureCard(
-                                        departureList = listOf(it),
+                                    RecentServiceCard(
+                                        service = it,
                                         shape = ListPosition.FirstAndLast.roundedShape,
                                         onClick = {
                                             scope.launch {
-                                                it.first().launchServiceActivity(context)
+                                                it.launchServiceActivity(context)
                                             }
                                         },
                                         modifier = Modifier.animateItemPlacement()
