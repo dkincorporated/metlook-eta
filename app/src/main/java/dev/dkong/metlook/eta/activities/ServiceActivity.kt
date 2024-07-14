@@ -135,7 +135,9 @@ class ServiceActivity : ComponentActivity() {
         var nextStopIndex by remember { mutableStateOf<Int?>(null) }
         var followingStopIndex by remember { mutableStateOf<Int?>(null) }
         var patternType by remember { mutableStateOf<PatternType?>(null) }
-        var transposingService by remember { mutableStateOf<ServiceDeparture?>(null) }
+//        var transposingService by remember { mutableStateOf<ServiceDeparture?>(null) }
+        var precedingService by remember { mutableStateOf<ServiceDeparture?>(null) }
+        var continuingService by remember { mutableStateOf<ServiceDeparture?>(null) }
 
         var originalStopIndex by remember { mutableStateOf<Int?>(null) }
         var alightingStopIndex by remember { mutableStateOf<Int?>(null) }
@@ -198,7 +200,7 @@ class ServiceActivity : ComponentActivity() {
                     if (originalDeparture.routeType == RouteType.Tram)
                         appendQueryParameter(
                             "stop_id",
-                            originalDeparture.departureStop.stopId.toString()
+                            originalDeparture.finalStopId.toString()
                         )
                     // Only get skipped stops for Train
                     if (originalDeparture.routeType == RouteType.Train)
@@ -283,7 +285,7 @@ class ServiceActivity : ComponentActivity() {
 
                 originalStopIndex =
                     pattern.indexOfFirst { departure ->
-                        departure.stop.stopId == originalDeparture.departureStop.stopId
+                        departure.stop.stopId == originalDeparture.departureStop?.stopId
                     }
                         .takeIf { it != -1 }
 
@@ -332,14 +334,21 @@ class ServiceActivity : ComponentActivity() {
                 }
 
                 // Get transposing service, if any
-                transposingService = ServiceTransposal.getTransposedService(
-                    // If towards city, get Flinders Street as transposing stop
-                    if (originalDeparture.direction.directionId == 1)
-                    // Try to find Flinders Street; else, use the last stop
-                        pattern.find { d -> d.stop.stopId == 1071 } ?: pattern.last()
-                    // Else, get the last stop
-                    else pattern.last()
-                )
+                if (!hasFirstLoaded) {
+                    val transposals = ServiceTransposal.getTransposals(run)
+                    precedingService = transposals?.preceding
+                    continuingService = transposals?.continuing
+                }
+
+                // Deprecated since Interchange API
+//                transposingService = ServiceTransposal.getTransposedService(
+//                    // If towards city, get Flinders Street as transposing stop
+//                    if (originalDeparture.direction.directionId == 1)
+//                    // Try to find Flinders Street; else, use the last stop
+//                        pattern.find { d -> d.stop.stopId == 1071 } ?: pattern.last()
+//                    // Else, get the last stop
+//                    else pattern.last()
+//                )
 
                 hasFirstLoaded = true
                 loadingState = false
@@ -748,9 +757,9 @@ class ServiceActivity : ComponentActivity() {
                         }
                         // Service transposal card
                         if (isSheetExpanded || nextStopIndex == null) {
-                            transposingService?.let {
+                            precedingService?.let {
                                 item {
-                                    SectionHeading(heading = "Continues from ${it.departureStop.fullStopName} as")
+                                    SectionHeading(heading = "Preceding service")
                                     DepartureCard(
                                         departureList = listOf(it),
                                         shape = ListPosition.FirstAndLast.roundedShape,
@@ -763,6 +772,38 @@ class ServiceActivity : ComponentActivity() {
                                     )
                                 }
                             }
+                            continuingService?.let {
+                                item {
+                                    SectionHeading(heading = "Continuing service")
+                                    DepartureCard(
+                                        departureList = listOf(it),
+                                        shape = ListPosition.FirstAndLast.roundedShape,
+                                        onClick = {
+                                            scope.launch {
+                                                it.first().launchServiceActivity(context)
+                                            }
+                                        },
+                                        modifier = Modifier.animateItemPlacement()
+                                    )
+                                }
+                            }
+
+                            // Deprecated since Interchange API
+//                            transposingService?.let {
+//                                item {
+//                                    SectionHeading(heading = "Continues from ${it.departureStop.fullStopName} as")
+//                                    DepartureCard(
+//                                        departureList = listOf(it),
+//                                        shape = ListPosition.FirstAndLast.roundedShape,
+//                                        onClick = {
+//                                            scope.launch {
+//                                                it.first().launchServiceActivity(context)
+//                                            }
+//                                        },
+//                                        modifier = Modifier.animateItemPlacement()
+//                                    )
+//                                }
+//                            }
                         }
                         item {
                             NavBarPadding()

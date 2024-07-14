@@ -26,7 +26,7 @@ data class Run(
     @SerialName("vehicle_position") val vehiclePosition: VehiclePosition?,
     @SerialName("vehicle_descriptor") val vehicleDescriptor: VehicleDescriptor?,
 //    val geopath: List<Long>,
-    val interchange: Interchange? = null
+    val interchange: Interchange?
 ) {
     val routeType = RouteType.fromId(routeTypeId)
 }
@@ -73,25 +73,23 @@ data class VehicleDescriptor(
  */
 @Serializable
 data class Interchange(
-    @SerialName("<feeder>k__BackingField")
-    val feeder: InterchangeItem? = null,
-    @SerialName("<distributor>k__BackingField")
-    val distributor: InterchangeItem? = null
+    val feeder: InterchangeItem?,
+    val distributor: InterchangeItem?
 ) {
     /**
      * Interchange item from PTV API Interchange object
      */
     @Serializable
     data class InterchangeItem(
-        @SerialName("<run_ref>k__BackingField")
+        @SerialName("run_ref")
         val runRef: String,
-        @SerialName("<route_id>k__BackingField")
+        @SerialName("route_id")
         val routeId: Int? = null,
-        @SerialName("<stop_id>k__BackingField")
+        @SerialName("stop_id")
         val stopId: Int? = null,
-        @SerialName("<advertised>k__BackingField")
+        @SerialName("advertised")
         val advertised: Boolean? = null,
-        @SerialName("<direction_id>k__BackingField")
+        @SerialName("direction_id")
         val directionId: Int? = null,
     )
 }
