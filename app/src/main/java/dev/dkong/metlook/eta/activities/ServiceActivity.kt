@@ -336,7 +336,15 @@ class ServiceActivity : ComponentActivity() {
 
                 // Get transposing service, if any
                 if (!hasFirstLoaded) {
-                    val transposals = ServiceTransposal.getTransposals(run)
+                    val transposals = ServiceTransposal.getTransposals(
+                        run = run,
+                        continuingStopId =
+                        (if (originalDeparture.direction.directionId == 1)
+                        // Try to find Flinders Street; else, use the last stop
+                            pattern.find { d -> d.stop.stopId == 1071 } ?: pattern.last()
+                        // Else, get the last stop
+                        else pattern.last()).stop.stopId
+                    )
                     precedingService = transposals?.preceding
                     continuingService = transposals?.continuing
                 }
@@ -605,14 +613,16 @@ class ServiceActivity : ComponentActivity() {
                                 if (isNextStop && !isSheetExpanded) {
                                     // Display next-stop heading
                                     item {
-                                        SectionHeading(heading = when (index) {
-                                            0 -> "Originates from"
-                                            pattern.lastIndex -> "Terminates at"
-                                            else -> when (patternStop.routeType) {
-                                                RouteType.Train -> "Next station is"
-                                                else -> "Next stop is"
+                                        SectionHeading(
+                                            heading = when (index) {
+                                                0 -> "Originates from"
+                                                pattern.lastIndex -> "Terminates at"
+                                                else -> when (patternStop.routeType) {
+                                                    RouteType.Train -> "Next station is"
+                                                    else -> "Next stop is"
+                                                }
                                             }
-                                        })
+                                        )
                                         // Use below if pattern line is to be displayed beside it
 //                                        PatternComposables.PatternHeadingCard(
 //                                            heading = when (index) {

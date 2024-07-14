@@ -30,9 +30,11 @@ object ServiceTransposal {
 
     /**
      * Get the preceding and continuing services for a service
-     * @param departure the service to obtain for which to obtain its transposing services
+     * @param run the [Run] for which to obtain transposals
+     * @param precedingStopId the stop ID for the service origin of the preceding service
+     * @param continuingStopId the stop ID for the service origin of the continuing service
      */
-    suspend fun getTransposals(run: Run): TwoWayTransposal? {
+    suspend fun getTransposals(run: Run, precedingStopId: Int? = null, continuingStopId: Int? = null): TwoWayTransposal? {
         val precedingInterchange = run.interchange?.distributor
         val continuingInterchange = run.interchange?.feeder
 
@@ -43,14 +45,14 @@ object ServiceTransposal {
                 getServiceDeparture(
                     run.routeType,
                     it.runRef,
-                    it.stopId
+                    continuingStopId ?: it.stopId
                 )
             },
             preceding = precedingInterchange?.let {
                 getServiceDeparture(
                     run.routeType,
                     it.runRef,
-                    it.stopId
+                    precedingStopId ?: it.stopId
                 )
             }
         )
