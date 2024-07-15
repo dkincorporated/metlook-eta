@@ -58,6 +58,12 @@ object ServiceTransposal {
         )
     }
 
+    /**
+     * Get the [ServiceDeparture] object for a service
+     * @param routeType the [RouteType] of the service
+     * @param runRef the Run Ref of the service
+     * @param stopId the Stop at which to obtain departure info
+     */
     private suspend fun getServiceDeparture(
         routeType: RouteType,
         runRef: String,
@@ -77,8 +83,6 @@ object ServiceTransposal {
                     appendQueryParameter("include_skipped_stops", "true")
             }
         ) ?: return null
-
-        Log.d("TRANSPOSALS", request)
 
         // Run web request
         val response: String = Constants.httpClient.get(request).body()
@@ -112,9 +116,9 @@ object ServiceTransposal {
 
     /**
      * Get the transposing service, if possible/any, for a service
-     * @param service the service to obtain for which to obtain its transposing service
+     * @param departure the service to obtain for which to obtain its transposing service
      */
-    @Deprecated("Since Interchange API, use getTransposals instead.")
+    @Deprecated("Since Interchange API, use `getTransposals` instead.")
     suspend fun getTransposedService(departure: PatternDeparture): ServiceDeparture? {
         if (
         // Transposing service is only available for Trains
