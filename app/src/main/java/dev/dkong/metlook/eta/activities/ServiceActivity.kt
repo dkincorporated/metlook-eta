@@ -779,7 +779,7 @@ class ServiceActivity : ComponentActivity() {
                                                 it.launchServiceActivity(context)
                                             }
                                         },
-                                        modifier = Modifier.animateItemPlacement()
+                                        modifier = Modifier.animateItem()
                                     )
                                 }
                             }
@@ -794,7 +794,7 @@ class ServiceActivity : ComponentActivity() {
                                                 it.launchServiceActivity(context)
                                             }
                                         },
-                                        modifier = Modifier.animateItemPlacement()
+                                        modifier = Modifier.animateItem()
                                     )
                                 }
                             }
