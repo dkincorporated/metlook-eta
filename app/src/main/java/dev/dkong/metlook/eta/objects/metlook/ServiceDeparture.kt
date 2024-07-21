@@ -44,7 +44,7 @@ data class ServiceDeparture(
     val flags = if (departure.flags == "") null else departure.flags
 
     val finalStopId = run.finalStopId
-    val destinationName = run.destinationName
+    val destinationName = run.destinationName ?: "unknown" // PTV API bug
     val status = run.status
     private val expressStopCount = run.expressStopCount
     val vehicleDescriptor = run.vehicleDescriptor

@@ -18,7 +18,7 @@ data class Run(
     @SerialName("route_id") val routeId: Int,
     @SerialName("route_type") private val routeTypeId: Int,
     @SerialName("final_stop_id") val finalStopId: Int,
-    @SerialName("destination_name") val destinationName: String,
+    @SerialName("destination_name") val destinationName: String?,
     val status: String,
     @SerialName("direction_id") val directionId: Int,
     @SerialName("run_sequence") val runSequence: Int,
