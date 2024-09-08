@@ -35,8 +35,8 @@ object ServiceTransposal {
      * @param continuingStopId the stop ID for the service origin of the continuing service
      */
     suspend fun getTransposals(run: Run, precedingStopId: Int? = null, continuingStopId: Int? = null): TwoWayTransposal? {
-        val precedingInterchange = run.interchange?.distributor
-        val continuingInterchange = run.interchange?.feeder
+        val precedingInterchange = run.interchange?.feeder
+        val continuingInterchange = run.interchange?.distributor
 
         if (precedingInterchange == null && continuingInterchange == null) return null
 
