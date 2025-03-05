@@ -64,7 +64,7 @@ data class VehicleDescriptor(
     @SerialName("air_conditioned")
     val airConditioned: Boolean?,
     val description: String?,
-    val supplier: String,
+    val supplier: String?,
     val length: String?
 )
 
