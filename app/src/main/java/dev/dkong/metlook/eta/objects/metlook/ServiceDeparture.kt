@@ -35,7 +35,7 @@ data class ServiceDeparture(
     private val run: Run,
     val direction: Direction,
     val disruptions: List<Disruption>,
-    val departureStop: Stop,
+    val departureStop: Stop? = null,
     var alightingStop: Stop? = null
 ) : dev.dkong.metlook.eta.objects.metlook.Departure(departure, run) {
     val runRef = departure.runRef
@@ -44,7 +44,7 @@ data class ServiceDeparture(
     val flags = if (departure.flags == "") null else departure.flags
 
     val finalStopId = run.finalStopId
-    val destinationName = run.destinationName
+    val destinationName = run.destinationName ?: "unknown" // PTV API bug
     val status = run.status
     private val expressStopCount = run.expressStopCount
     val vehicleDescriptor = run.vehicleDescriptor
@@ -91,13 +91,13 @@ data class ServiceDeparture(
             when (direction.directionId) {
                 1 -> DepartureDirectionGroup(10, null, "To City") // City
                 0 -> DepartureDirectionGroup(11, null, "Alamein line") // Alamein
-                2, 13, 14 -> DepartureDirectionGroup(
+                15, 4, 14 -> DepartureDirectionGroup(
                     12,
                     null,
                     "Upfield, Craigieburn, Sunbury lines"
                 ) // Northern
-                3, 8 -> DepartureDirectionGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
-                4, 10 -> DepartureDirectionGroup(
+                2, 8 -> DepartureDirectionGroup(13, null, "Belgrave and Lilydale lines") // Ringwood
+                10, 3 -> DepartureDirectionGroup(
                     14,
                     null,
                     "Pakenham and Cranbourne lines"
@@ -109,13 +109,13 @@ data class ServiceDeparture(
                     null,
                     "Hurstbridge and Mernda lines"
                 ) // Clifton Hill
-                11 -> DepartureDirectionGroup(18, null, "Sandringham line") // Sandringham
-                15, 16 -> DepartureDirectionGroup(
+                12 -> DepartureDirectionGroup(18, null, "Sandringham line") // Sandringham
+                16, 17 -> DepartureDirectionGroup(
                     19,
                     null,
                     "Werribee and Williamstown lines"
                 ) // Newport
-                18 -> DepartureDirectionGroup(
+                11 -> DepartureDirectionGroup(
                     20,
                     null,
                     "Racecourse line"

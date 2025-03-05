@@ -199,7 +199,7 @@ fun DepartureCard(
                             else "To ${departure.destinationName}"
                             )
                         .let {
-                            if (departure.flags?.contains("RRB") == true)
+                            if (departure.isReplacementBus)
                                 "$it (rail replacement)"
                             else it
                         }
@@ -268,11 +268,13 @@ fun RecentServiceCard(
             )
         },
         supportingContent = {
-            Text(
-                text = "From ${service.departureStop.fullStopName}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            service.departureStop?.let {
+                Text(
+                    text = "From ${it.fullStopName}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         },
         leadingContent = {
             if (service.routeType == RouteType.Train && service.platform != null) {

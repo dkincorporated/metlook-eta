@@ -20,6 +20,7 @@ abstract class Departure(
     private val originalRun: Run,
 ) {
     val routeType = originalRun.routeType
+    val interchange = originalRun.interchange
     val isAtPlatform = originalDeparture.atPlatform
     val platform = originalDeparture.platform
     val scheduledDepartureIso = originalDeparture.scheduledDepartureUtcString

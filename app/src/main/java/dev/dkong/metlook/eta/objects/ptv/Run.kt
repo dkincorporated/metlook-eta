@@ -18,14 +18,15 @@ data class Run(
     @SerialName("route_id") val routeId: Int,
     @SerialName("route_type") private val routeTypeId: Int,
     @SerialName("final_stop_id") val finalStopId: Int,
-    @SerialName("destination_name") val destinationName: String,
+    @SerialName("destination_name") val destinationName: String?,
     val status: String,
     @SerialName("direction_id") val directionId: Int,
     @SerialName("run_sequence") val runSequence: Int,
     @SerialName("express_stop_count") val expressStopCount: Int,
     @SerialName("vehicle_position") val vehiclePosition: VehiclePosition?,
     @SerialName("vehicle_descriptor") val vehicleDescriptor: VehicleDescriptor?,
-    val geopath: List<Long>
+//    val geopath: List<Long>,
+    val interchange: Interchange?
 ) {
     val routeType = RouteType.fromId(routeTypeId)
 }
@@ -63,6 +64,32 @@ data class VehicleDescriptor(
     @SerialName("air_conditioned")
     val airConditioned: Boolean?,
     val description: String?,
-    val supplier: String,
+    val supplier: String?,
     val length: String?
 )
+
+/**
+ * Interchange object from PTV API Run object
+ */
+@Serializable
+data class Interchange(
+    val feeder: InterchangeItem?,
+    val distributor: InterchangeItem?
+) {
+    /**
+     * Interchange item from PTV API Interchange object
+     */
+    @Serializable
+    data class InterchangeItem(
+        @SerialName("run_ref")
+        val runRef: String,
+        @SerialName("route_id")
+        val routeId: Int? = null,
+        @SerialName("stop_id")
+        val stopId: Int? = null,
+        @SerialName("advertised")
+        val advertised: Boolean? = null,
+        @SerialName("direction_id")
+        val directionId: Int? = null,
+    )
+}
