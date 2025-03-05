@@ -15,8 +15,8 @@ object PtvApi {
     // Encryption methods
     private const val HMAC_SHA1_ALGORITHM = "HmacSHA1"
     private const val BASE_URL = "timetableapi.ptv.vic.gov.au"
-    private const val DEV_ID: String = "3000917"
-    private const val API_KEY: String = "1062d893-8f26-4642-bfa5-2dfdd3338504"
+    private const val DEV_ID: String = "DEV_ID"
+    private const val API_KEY: String = "API_KEY"
 
     /**
      * Convert bytes to hex in string
