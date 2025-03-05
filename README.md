@@ -6,6 +6,8 @@ It is my personal project that started out to create a better-looking alternativ
 
 The app is written in **Kotlin** using **Jetpack Compose** and [_Compose Material 3_](https://developer.android.com/jetpack/androidx/releases/compose-material3) components.
 
+There is no fancy back-end, just this app front-end (I didn't know much about back-end when I started this).
+
 ---
 
 ## Features
