@@ -6,10 +6,6 @@ It is my personal project that started out to create a better-looking alternativ
 
 The app is written in **Kotlin** using **Jetpack Compose** and [_Compose Material 3_](https://developer.android.com/jetpack/androidx/releases/compose-material3) components.
 
-> _Why did you use activities for different pages/screens instead of Compose `NavController`?_
->
-> I wanted Predictive Back Gesture animations that didn't look bad, and passing data is much easier when it can be serialised (e.g. in Bundles using activities).
-
 ---
 
 ## Features
@@ -23,6 +19,8 @@ The app is written in **Kotlin** using **Jetpack Compose** and [_Compose Materia
   - Metro-style stopping pattern, with skipped-stop indicators
   - Service transposal information, including preceding and continuing services, for trains only
   - Vehicle information (for trains and trams only)
+- Times with asterisks (\*) indicate a _scheduled_ time, instead of a live _estimated_ time
+- 'Now\*' indicates an _arriving_ service (approaching stop/station), while 'Now' indicates a service arrived at the stop/station
 - Remembering recently viewed stops/stations and services, with the ability to 'pin' favourites
 - At-a-glance page for service disruptions
 
@@ -38,6 +36,10 @@ The app is written in **Kotlin** using **Jetpack Compose** and [_Compose Materia
 - Add a Developer ID and API Key in `common/utils/PtvApi.kt` under values `DEV_ID` and `API_KEY`.
 
 (Note: Changes to the PTV API in the future may unexpectedly break some functionality.)
+
+> _Why did you use activities for different pages/screens instead of Compose `NavController`?_
+>
+> I wanted Predictive Back Gesture animations that didn't look bad, and passing data is much easier when it can be serialised (e.g. in Bundles using activities).
 
 ## Screenshots
 
